@@ -17,7 +17,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build toolchain image (Debian trixie: verilator, riscv gcc, python)
+      - name: Build toolchain image (Debian trixie, verilator, riscv gcc, python)
         run: docker build -t npu-ci .
 
       - name: Preflight (array unit tests, SoC selftests, LeNet-5, LSTM vs golden)

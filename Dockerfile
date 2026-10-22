@@ -3,6 +3,9 @@
 #   docker run --rm ghcr.io/<owner>/<repo>:latest make soc N=8 FW=cnn
 FROM debian:trixie-slim
 
+LABEL org.opencontainers.image.source="https://github.com/HThanh-how/EE5223_Fri"
+LABEL org.opencontainers.image.description="INT8 systolic-array NPU: open-source simulation toolchain and regression"
+
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
         verilator gcc-riscv64-unknown-elf make g++ python3 python3-numpy ca-certificates \
