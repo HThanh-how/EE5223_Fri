@@ -1,0 +1,100 @@
+== Platform Designer (NPU RTL variant: fpga)
+make_compat: ../rtl -> rtl_compat
+2026.10.22.16:10:31 Info: Doing: <b>qsys-script --search-path=ip,$ --script=scripts/create_system.tcl</b>
+2026.10.22.16:10:34 Info: create_system system
+2026.10.22.16:10:34 Info: set_project_property DEVICE_FAMILY Cyclone V
+2026.10.22.16:10:34 Info: set_project_property DEVICE 5CSEBA6U23I7
+2026.10.22.16:10:34 Info: set_project_property HIDE_FROM_IP_CATALOG false
+2026.10.22.16:10:34 Info: add_instance clk_0 clock_source 
+2026.10.22.16:10:35 Info: set_instance_parameter_value clk_0 clockFrequency 50000000.0
+2026.10.22.16:10:35 Info: set_instance_parameter_value clk_0 clockFrequencyKnown true
+2026.10.22.16:10:35 Info: set_instance_parameter_value clk_0 resetSynchronousEdges DEASSERT
+2026.10.22.16:10:35 Info: add_instance cpu intel_niosv_g 
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu resetSlave Absolute
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu resetOffset 0
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu enableDebug true
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu enableMulDiv true
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu enableFPU false
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu enableBranchPrediction true
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu instCacheSize 16384
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu dataCacheSize 16384
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu peripheralRegionABase 0x20000000
+2026.10.22.16:10:36 Info: set_instance_parameter_value cpu peripheralRegionASize 262144
+2026.10.22.16:10:36 Info: add_instance ram altera_avalon_onchip_memory2 
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram dataWidth 32
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram memorySize 262144.0
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram singleClockOperation true
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram initMemContent true
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram useNonDefaultInitFile true
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram initializationFileName onchip_init.hex
+2026.10.22.16:10:36 Info: set_instance_parameter_value ram blockType AUTO
+2026.10.22.16:10:36 Info: add_instance jtag_uart altera_avalon_jtag_uart 
+2026.10.22.16:10:36 Info: set_instance_parameter_value jtag_uart writeBufferDepth 1024
+2026.10.22.16:10:36 Info: set_instance_parameter_value jtag_uart readBufferDepth 64
+2026.10.22.16:10:36 Info: set_instance_parameter_value jtag_uart writeIRQThreshold 8
+2026.10.22.16:10:36 Info: set_instance_parameter_value jtag_uart readIRQThreshold 8
+2026.10.22.16:10:36 Info: add_instance led_pio altera_avalon_pio 
+2026.10.22.16:10:36 Info: set_instance_parameter_value led_pio width 8
+2026.10.22.16:10:36 Info: set_instance_parameter_value led_pio direction Output
+2026.10.22.16:10:36 Info: set_instance_parameter_value led_pio resetValue 0.0
+2026.10.22.16:10:36 Info: add_instance npu npu_avmm 
+2026.10.22.16:10:36 Info: set_instance_parameter_value npu N 8
+2026.10.22.16:10:36 Info: set_instance_parameter_value npu DEPTH 64
+2026.10.22.16:10:36 Info: add_connection clk_0.clk cpu.clk
+2026.10.22.16:10:37 Info: add_connection clk_0.clk_reset cpu.reset
+2026.10.22.16:10:37 Info: add_connection clk_0.clk ram.clk1
+2026.10.22.16:10:37 Info: add_connection clk_0.clk_reset ram.reset1
+2026.10.22.16:10:37 Info: add_connection clk_0.clk jtag_uart.clk
+2026.10.22.16:10:37 Info: add_connection clk_0.clk_reset jtag_uart.reset
+2026.10.22.16:10:37 Info: add_connection clk_0.clk led_pio.clk
+2026.10.22.16:10:37 Info: add_connection clk_0.clk_reset led_pio.reset
+2026.10.22.16:10:37 Info: add_connection clk_0.clk npu.clock
+2026.10.22.16:10:37 Info: add_connection clk_0.clk_reset npu.reset
+2026.10.22.16:10:37 Info: add_connection cpu.instruction_manager ram.s1
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.instruction_manager/ram.s1 baseAddress 0x00000000
+2026.10.22.16:10:37 Info: add_connection cpu.instruction_manager cpu.dm_agent
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.instruction_manager/cpu.dm_agent baseAddress 0x20010000
+2026.10.22.16:10:37 Info: add_connection cpu.data_manager ram.s1
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.data_manager/ram.s1 baseAddress 0x00000000
+2026.10.22.16:10:37 Info: add_connection cpu.data_manager npu.avs
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.data_manager/npu.avs baseAddress 0x20000000
+2026.10.22.16:10:37 Info: add_connection cpu.data_manager cpu.dm_agent
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.data_manager/cpu.dm_agent baseAddress 0x20010000
+2026.10.22.16:10:37 Info: add_connection cpu.data_manager cpu.timer_sw_agent
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.data_manager/cpu.timer_sw_agent baseAddress 0x20020000
+2026.10.22.16:10:37 Info: add_connection cpu.data_manager jtag_uart.avalon_jtag_slave
+2026.10.22.16:10:37 Info: set_connection_parameter_value cpu.data_manager/jtag_uart.avalon_jtag_slave baseAddress 0x20020040
+2026.10.22.16:10:38 Info: add_connection cpu.data_manager led_pio.s1
+2026.10.22.16:10:38 Info: set_connection_parameter_value cpu.data_manager/led_pio.s1 baseAddress 0x20020050
+2026.10.22.16:10:38 Info: add_connection cpu.platform_irq_rx jtag_uart.irq
+2026.10.22.16:10:38 Info: set_connection_parameter_value cpu.platform_irq_rx/jtag_uart.irq irqNumber 0
+2026.10.22.16:10:38 Info: set_interface_property clk EXPORT_OF clk_0.clk_in
+2026.10.22.16:10:38 Info: set_interface_property reset EXPORT_OF clk_0.clk_in_reset
+2026.10.22.16:10:38 Info: set_interface_property led EXPORT_OF led_pio.external_connection
+2026.10.22.16:10:38 Info: save_system system.qsys
+create_system: core=intel_niosv_g N=8 DEPTH=64 init=onchip_init.hex
+2026.10.22.16:10:51 Info: qsys-generate succeeded.
+2026.10.22.16:10:51 Info: Finished: <b>Create HDL design files for synthesis</b>
+== Quartus compile
+output_files/de10_nano_npu.sof
+== done
+Fitter Status : Successful - Thu Oct 22 16:18:53 2026
+Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+Revision Name : de10_nano_npu
+Top-level Entity Name : de10_nano_top
+Family : Cyclone V
+Device : 5CSEBA6U23I7
+Timing Models : Final
+Logic utilization (in ALMs) : 6,728 / 41,910 ( 16 % )
+Total registers : 8559
+Total pins : 11 / 314 ( 4 % )
+Total virtual pins : 0
+Total block memory bits : 2,433,272 / 5,662,720 ( 43 % )
+Total RAM Blocks : 319 / 553 ( 58 % )
+Total DSP Blocks : 51 / 112 ( 46 % )
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 0 / 6 ( 0 % )
+Total DLLs : 0 / 4 ( 0 % )

@@ -1,0 +1,138 @@
+\chapter{Phần mềm và ánh xạ mạng nơ-ron}
+\label{ch:sw}
+
+\section{Chuỗi công cụ và firmware}
+Firmware được viết bằng C (freestanding, không thư viện chuẩn), biên dịch bằng trình biên dịch chéo GCC cho RISC-V (\code{riscv64-unknown-elf-gcc}) với các cờ \code{-march=rv32im\_zicsr -mabi=ilp32 -O2}, liên kết bằng script \code{fw/link.ld} và khởi động bằng \code{fw/start.S}. Ảnh nhị phân được chuyển thành tệp hex nạp vào RAM của SoC mô phỏng. Thời gian được đo bằng lệnh \code{rdcycle} (bộ đếm chu kỳ của PicoRV32). Bảng~\ref{tab:fw} liệt kê các chương trình.
+
+\begin{table}[H]
+  \centering
+  \caption{Các chương trình firmware}
+  \label{tab:fw}
+  \begin{tabularx}{\linewidth}{lX}
+    \toprule
+    Tệp & Chức năng \\
+    \midrule
+    \code{fw/npu.h} & driver mức thấp: macro thanh ghi, nạp trọng số/kích hoạt, chạy và chờ, đọc kết quả, hàm requant tham chiếu \\
+    \code{fw/nn.h} & \code{npu\_matmul} (GEMM chia khối trên \NPU{}), \code{cpu\_matmul} (bản chỉ-CPU), profile theo pha \\
+    \code{fw/gemm\_demo.c} & GEMM $(M\times N)\cdot(N\times N)$, so sánh CPU và \NPU{} với $M=1,8,32,64$ \\
+    \code{fw/selftest.c} & 24 phép thử ngẫu nhiên của tích lũy $K$, bias, requant và 4 chế độ kích hoạt \\
+    \code{fw/cnn.c} & LeNet-5 INT8: im2col, GEMM, pooling; so sánh CPU-only và \NPU{} với golden \\
+    \code{fw/lstm.c} & LSTM INT8: CPU-only, \NPU{} batch 1, \NPU{} batch 16 \\
+    \code{fw/model\_*.h} & trọng số, bias, $(\mu,\sigma)$, ảnh thử và logit vàng, sinh bởi \code{quantize.py} \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Driver mức thấp}
+Driver (\code{fw/npu.h}) là một tập hàm \code{static inline} ánh xạ trực tiếp lên bản đồ thanh ghi (Bảng~\ref{tab:regmap}); danh sách đầy đủ ở Phụ lục~\ref{app:regmap}. Hàm quan trọng nhất là \code{npu\_run}:
+
+\begin{lstlisting}[style=codec, caption={Chạy một lượt và chờ hoàn tất bằng polling (\code{fw/npu.h})}, label={lst:npurun}]
+static inline uint32_t npu_run(int m, uint32_t flags) {
+    REG(R_M) = (uint32_t)m;
+    REG(R_CTRL) = F_START | flags;
+    while (!(REG(R_STATUS) & 2)) ;      // poll bit "done"
+    uint32_t cyc = REG(R_CYCLES);
+    REG(R_CTRL) = F_CLEAR;
+    return cyc;
+}
+\end{lstlisting}
+
+Trọng số được ghi 4 byte mỗi lần (\code{npu\_load\_w} đọc mỗi hàng $W$ dưới dạng mảng \code{uint32\_t}), do đó ma trận trọng số và bước nhảy hàng \code{ldw} phải căn chỉnh 4 byte. Đây là lý do mọi chiều $K$ và $C$ được đệm lên bội của 8 (\code{up8} trong \code{quantize.py}): khi đó chúng cũng là bội của $N=4$ và $N=8$.
+
+\section{GEMM chia khối (tiling)}
+\label{sec:tiling}
+\code{npu\_matmul} tính $Y=\text{requant}(XW+b)$ với $X\in\mathbb{Z}^{M\times K_p}$, $W\in\mathbb{Z}^{K_p\times C_p}$ bằng ba vòng lặp lồng nhau (Đoạn mã~\ref{lst:tiling}):
+\begin{itemize}
+  \item vòng ngoài theo khối hàng $m_0$ bước \code{DEPTH}$=64$ (giới hạn bởi kích thước ABUF/CBUF),
+  \item vòng giữa theo khối cột $c_0$ bước $N$ (một khối cột của đầu ra),
+  \item vòng trong theo khối $k_0$ bước $N$: nạp khối trọng số $W[k_0{:}k_0{+}N,\,c_0{:}c_0{+}N]$, ghi $N$ cột tương ứng của $mc$ hàng kích hoạt vào ABUF, chạy với cờ ACCUM nếu $k_0>0$; lượt cuối ($k_0+N\ge K_p$) nạp bias và tham số requant rồi bật QUANT.
+\end{itemize}
+Sau vòng $k_0$, CPU đọc $mc$ hàng INT8 từ QBUF ($N/4$ từ mỗi hàng). Số lượt chạy \NPU{} của một lớp là
+\begin{equation}
+  n_\text{calls} = \left\lceil \frac{M}{64}\right\rceil \cdot \frac{C_p}{N} \cdot \frac{K_p}{N}.
+  \label{eq:calls}
+\end{equation}
+Thứ tự vòng lặp này giữ tổng riêng trong CBUF (output-stationary ở mức khối) nhưng phải \emph{ghi lại kích hoạt cho mỗi khối $(c_0,k_0)$} và \emph{nạp lại trọng số cho mỗi khối hàng $m_0$}; đây là đánh đổi để không cần bộ đệm lớn.
+
+\begin{lstlisting}[style=codec, caption={Vòng lặp chia khối của \code{npu\_matmul} (\code{fw/nn.h}, bỏ phần đo thời gian)}, label={lst:tiling}]
+for (int m0 = 0; m0 < M; m0 += NPU_DEPTH) {
+  int mc = M - m0 < NPU_DEPTH ? M - m0 : NPU_DEPTH;
+  for (int c0 = 0; c0 < Cp; c0 += NN) {
+    for (int k0 = 0; k0 < Kp; k0 += NN) {
+      npu_load_w(&W[k0 * Cp + c0], Cp);                 // N*N/4 bus writes
+      for (int r = 0; r < mc; r++) {                    // mc*N/4 bus writes
+        const uint32_t *src = (const uint32_t *)(X + (m0 + r) * ldx + k0);
+        for (int s = 0; s < NN / 4; s++) npu_write_a(r, s, src[s]);
+      }
+      uint32_t flags = k0 ? F_ACCUM : 0;
+      if (k0 + NN >= Kp) {                              // last K chunk
+        npu_set_bias(&bias[c0]);
+        npu_set_quant(mult, shift, act_tab[c0 / NN]);
+        flags |= F_QUANT;
+      }
+      npu_busy_cycles += npu_run(mc, flags);
+      npu_calls++;
+    }
+    for (int r = 0; r < mc; r++) {                      // read int8 results
+      uint32_t *dst = (uint32_t *)(Y + (m0 + r) * ldy + c0);
+      for (int s = 0; s < NN / 4; s++) dst[s] = npu_read_q_word(r, s);
+    }
+  }
+}
+\end{lstlisting}
+
+Bản chỉ-CPU \code{cpu\_matmul} dùng cùng bố cục dữ liệu, chỉ duyệt $K$ và $C$ thực (không phần đệm), và gọi cùng hàm \code{requant\_ref}; nó vừa là đường cơ sở (baseline) hiệu năng vừa là kiểm tra chéo cho phần cứng.
+
+\section{Ánh xạ LeNet-5}
+\label{sec:lenet-map}
+LeNet-5 \cite{lecun1998lenet} được dùng ở dạng: conv1 $1\to6$ ($5\times5$) + ReLU + maxpool $2\times2$; conv2 $6\to16$ ($5\times5$) + ReLU + maxpool; flatten (256); fc1 $256\to120$ + ReLU; fc2 $120\to84$ + ReLU; fc3 $84\to10$. Mô hình số thực được huấn luyện 10 epoch bằng Adam và đạt 98,83\% trên tập kiểm tra (\code{model/README.txt}). Bảng~\ref{tab:lenet-map} cho thấy cách mỗi lớp được ánh xạ; số lượt chạy tính theo \eqref{eq:calls} và khớp chính xác với số \code{calls} trong log (741 với $N=8$, \num{2964} với $N=4$).
+
+\begin{table}[H]
+  \centering
+  \caption{Ánh xạ LeNet-5 lên \NPU{}: kích thước GEMM, phần đệm và số lượt chạy}
+  \label{tab:lenet-map}
+  \begin{tabular}{lrrrrrrrr}
+    \toprule
+    Lớp & $M$ & $K$ & $K_p$ & $C$ & $C_p$ & $(\mu,\sigma)$ & calls $N{=}8$ & calls $N{=}4$\\
+    \midrule
+    conv1 & 576 & 25 & 32 & 6 & 8 & (29579, 24) & $9\cdot1\cdot4=36$ & $9\cdot2\cdot8=144$\\
+    conv2 & 64 & 150 & 152 & 16 & 16 & (17655, 23) & $1\cdot2\cdot19=38$ & $1\cdot4\cdot38=152$\\
+    fc1 & 1 & 256 & 256 & 120 & 120 & (18083, 23) & $15\cdot32=480$ & $30\cdot64=1920$\\
+    fc2 & 1 & 120 & 120 & 84 & 88 & (27299, 23) & $11\cdot15=165$ & $22\cdot30=660$\\
+    fc3 & 1 & 84 & 88 & 10 & 16 & (29275, 24) & $2\cdot11=22$ & $4\cdot22=88$\\
+    \midrule
+    \textbf{Tổng} & & & & & & & \textbf{741} & \textbf{2964}\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Các bước chạy trên CPU (cả ở bản \NPU{}): chuyển ảnh $p\mapsto \lfloor p/2\rfloor$, im2col cho conv1 ($576\times32$ byte) và conv2 ($64\times152$ byte), maxpool $2\times2$ sau mỗi lớp tích chập, flatten theo thứ tự $(c,y,x)$ khớp với PyTorch, và argmax trên 10 logit. ReLU được làm trong phần cứng (ACT$=1$) nên maxpool chỉ cần so sánh số INT8. Đáng chú ý là lớp fc1 chiếm 480 trên 741 lượt chạy ($N=8$) nhưng chỉ có $M=1$: mỗi lượt chỉ dùng một hàng của mảng nên hiệu suất sử dụng rất thấp -- vấn đề kinh điển của lớp FC với batch 1.
+
+\section{Ánh xạ LSTM}
+\label{sec:lstm-map}
+Mạng LSTM gồm một lớp \code{nn.LSTM(28,16)} đọc 28 hàng của ảnh MNIST như 28 bước thời gian, rồi một lớp tuyến tính $16\to10$ trên $h_{28}$. Mô hình số thực đạt 97,58\%. Ở mỗi bước $t$:
+\begin{enumerate}
+  \item CPU ghi $x_t$ (28 byte) vào phần đầu của vector $z=[x_t\,|\,h_{t-1}\,|\,0]$ dài $K_p=48$; $h_{t-1}$ đã nằm sẵn ở các byte 28--43 từ bước trước.
+  \item \NPU{} tính $G=\text{act}(\text{requant}(zW+b))$ với $W\in\mathbb{Z}^{48\times64}$: $C_p/N\cdot K_p/N$ lượt chạy ($8\times6=48$ với $N=8$, $16\times12=192$ với $N=4$). Bảng \code{act\_tab} chọn sigmoid cho các khối cột thuộc cổng $i,f,o$ và tanh cho cổng $g$ (vì $H=16$ chia hết cho $N$, mỗi khối $N$ cột nằm trọn trong một cổng).
+  \item CPU cập nhật $c_t$ và $h_t$ theo các công thức điểm cố định ở Mục~\ref{sec:lstm-fixed} (16 phần tử), dùng LUT tanh dạng mảng C.
+\end{enumerate}
+Sau 28 bước, lớp FC chạy trên \NPU{} với $K_p=C_p=16$ (4 lượt với $N=8$). Tổng số lượt mỗi ảnh là $28\cdot48+4=1348$ ($N=8$) và $28\cdot192+16=5392$ ($N=4$), khớp với log.
+
+\subsection{Batching}
+\label{sec:batching}
+Với batch 1, mỗi lượt chạy chỉ có $M=1$ hàng: chi phí nạp 16 từ trọng số ($N=8$) và chi phí điều khiển (ghi M, CTRL, polling, đọc CYCLES, CLEAR) bị chia cho chỉ một hàng. Hàm \code{run\_batch} xử lý $B$ ảnh song song: ma trận $Z$ có $B$ hàng (mỗi ảnh một hàng), nên mỗi lượt chạy có $M=B$ và \emph{cùng một khối trọng số được dùng cho $B$ ảnh}. Số lượt chạy cho cả batch không đổi (1348 với $N=8$), nhưng chi phí trên mỗi ảnh giảm. Mô hình đơn giản cho chi phí trên một ảnh là
+\begin{equation}
+  T_\text{img}(B) \approx \frac{T_\text{fix}}{B} + T_\text{var},
+  \label{eq:batchmodel}
+\end{equation}
+trong đó $T_\text{fix}$ là chi phí cố định mỗi lượt (nạp trọng số, bias, điều khiển) và $T_\text{var}$ là chi phí tỉ lệ với số hàng (ghi kích hoạt, đọc kết quả, cập nhật element-wise). Mô hình này được khớp với số đo ở Mục~\ref{sec:res-lstm}. Do LSTM là tuần tự theo thời gian, batching chỉ khả thi khi có nhiều chuỗi độc lập (nhiều ảnh, nhiều người dùng); với một chuỗi đơn lẻ cần các kỹ thuật khác (Chương~\ref{ch:concl}).
+
+\section{Lượng tử hóa và sinh mô hình}
+Script \code{scripts/quantize.py} (242 dòng) đọc trọng số số thực (\code{model/*.npz}) và MNIST, thực hiện:
+\begin{enumerate}
+  \item hiệu chỉnh scale kích hoạt trên \num{2000} ảnh huấn luyện;
+  \item lượng tử hóa trọng số đối xứng theo tensor, bias INT32, tìm $(\mu,\sigma)$ cho mỗi lớp;
+  \item chạy mô hình số nguyên (\code{cnn\_int}, \code{lstm\_int}) dùng đúng công thức \eqref{eq:requant} và các LUT của \code{gen\_lut.py} trên toàn bộ \num{10000} ảnh kiểm tra để đo độ chính xác INT8;
+  \item ghi \code{fw/model\_cnn.h} và \code{fw/model\_lstm.h}: trọng số đã đệm, bias, $(\mu,\sigma)$, 8 ảnh (CNN) / 16 ảnh (LSTM) đầu tiên của tập kiểm tra, nhãn, và logit vàng do mô hình số nguyên tính.
+\end{enumerate}
+Firmware so sánh từng logit INT8 của cả bản CPU lẫn bản \NPU{} với logit vàng; bất kỳ sai khác nào cũng làm kết quả FAIL.

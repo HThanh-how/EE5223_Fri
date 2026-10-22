@@ -1,0 +1,21 @@
+mkdir -p build_soc_N8
+riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -O2 -ffreestanding -nostdlib -DNN=8 -Ifw  -T fw/link.ld -o build_soc_N8/lstm.elf fw/start.S fw/lstm.c -lgcc
+/usr/lib/gcc/riscv64-unknown-elf/14.2.0/../../../riscv64-unknown-elf/bin/ld: warning: build_soc_N8/lstm.elf has a LOAD segment with RWX permissions
+riscv64-unknown-elf-objcopy -O binary build_soc_N8/lstm.elf build_soc_N8/lstm.bin
+python3 scripts/bin2hex.py build_soc_N8/lstm.bin > build_soc_N8/lstm.hex
+riscv64-unknown-elf-size build_soc_N8/lstm.elf
+   text	   data	    bss	    dec	    hex	filename
+  22516	      0	   3160	  25676	   644c	build_soc_N8/lstm.elf
+cd build_soc_N8 && cp lstm.hex fw.hex && ./Vtb_soc | tee lstm.log
+LSTM INT8, N=8 images=16
+cpu_only batch=1   cycles/img=3559094
+npu batch=1        cycles/img=1068230 npu_busy/img=26742 calls/img=1348 correct=16/16
+npu batch=16       cycles/img=217262 npu_busy/img=2935 calls total=1348 correct=16/16
+speedup_x100 vs cpu: batch1=333 batchN=1638
+mismatches vs golden: 0
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 277ms; walltime 35.185 s; speed 7.874 ms/s
+- Verilator: cpu 35.179 s on 1 threads; alloced 57 MB

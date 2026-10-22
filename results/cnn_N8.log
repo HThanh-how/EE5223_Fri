@@ -1,0 +1,18 @@
+LeNet-5 INT8, N=8
+  profile(img0): weight_wr=279357 act_wr=257523 run+poll=141576 result_rd=33291 other(im2col,pool,...)=1211873
+img 0 label=7 pred=7 cpu_cyc=13254614 npu_cyc=1923620 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 1 label=2 pred=2 cpu_cyc=13253922 npu_cyc=1923734 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 2 label=1 pred=1 cpu_cyc=13255824 npu_cyc=1923510 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 3 label=0 pred=0 cpu_cyc=13252560 npu_cyc=1923829 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 4 label=4 pred=4 cpu_cyc=13254008 npu_cyc=1923737 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 5 label=1 pred=1 cpu_cyc=13255717 npu_cyc=1923501 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 6 label=4 pred=4 cpu_cyc=13254077 npu_cyc=1923716 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 7 label=9 pred=9 cpu_cyc=13253877 npu_cyc=1923677 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+avg cpu_cyc=13254324 avg npu_cyc=1923665 speedup_x100=689 npu_busy_share_x100=89
+correct=8/8
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 1s; walltime 121.991 s; speed 9.963 ms/s
+- Verilator: cpu 121.937 s on 1 threads; alloced 57 MB

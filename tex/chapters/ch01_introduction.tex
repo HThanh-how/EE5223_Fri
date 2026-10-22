@@ -1,0 +1,42 @@
+\chapter{Giới thiệu}
+\label{ch:intro}
+
+\section{Bối cảnh và động lực}
+Suy luận mạng nơ-ron sâu (DNN) ngày càng được đưa xuống các thiết bị nhúng: cảm biến thông minh, camera, thiết bị đeo, bộ điều khiển công nghiệp. Ở các thiết bị này, CPU nhúng đơn giản (ví dụ các lõi RISC-V nhỏ) có tần số thấp, không có đơn vị vector và tiêu thụ năng lượng hạn chế. Phần lớn khối lượng tính toán của cả mạng tích chập (CNN) lẫn mạng hồi quy (RNN/LSTM) lại quy về cùng một phép toán: nhân ma trận tổng quát (GEMM) $C = A\,W$ với các phép nhân-cộng dồn (MAC) lặp lại hàng trăm nghìn tới hàng tỷ lần \cite{sze2017survey}. Vì vậy, một khối phần cứng chuyên dụng cho GEMM, được CPU điều khiển qua bus, là cách phổ biến để tăng tốc suy luận trong hệ thống nhúng.
+
+Mảng systolic, do H.\,T.~Kung đề xuất từ năm 1982 \cite{kung1982}, là kiến trúc kinh điển cho GEMM: một lưới các phần tử xử lý (PE) giống hệt nhau, mỗi PE chỉ giao tiếp với PE lân cận, dữ liệu được ``bơm'' nhịp nhàng qua lưới như máu qua tim. Kiến trúc này tái sử dụng dữ liệu rất cao (mỗi giá trị đọc từ bộ nhớ được dùng cho nhiều phép MAC), dây nối ngắn và cục bộ, dễ đạt tần số cao và dễ mở rộng. Google TPU thế hệ đầu dùng một mảng systolic $256\times256$ phép MAC INT8 \cite{jouppi2017tpu}; các khung sinh bộ tăng tốc như Gemmini \cite{genc2021gemmini} cũng xây dựng quanh mảng systolic gắn vào lõi RISC-V.
+
+Song song đó, lượng tử hóa INT8 \cite{jacob2018quant,krishnamoorthi2018} cho phép thay số thực 32 bit bằng số nguyên 8 bit với tổn thất độ chính xác rất nhỏ, giảm 4 lần dung lượng trọng số, giảm mạnh diện tích và năng lượng của bộ nhân. Kết hợp mảng systolic với số học INT8 vì thế là lựa chọn tự nhiên cho một bộ tăng tốc nhỏ gắn vào SoC RISC-V.
+
+\section{Mục tiêu đề tài}
+Đề tài môn học EE5223 có tên gốc ``Thiết kế và tích hợp bộ tăng tốc nhân ma trận INT8 dùng mảng systolic trong hệ thống RISC-V''. Giảng viên mở rộng yêu cầu: bộ tăng tốc phải chạy được một mạng CNN và một mạng RNN/LSTM thực tế. Các mục tiêu cụ thể gồm:
+\begin{enumerate}
+  \item Thiết kế RTL (SystemVerilog) một mảng systolic INT8 $N\times N$ có tham số, kiểu weight-stationary, tích lũy INT32, với phần làm lệch (skew) đầu vào và khử lệch (de-skew) đầu ra nằm bên trong để người dùng chỉ cần đưa vào/nhận ra một hàng mỗi chu kỳ.
+  \item Bọc mảng trong một giao diện bus chuẩn (Avalon-MM) với các bộ đệm và thanh ghi điều khiển, sao cho cùng một khối dùng được cả trong mô phỏng (lõi PicoRV32 \cite{picorv32}) và trên FPGA (lõi Nios~V \cite{niosv} trên board DE10-Nano \cite{de10nano}).
+  \item Thêm khối hậu xử lý phần cứng cần cho suy luận lượng tử hóa: cộng dồn nhiều khối $K$, cộng bias, lượng tử hóa lại về INT8 và hàm kích hoạt (ReLU, sigmoid, tanh).
+  \item Viết driver và thư viện tiling bằng C cho RISC-V; ánh xạ LeNet-5 \cite{lecun1998lenet} (qua im2col) và LSTM \cite{hochreiter1997lstm} lên bộ tăng tốc.
+  \item Kiểm chứng bit-exact với một mô hình số nguyên tham chiếu (golden model), đo độ chính xác INT8 so với mô hình số thực, đo số chu kỳ và phân tích nút thắt.
+  \item Tổng hợp và hiện thực trên FPGA Cyclone~V (DE10-Nano) bằng Quartus Prime Lite \cite{quartuslite}.
+\end{enumerate}
+
+\section{Phạm vi}
+Phạm vi của báo cáo được giới hạn rõ như sau:
+\begin{itemize}
+  \item \textbf{Chỉ suy luận} (inference), không huấn luyện trên phần cứng. Mô hình số thực được huấn luyện bằng PyTorch trên máy tính, sau đó lượng tử hóa sau huấn luyện (PTQ) bằng script Python.
+  \item \textbf{Số học}: đầu vào và trọng số INT8 có dấu, tích lũy INT32, hệ số lượng tử hóa lại là số nguyên 16 bit có dấu cùng một phép dịch phải $0\dots31$ bit.
+  \item \textbf{Kích thước mảng}: $N=4$ và $N=8$ được đo đầy đủ; RTL hỗ trợ $N$ là bội của 4 (do 4 trọng số được ghi trong một từ bus 32 bit).
+  \item \textbf{Mạng nơ-ron}: LeNet-5 (2 lớp tích chập, 3 lớp kết nối đầy đủ) và một LSTM một lớp, 16 nơ-ron ẩn, đọc ảnh MNIST \cite{mnist} theo 28 hàng.
+  \item \textbf{Số đo hiệu năng} là số chu kỳ trong mô phỏng RTL có lõi PicoRV32; số chu kỳ trên Nios~V thật sẽ khác (xem Chương~\ref{ch:fpga} và~\ref{ch:discussion}).
+\end{itemize}
+
+\section{Đóng góp chính}
+\begin{itemize}
+  \item Một bộ tăng tốc GEMM INT8 hoàn chỉnh, có tham số $N$, gồm mảng systolic, bộ đệm, bộ tuần tự (sequencer) và khối hậu xử lý; độ trễ đường ống được phân tích và kiểm chứng đúng $2N-1$ chu kỳ.
+  \item Một giao diện Avalon-MM dùng chung cho mô phỏng và FPGA, với bản đồ thanh ghi đơn giản và driver C dưới 80 dòng.
+  \item Ánh xạ hai lớp bài toán khác nhau (CNN và LSTM) lên cùng một phần cứng GEMM, trong đó bốn cổng của LSTM được gộp thành một GEMM $K=44$, $C=64$ và hàm sigmoid/tanh được thực hiện bằng LUT trong phần cứng.
+  \item Một quy trình kiểm chứng bit-exact nhiều tầng: unit test mảng (26 test cho mỗi $N$), self-test hậu xử lý (24 phép thử ngẫu nhiên), và suy luận đầu-cuối so với mô hình số nguyên Python.
+  \item Phân tích định lượng nút thắt: thời gian tính của mảng dưới 1\% thời gian suy luận LeNet-5; phần còn lại là im2col/pooling trên CPU và truyền dữ liệu qua bus. Phân tích này định hướng rõ các cải tiến tiếp theo (DMA, im2col phần cứng, double buffering).
+\end{itemize}
+
+\section{Cấu trúc báo cáo}
+Chương~\ref{ch:fund} trình bày cơ sở lý thuyết: mảng systolic, các kiểu dataflow, lượng tử hóa INT8, im2col và phương trình LSTM. Chương~\ref{ch:related} điểm lại các công trình liên quan và định vị đề tài. Chương~\ref{ch:arch} mô tả kiến trúc phần cứng chi tiết. Chương~\ref{ch:sw} trình bày phần mềm và cách ánh xạ CNN/LSTM. Chương~\ref{ch:verif} mô tả phương pháp kiểm chứng. Chương~\ref{ch:results} báo cáo kết quả độ chính xác và hiệu năng. Chương~\ref{ch:fpga} trình bày hiện thực trên DE10-Nano. Chương~\ref{ch:discussion} thảo luận giới hạn và các mối đe dọa tới tính hợp lệ của kết quả. Chương~\ref{ch:concl} kết luận và đề xuất hướng phát triển. Các phụ lục chứa các phép dẫn chi tiết, bản đồ thanh ghi, hướng dẫn tái lập, mô tả Docker/CI và trích đoạn log.

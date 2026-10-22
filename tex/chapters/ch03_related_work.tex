@@ -1,0 +1,52 @@
+\chapter{Các công trình liên quan và định vị đề tài}
+\label{ch:related}
+
+\section{Mảng systolic từ Kung tới TPU}
+Kung \cite{kung1982} chỉ ra rằng với các bài toán có cấu trúc đều như nhân ma trận, tích chập, lọc FIR, một mảng PE đồng bộ trao đổi dữ liệu cục bộ có thể đạt thông lượng cao mà không làm tăng băng thông bộ nhớ: mỗi dữ liệu đọc vào được dùng lại nhiều lần khi ``chảy'' qua mảng. Ý tưởng này trở lại mạnh mẽ cùng học sâu. Google TPU thế hệ đầu \cite{jouppi2017tpu} là bộ tăng tốc suy luận dùng trong trung tâm dữ liệu, với lõi là một mảng systolic weight-stationary $256\times256$ MAC INT8 (\num{65536} MAC), bộ tích lũy 32 bit, bộ đệm hợp nhất (Unified Buffer) 24\,MiB và khối hàm kích hoạt phần cứng; máy chủ gửi lệnh qua PCIe. Bài báo TPU cũng nhấn mạnh rằng nhiều ứng dụng thực tế bị giới hạn bởi băng thông bộ nhớ chứ không phải bởi số MAC -- một kết luận mà đề tài này quan sát lại ở quy mô rất nhỏ (Chương~\ref{ch:results}).
+
+\section{Gemmini}
+Gemmini \cite{genc2021gemmini} là bộ sinh bộ tăng tốc mảng systolic mã nguồn mở viết bằng Chisel, tích hợp vào hệ sinh thái Chipyard với lõi RISC-V Rocket/BOOM qua giao diện RoCC (lệnh tùy biến). Gemmini hỗ trợ cả WS và OS, có scratchpad và accumulator riêng, DMA truy cập bộ nhớ chính, im2col phần cứng tùy chọn, và một stack phần mềm đầy đủ (thư viện C, ánh xạ mạng từ ONNX). Gemmini nhắm tới đánh giá kiến trúc toàn hệ thống (bao gồm bộ nhớ ảo, hệ điều hành) và có thể tape-out ASIC. So với Gemmini, thiết kế của đề tài nhỏ hơn nhiều bậc: không DMA, không lệnh tùy biến, chỉ một dataflow, nhưng đổi lại dễ hiểu toàn bộ và dùng một bus nhúng phổ biến (Avalon-MM).
+
+\section{Eyeriss, NVDLA và mô hình hóa}
+Eyeriss \cite{chen2016eyeriss,chen2017eyerissjssc} đề xuất dataflow \emph{row-stationary} tối ưu tổng năng lượng truy cập bộ nhớ cho CNN, cùng phân loại WS/OS/IS/RS được dùng trong Chương~\ref{ch:fund}. NVDLA \cite{nvdla} là bộ tăng tốc suy luận mã nguồn mở của NVIDIA, có các khối riêng cho tích chập, kích hoạt, pooling, chuẩn hóa và DMA, cấu hình được kích thước; NVDLA nhắm tới SoC thương mại và có quy mô lớn hơn đề tài rất nhiều. SCALE-Sim \cite{samajdar2018scalesim} là bộ mô phỏng chu kỳ cho bộ tăng tốc CNN dạng systolic, cho phép khảo sát kích thước mảng và dataflow; công thức độ trễ $2N-1$ và việc chia khối (tiling) trong đề tài tương thích với mô hình phân tích của SCALE-Sim.
+
+\section{Các dự án mảng systolic giáo dục}
+Hai dự án mã nguồn mở nhỏ gần với đề tài nhất về quy mô:
+\begin{itemize}
+  \item \textbf{TinyTPU} \cite{tinytpu} (giấy phép MIT): mảng systolic weight-stationary $4\times4$ INT8 (tích lũy INT32) viết bằng SystemVerilog, kiểm chứng bằng cocotb/numpy, biên dịch bằng Verilator sang WebAssembly để trực quan hóa trên trình duyệt. Theo README, dự án tập trung vào GEMM và trực quan hóa; chạy một lớp mạng nơ-ron thực được liệt kê là hướng tương lai. Bộ trực quan hóa trình duyệt của đề tài (\code{viz/}) tham khảo ý tưởng và tuân theo giấy phép MIT của dự án này.
+  \item \textbf{tiny-NPU} \cite{tinynpu}: theo README, mảng systolic weight-stationary $16\times16$ (có thể tham số lên $24\times24$) hỗ trợ INT8 và FP16, giao diện điều khiển AXI4-Lite, DMA AXI4 tới DDR, có bộ điều khiển GEMM tích lũy theo $K$ và requant; chạy suy luận transformer cỡ nhỏ và đồ thị ONNX; kiểm chứng bằng Verilator, có hướng dẫn tổng hợp Vivado nhưng (theo README) demo trên board vẫn là việc tương lai.
+\end{itemize}
+
+\section{So sánh và định vị}
+Bảng~\ref{tab:related} so sánh các đặc điểm chính. Các thông tin về công trình khác lấy từ tài liệu đã trích dẫn; các ô ``--'' là không áp dụng hoặc không được mô tả trong nguồn.
+
+\begin{table}[H]
+  \centering
+  \caption{So sánh đề tài với các bộ tăng tốc mảng systolic liên quan}
+  \label{tab:related}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabularx}{\linewidth}{l>{\raggedright}X>{\raggedright}X>{\raggedright}X>{\raggedright}X>{\raggedright\arraybackslash}X}
+    \toprule
+     & TPU v1 \cite{jouppi2017tpu} & Gemmini \cite{genc2021gemmini} & TinyTPU \cite{tinytpu} & tiny-NPU \cite{tinynpu} & \textbf{Đề tài} \\
+    \midrule
+    Kích thước mảng & $256\times256$ & tham số (vd.\ $16\times16$) & $4\times4$ & $16\times16$ & $N\times N$, đo $N=4,8$ \\
+    Dataflow & WS & WS và OS & WS & WS & WS \\
+    Kiểu số & INT8/INT32 & INT8 (cấu hình được) & INT8/INT32 & INT8, FP16 & INT8/INT32 \\
+    Giao diện host & PCIe & RoCC (RISC-V) & bus debug/WASM & AXI4-Lite + DMA & Avalon-MM (MMIO) \\
+    CPU host & x86 server & Rocket/BOOM & -- & -- & PicoRV32 (sim), Nios~V (FPGA) \\
+    DMA & có & có & không & có & \textbf{không} \\
+    Hậu xử lý phần cứng & kích hoạt, pooling & requant, ReLU, pooling, im2col (tùy chọn) & không & requant & tích lũy $K$, bias, requant, ReLU, LUT sigmoid và tanh \\
+    Mạng thử nghiệm & MLP, CNN, LSTM & CNN (ResNet, MobileNet...) & GEMM & transformer, ONNX & LeNet-5, LSTM \\
+    Hiện thực & ASIC 28\,nm & ASIC/FPGA & mô phỏng/WASM & mô phỏng (Vivado tùy chọn) & mô phỏng + Cyclone~V \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Đề tài \emph{không} cạnh tranh về hiệu năng tuyệt đối với TPU hay Gemmini; giá trị của nó nằm ở chỗ:
+\begin{enumerate}
+  \item Là một hệ thống \textbf{hoàn chỉnh từ đầu đến cuối} ở quy mô có thể đọc hiểu trọn vẹn (toàn bộ RTL của bộ tăng tốc là 336 dòng SystemVerilog, không kể bảng LUT sinh tự động), từ PE tới mạng nơ-ron thực chạy trên CPU RISC-V, kiểm chứng bit-exact ở mọi tầng.
+  \item Hỗ trợ \textbf{cả CNN lẫn LSTM} trên cùng phần cứng GEMM, với sigmoid/tanh bằng LUT phần cứng -- điểm mà các dự án giáo dục nhỏ thường bỏ qua.
+  \item Đưa ra \textbf{phân tích định lượng trung thực} về nơi thời gian thực sự bị tiêu tốn khi không có DMA, qua đó giải thích vì sao các bộ tăng tốc lớn đều cần DMA, im2col phần cứng và bộ đệm lớn.
+  \item Dùng \textbf{một wrapper và một driver} cho cả mô phỏng và FPGA thật (Intel Cyclone~V, Nios~V).
+\end{enumerate}

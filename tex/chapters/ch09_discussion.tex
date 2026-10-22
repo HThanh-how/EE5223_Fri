@@ -1,0 +1,51 @@
+\chapter{Thảo luận, giới hạn và các mối đe dọa tới tính hợp lệ}
+\label{ch:discussion}
+
+\section{Điều gì đã hoạt động tốt}
+\begin{itemize}
+  \item \textbf{Tính đúng}: thiết kế đúng bit ở mọi tầng, cho cả hai kích thước mảng và cả hai loại mạng, kể cả các trường hợp góc của số học (giá trị $-128$, hệ số requant âm, $\sigma=0$ và $\sigma=31$).
+  \item \textbf{Một phần cứng, hai loại mạng}: LSTM chỉ cần thêm LUT sigmoid/tanh và thanh ghi ACT theo từng lượt chạy; toàn bộ phần GEMM, tích lũy $K$ và requant dùng chung với CNN.
+  \item \textbf{Độ chính xác}: PTQ INT8 theo tensor, đơn giản nhất có thể, đã đủ để mất dưới 0,1 điểm \% trên MNIST.
+  \item \textbf{Tính di động}: cùng RTL và cùng driver cho PicoRV32 và Nios~V, chỉ khác lớp nền tảng nhỏ.
+\end{itemize}
+
+\section{Giới hạn của thiết kế}
+\begin{enumerate}
+  \item \textbf{im2col và pooling chạy trên CPU.} Đây là nút thắt lớn nhất của CNN: 63\% thời gian với $N=8$, và theo phân tích Amdahl (Mục~\ref{sec:profile}) giới hạn speedup ở khoảng 10,9$\times$ dù \NPU{} có nhanh đến đâu.
+  \item \textbf{Không có DMA.} Mọi byte trọng số, kích hoạt và kết quả đều do CPU chép bằng lệnh nạp/lưu 32 bit qua MMIO. Với $N=8$, khoảng 30\% thời gian là chép dữ liệu và trung bình khoảng 960 chu kỳ host cho mỗi lượt chạy mà mảng chỉ bận khoảng 23 chu kỳ.
+  \item \textbf{Không có double buffering.} CPU không thể nạp khối tiếp theo trong khi mảng đang chạy (ghi bị bỏ qua khi busy), và CPU chờ bằng polling thay vì ngắt.
+  \item \textbf{Mã RTL gốc không thân thiện với FPGA.} CBUF/QBUF được ghi trong khối có reset bất đồng bộ và đọc tổ hợp, nên bị tổng hợp thành flip-flop: RTL gốc chiếm 44\% ALM của Cyclone~V với $N=8$, chỉ đạt khoảng 52\,MHz, và không đạt 50\,MHz trên ECP5. Biến thể \code{rtl\_fpga} sửa được vấn đề này trên Cyclone~V (Mục~\ref{sec:quartus}) nhưng chưa được đưa ngược vào \code{rtl/}.
+  \item \textbf{Bộ đệm nhỏ.} DEPTH$=64$ hàng buộc conv1 ($M=576$) chia thành 9 khối và phải nạp lại trọng số 9 lần; trọng số chỉ lưu được một khối $N\times N$, nên mỗi khối $(c_0,k_0)$ phải ghi lại kích hoạt.
+  \item \textbf{Phần element-wise của LSTM chạy trên CPU}, cùng với việc chép $x_t$ và $h_t$; đó là phần chính của $T_\text{var}$ trong mô hình batching.
+  \item \textbf{LSTM rất nhỏ} ($H=16$). Với $H$ lớn hơn, tỉ lệ GEMM/element-wise sẽ tăng ($O(H^2)$ so với $O(H)$) và \NPU{} sẽ có lợi hơn; tuy nhiên điều này chưa được đo.
+  \item \textbf{Lượng tử hóa theo tensor, không theo kênh}, và $\mu$ chỉ 16 bit. Với các mạng lớn hơn MNIST, lượng tử hóa theo kênh và zero-point bất đối xứng thường cần thiết \cite{krishnamoorthi2018}.
+  \item \textbf{$N$ phải là bội của 4} và bias chỉ hỗ trợ tối đa 16 cột (chỉ số \code{idx[3:0]}), tức $N\le16$ trong RTL hiện tại.
+\end{enumerate}
+
+\section{Các mối đe dọa tới tính hợp lệ}
+\subsection{Tính hợp lệ nội tại}
+\begin{itemize}
+  \item \textbf{Số chu kỳ là của PicoRV32 trong mô phỏng}, không phải của Nios~V trên board. PicoRV32 có CPI cao; một CPU nhanh hơn sẽ làm bản CPU-only nhanh lên nhiều hơn so với bản \NPU{} (vốn bị chi phối bởi MMIO), nên \textbf{speedup trên phần cứng thật có thể thấp hơn}. Ngược lại, nếu truy cập MMIO trên Nios~V nhanh hơn, phần chép dữ liệu sẽ giảm. Chỉ số đo trên board (Bảng~\ref{tab:board}) mới trả lời được.
+  \item \textbf{Mô hình bộ nhớ lý tưởng}: RAM của SoC mô phỏng trả lời sau 1 chu kỳ, không có cache miss; trên board RAM on-chip cũng nhanh, nhưng nếu dùng SDRAM thì kết quả sẽ khác.
+  \item \textbf{Profile có chi phí đo}: các lệnh \code{rdcycle} trong \code{npu\_matmul} tự chúng tốn chu kỳ, được tính vào các pha; ảnh hưởng nhỏ nhưng khác không.
+  \item \textbf{Bản CPU-only không được tối ưu}: \code{cpu\_matmul} là vòng lặp C đơn giản (\code{-O2}); một bản viết tay tối ưu (bỏ qua phần đệm, gộp 4 byte, unroll) sẽ nhanh hơn và làm speedup nhỏ đi. Ngược lại, bản \NPU{} cũng chưa được tối ưu (có thể giữ trọng số khi $M$ lớn, gộp ghi).
+\end{itemize}
+
+\subsection{Tính hợp lệ của phép đo độ chính xác}
+\begin{itemize}
+  \item Độ chính xác INT8 trên \num{10000} ảnh được tính bằng mô hình Python, không phải bằng RTL. Sự tương đương bit giữa mô hình Python và RTL được xác lập trên 8 ảnh (CNN) và 16 ảnh (LSTM) và trên các phép thử ngẫu nhiên của khối hậu xử lý; đây là bằng chứng mạnh nhưng không phải chứng minh cho mọi đầu vào.
+  \item Một điểm khác biệt tiềm ẩn giữa phần cứng và tham chiếu C: \code{requant\_ref} tính \code{acc + bias} bằng số 32 bit trước khi mở rộng lên 64 bit, trong khi RTL cộng ở 48 bit. Hai bên chỉ khác nhau khi tổng tràn 32 bit, điều không xảy ra với các mạng trong đề tài (Phụ lục~\ref{app:bitwidth}).
+\end{itemize}
+
+\subsection{Tính hợp lệ của kiểm chứng}
+Như đã nêu ở Chương~\ref{ch:verif}, kiểm chứng là mô phỏng có định hướng và ngẫu nhiên, không có formal hay coverage. Đã có lúc firmware báo chỉ số \code{npu\_busy\_share\_x100}$=132$ với $N=4$ và chỉ số này từng bị hiểu nhầm là ``132\%''; thực chất nó tính theo đơn vị 0,01\% (tức 1,32\%) và khớp với số đo khác. Bài học là các chỉ số phái sinh cần đơn vị rõ ràng; báo cáo chỉ dùng các đại lượng gốc (chu kỳ) để tính lại mọi tỉ lệ.
+
+\subsection{Tính tổng quát}
+MNIST, LeNet-5 và LSTM $H=16$ là các bài toán nhỏ. Kết luận về nút thắt (truyền dữ liệu và tiền xử lý trên CPU) gần như chắc chắn còn đúng với mạng lớn hơn khi không có DMA, nhưng các con số speedup cụ thể không thể ngoại suy.
+
+\section{Bài học thiết kế}
+\begin{enumerate}
+  \item \textbf{Hãy đo trước khi tối ưu.} Thiết kế ban đầu tập trung vào mảng systolic, nhưng profile cho thấy mảng chỉ bận dưới 1\% thời gian. Tăng $N$ từ 4 lên 8 (gấp 4 số MAC) chỉ mang lại 1,8 lần speedup.
+  \item \textbf{Băng thông và chuyển động dữ liệu quyết định hiệu năng}, đúng như kết luận của TPU \cite{jouppi2017tpu} và của các nghiên cứu về dataflow \cite{sze2017survey}, dù ở quy mô nhỏ hơn hàng nghìn lần.
+  \item \textbf{Golden model số nguyên là tài sản quý nhất} của dự án: nó cho phép phát hiện ngay mọi sai lệch nhỏ nhất ở phần cứng, firmware hay script lượng tử hóa.
+\end{enumerate}

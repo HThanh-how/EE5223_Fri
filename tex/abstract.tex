@@ -1,0 +1,19 @@
+\chapter*{Tóm tắt}
+\addcontentsline{toc}{chapter}{Tóm tắt}
+Báo cáo trình bày quá trình thiết kế, kiểm chứng và tích hợp một bộ tăng tốc nhân ma trận (GEMM) số nguyên 8 bit (INT8) dựa trên mảng systolic kiểu \emph{weight-stationary} kích thước $N\times N$ ($N=4$ hoặc $8$) vào một hệ thống trên chip (SoC) dùng lõi RISC-V. Bộ tăng tốc, gọi là \NPU{}, được bọc trong một giao diện tớ Avalon-MM 32 bit, gồm các bộ đệm trọng số, kích hoạt, tích lũy INT32 và kết quả INT8 (độ sâu 64 hàng), cùng một khối hậu xử lý thực hiện cộng dồn theo các khối $K$, cộng bias, lượng tử hóa lại (requantization) bằng phép nhân số nguyên 16 bit và dịch phải có làm tròn, rồi áp dụng ReLU hoặc bảng tra (LUT) sigmoid/tanh. Theo yêu cầu mở rộng của giảng viên, bộ tăng tốc được dùng để suy luận hai mạng nơ-ron trên MNIST: mạng tích chập LeNet-5 (ánh xạ tích chập thành GEMM bằng im2col) và mạng hồi quy LSTM (28 bước thời gian, 16 nơ-ron ẩn, bốn cổng tính trong một GEMM duy nhất).
+
+Toàn bộ thiết kế được mô phỏng bằng Verilator với lõi PicoRV32 chạy firmware C thật. Mọi đầu ra của CPU và \NPU{} trùng khớp từng bit với một mô hình số nguyên tham chiếu viết bằng Python. Độ chính xác INT8 trên 10\,000 ảnh kiểm tra MNIST là 98,85\% cho LeNet-5 (bản số thực 98,83\%) và 97,50\% cho LSTM (bản số thực 97,58\%). Với $N=8$, số chu kỳ trên mỗi ảnh giảm từ 13,25 triệu (chỉ CPU) xuống 1,92 triệu với LeNet-5 (6,9 lần), và từ 3,56 triệu xuống 1,07 triệu (3,3 lần, batch 1) hoặc 217 nghìn (16,4 lần, batch 16) với LSTM. Phân tích profile cho thấy thời gian tính thực sự của mảng chiếm dưới 1\% tổng thời gian; nút thắt nằm ở phần im2col/pooling chạy trên CPU (63\%) và ở việc chép dữ liệu qua bus. Báo cáo cũng mô tả luồng hiện thực trên FPGA DE10-Nano (Cyclone V, Nios V, Quartus Lite) và thảo luận trung thực các giới hạn của thiết kế cũng như hướng phát triển.
+
+\vspace{0.3cm}
+\noindent\textbf{Từ khóa:} mảng systolic, bộ tăng tốc INT8, RISC-V, Avalon-MM, lượng tử hóa, CNN, LSTM, FPGA.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\begin{otherlanguage}{english}
+This report presents the design, verification and system integration of an INT8 general matrix-multiplication (GEMM) accelerator built around an $N\times N$ ($N=4$ or $8$) weight-stationary systolic array and attached to a RISC-V system-on-chip. The accelerator (called the NPU) sits behind a 32-bit Avalon-MM slave interface and contains weight, activation, INT32 accumulator and INT8 result buffers (64 rows deep) plus a post-processing unit that accumulates partial products over $K$ chunks, adds a bias, requantizes with a 16-bit integer multiplier and a rounding right shift, and applies ReLU or sigmoid/tanh look-up tables. As requested by the instructor, the accelerator is used for two MNIST inference workloads: a LeNet-5 convolutional network (convolutions mapped to GEMM through im2col) and an LSTM recurrent network (28 time steps, 16 hidden units, all four gates computed in one GEMM).
+
+The design is simulated with Verilator together with a PicoRV32 core running real C firmware. All CPU and NPU outputs match a Python integer golden model bit-exactly. INT8 accuracy on the 10\,000 MNIST test images is 98.85\% for LeNet-5 (float: 98.83\%) and 97.50\% for the LSTM (float: 97.58\%). With $N=8$, the cycles per image drop from 13.25\,M (CPU only) to 1.92\,M for LeNet-5 (6.9$\times$), and from 3.56\,M to 1.07\,M (3.3$\times$, batch 1) or 217\,k (16.4$\times$, batch 16) for the LSTM. A host-side profile shows that the array itself is busy for less than 1\% of the time; the bottlenecks are the im2col/pooling code on the CPU (63\%) and the data copies over the bus. The report also describes the implementation flow on a DE10-Nano board (Cyclone V, Nios V, Quartus Lite) and discusses the limitations of the design and future work.
+
+\vspace{0.3cm}
+\noindent\textbf{Keywords:} systolic array, INT8 accelerator, RISC-V, Avalon-MM, quantization, CNN, LSTM, FPGA.
+\end{otherlanguage}

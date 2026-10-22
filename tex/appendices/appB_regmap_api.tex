@@ -1,0 +1,79 @@
+\chapter{Bản đồ thanh ghi và API driver}
+\label{app:regmap}
+
+\section{Giải mã địa chỉ}
+Địa chỉ từ Avalon \code{avs\_address[13:0]} = địa chỉ byte \code{[15:2]}. Hai bit cao \code{[13:12]} chọn vùng; trong vùng 0, bit \code{[11:10]} phân biệt thanh ghi (\code{00}) và QBUF (\code{01}); trong vùng thanh ghi, \code{idx[9:4]}$=0$ là các thanh ghi điều khiển và \code{idx[9:4]}$=1$ là BIAS[\code{idx[3:0]}].
+
+\begin{table}[H]
+  \centering
+  \caption{Giải mã vùng địa chỉ}
+  \begin{tabular}{llll}
+    \toprule
+    \code{addr[13:12]} & Byte offset & Vùng & Truy cập \\
+    \midrule
+    00 (idx[11:10]=00) & \code{0x0000}--\code{0x0FFF} & thanh ghi, BIAS & R/W \\
+    00 (idx[11:10]=01) & \code{0x1000}--\code{0x1FFF} & QBUF & R \\
+    01 & \code{0x4000}--\code{0x7FFF} & WEIGHT & W (bỏ qua khi busy) \\
+    10 & \code{0x8000}--\code{0xBFFF} & ABUF & W (bỏ qua khi busy) \\
+    11 & \code{0xC000}--\code{0xFFFF} & CBUF & R \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Thanh ghi CTRL}
+\begin{table}[H]
+  \centering
+  \caption{Các bit của thanh ghi CTRL (\code{0x0000}, chỉ ghi)}
+  \begin{tabularx}{\linewidth}{llX}
+    \toprule
+    Bit & Tên & Ý nghĩa \\
+    \midrule
+    0 & START & bắt đầu lượt chạy với $M$ hàng hiện có trong ABUF; bị bỏ qua nếu đang busy; báo err nếu $M=0$ hoặc $M>$DEPTH \\
+    1 & CLEAR & xóa done và err \\
+    2 & ACCUM & lưu cùng START: cộng kết quả vào CBUF thay vì ghi đè \\
+    3 & QUANT & lưu cùng START: sau khi ghi CBUF, chạy bias + requant + ACT và ghi QBUF \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{API driver (\code{fw/npu.h}, \code{fw/nn.h})}
+\begin{table}[H]
+  \centering
+  \caption{Các hàm của driver}
+  \small
+  \begin{tabularx}{\linewidth}{>{\ttfamily\raggedright}p{6.2cm}X}
+    \toprule
+    \normalfont Hàm & Mô tả \\
+    \midrule
+    npu\_load\_w(const int8\_t *w, int ldw) & nạp khối $N\times N$ trọng số, $W_{ij}=w[i\cdot ldw+j]$; $N^2/4$ lần ghi; $w$, $ldw$ căn 4 byte \\
+    npu\_set\_bias(const int32\_t *b) & ghi $N$ bias \\
+    npu\_set\_quant(int mult, int shift, int act) & ghi QMULT, QSHIFT, ACT \\
+    npu\_write\_a(int row, int sub, uint32\_t word) & ghi 4 kích hoạt (cột $4\cdot sub..4\cdot sub+3$) của hàng \code{row} \\
+    npu\_run(int m, uint32\_t flags) & ghi M, CTRL=START|flags, polling bit done, đọc CYCLES, CLEAR; trả về số chu kỳ busy \\
+    npu\_read\_c(int row, int j) & đọc tích lũy INT32 $C_{row,j}$ \\
+    npu\_read\_q\_word(int row, int sub) & đọc 4 kết quả INT8 của hàng \code{row} \\
+    requant\_ref(acc, bias, mult, shift, act) & tham chiếu C bit-exact của khối hậu xử lý \\
+    npu\_matmul(X, ldx, M, Kp, W, Cp, bias, mult, shift, act\_tab, Y, ldy) & GEMM chia khối + requant trên \NPU{} (Mục~\ref{sec:tiling}) \\
+    cpu\_matmul(X, ldx, M, K, W, Cp, C, bias, mult, shift, act\_tab, NNC, Y, ldy) & bản chỉ-CPU tương đương \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Ví dụ sử dụng tối thiểu}
+\begin{lstlisting}[style=codec, caption={Một GEMM $(M\times N)\cdot(N\times N)$ với ReLU trên \NPU{}}]
+#include "npu.h"
+// A: M x NN int8 (row-major, 4-byte aligned), W: NN x NN int8, b: NN int32
+void gemm_relu(const int8_t *A, int M, const int8_t *W, const int32_t *b,
+               int mult, int shift, int8_t *Y) {
+    npu_load_w(W, NN);
+    for (int m = 0; m < M; m++)
+        for (int s = 0; s < NN / 4; s++)
+            npu_write_a(m, s, ((const uint32_t *)(A + m * NN))[s]);
+    npu_set_bias(b);
+    npu_set_quant(mult, shift, ACT_RELU);
+    npu_run(M, F_QUANT);                       // single K chunk
+    for (int m = 0; m < M; m++)
+        for (int s = 0; s < NN / 4; s++)
+            ((uint32_t *)(Y + m * NN))[s] = npu_read_q_word(m, s);
+}
+\end{lstlisting}

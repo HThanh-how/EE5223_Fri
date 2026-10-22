@@ -1,0 +1,31 @@
+selftest N=4
+trial 0 M=1 act=0 mult=32767 shift=0 PASS
+trial 1 M=64 act=1 mult=10713 shift=8 PASS
+trial 2 M=63 act=2 mult=25677 shift=12 PASS
+trial 3 M=64 act=3 mult=-17370 shift=29 PASS
+trial 4 M=41 act=0 mult=11305 shift=11 PASS
+trial 5 M=40 act=1 mult=32767 shift=31 PASS
+trial 6 M=27 act=2 mult=31922 shift=0 PASS
+trial 7 M=15 act=3 mult=4148 shift=27 PASS
+trial 8 M=48 act=0 mult=13496 shift=8 PASS
+trial 9 M=44 act=1 mult=22184 shift=11 PASS
+trial 10 M=5 act=2 mult=-32767 shift=22 PASS
+trial 11 M=11 act=3 mult=21304 shift=15 PASS
+trial 12 M=49 act=0 mult=24201 shift=0 PASS
+trial 13 M=64 act=1 mult=2356 shift=29 PASS
+trial 14 M=63 act=2 mult=26993 shift=29 PASS
+trial 15 M=49 act=3 mult=32767 shift=24 PASS
+trial 16 M=36 act=0 mult=30560 shift=13 PASS
+trial 17 M=14 act=1 mult=-9264 shift=14 PASS
+trial 18 M=10 act=2 mult=24065 shift=0 PASS
+trial 19 M=29 act=3 mult=31833 shift=19 PASS
+trial 20 M=3 act=0 mult=32767 shift=21 PASS
+trial 21 M=38 act=1 mult=22507 shift=18 PASS
+trial 22 M=29 act=2 mult=3887 shift=19 PASS
+trial 23 M=12 act=3 mult=21223 shift=17 PASS
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 26ms; walltime 1.895 s; speed 13.763 ms/s
+- Verilator: cpu 1.894 s on 1 threads; alloced 57 MB

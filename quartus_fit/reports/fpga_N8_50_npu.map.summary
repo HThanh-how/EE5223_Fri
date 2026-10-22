@@ -1,0 +1,17 @@
+Analysis & Synthesis Status : Successful - Thu Oct 22 15:46:06 2026
+Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+Revision Name : npu
+Top-level Entity Name : npu_avmm
+Family : Cyclone V
+Logic utilization (in ALMs) : N/A
+Total registers : 3608
+Total pins : 1
+Total virtual pins : 83
+Total block memory bits : 41,720
+Total DSP Blocks : 48
+Total HSSI RX PCSs : 0
+Total HSSI PMA RX Deserializers : 0
+Total HSSI TX PCSs : 0
+Total HSSI PMA TX Serializers : 0
+Total PLLs : 0
+Total DLLs : 0

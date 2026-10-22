@@ -1,0 +1,27 @@
+mkdir -p build_soc_N4
+riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -O2 -ffreestanding -nostdlib -DNN=4 -Ifw  -T fw/link.ld -o build_soc_N4/cnn.elf fw/start.S fw/cnn.c -lgcc
+/usr/lib/gcc/riscv64-unknown-elf/14.2.0/../../../riscv64-unknown-elf/bin/ld: warning: build_soc_N4/cnn.elf has a LOAD segment with RWX permissions
+riscv64-unknown-elf-objcopy -O binary build_soc_N4/cnn.elf build_soc_N4/cnn.bin
+python3 scripts/bin2hex.py build_soc_N4/cnn.bin > build_soc_N4/cnn.hex
+riscv64-unknown-elf-size build_soc_N4/cnn.elf
+   text	   data	    bss	    dec	    hex	filename
+  60596	      0	  36008	  96604	  1795c	build_soc_N4/cnn.elf
+cd build_soc_N4 && cp cnn.hex fw.hex && ./Vtb_soc | tee cnn.log
+LeNet-5 INT8, N=4
+  profile(img0): weight_wr=524628 act_wr=727524 run+poll=596100 result_rd=54870 other(im2col,pool,...)=1524004
+img 0 label=7 pred=7 cpu_cyc=13235873 npu_cyc=3427126 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 1 label=2 pred=2 cpu_cyc=13235181 npu_cyc=3427240 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 2 label=1 pred=1 cpu_cyc=13237083 npu_cyc=3427016 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 3 label=0 pred=0 cpu_cyc=13233819 npu_cyc=3427335 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 4 label=4 pred=4 cpu_cyc=13235267 npu_cyc=3427243 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 5 label=1 pred=1 cpu_cyc=13236976 npu_cyc=3427007 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 6 label=4 pred=4 cpu_cyc=13235336 npu_cyc=3427222 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+img 7 label=9 pred=9 cpu_cyc=13235136 npu_cyc=3427183 npu_busy=51642 calls=2964 mism(cpu/npu vs golden)=0/0
+avg cpu_cyc=13235583 avg npu_cyc=3427171 speedup_x100=386 npu_busy_share_x100=150
+correct=8/8
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 1s; walltime 159.417 s; speed 8.384 ms/s
+- Verilator: cpu 159.060 s on 1 threads; alloced 57 MB

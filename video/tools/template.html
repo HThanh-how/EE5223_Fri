@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=1920, height=1080" />
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+<style>
+:root{--bg:#0b1020;--panel:#141b2f;--line:#2a3556;--ink:#e6ebff;--dim:#8fa0c8;--cyan:#38bdf8;--amber:#fbbf24;--green:#34d399;--pink:#f472b6;--red:#f87171;
+--font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:var(--bg)}
+#root{position:absolute;inset:0;background:var(--bg);font-family:var(--font);color:var(--ink);overflow:hidden}
+.scene{position:absolute;inset:0}
+.wrap{position:absolute;inset:0}
+.a{position:absolute;opacity:0}
+.h1{font-size:68px;font-weight:700;letter-spacing:-0.02em;left:80px;top:48px;white-space:nowrap}
+.t{font-size:40px;white-space:nowrap}
+.dim{color:var(--dim)}
+.mono{font-family:var(--mono)}
+.box{position:absolute;opacity:0;border:3px solid var(--line);background:var(--panel);border-radius:16px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:38px;line-height:1.2}
+.cell{position:absolute;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:36px;font-weight:600;border-radius:8px;opacity:0}
+.pe{position:absolute;width:170px;height:170px;border:3px solid var(--line);background:var(--panel);border-radius:14px;opacity:0}
+.pe .w{position:absolute;left:0;right:0;top:4px;height:48px;text-align:center;font:700 38px/48px var(--mono);color:var(--amber)}
+.glow{position:absolute;width:170px;height:170px;border:4px solid var(--green);border-radius:14px;box-shadow:0 0 28px rgba(52,211,153,.55);opacity:0}
+.chipA{position:absolute;width:110px;height:50px;border-radius:25px;background:var(--cyan);color:#04121c;font:700 36px/50px var(--mono);text-align:center;opacity:0}
+.chipP{position:absolute;width:110px;height:50px;border-radius:10px;background:var(--green);color:#04201a;font:700 36px/50px var(--mono);text-align:center;opacity:0}
+.badge{color:var(--green);font-weight:800;font-size:60px}
+.bar{position:absolute;border-radius:10px 10px 0 0;transform-origin:50% 100%}
+</style>
+</head>
+<body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="90" data-width="1920" data-height="1080">
+
+<div id="s1" class="scene clip" data-start="0" data-duration="12" data-track-index="1"><div class="wrap" id="s1w">
+  <div class="a mono" id="s1-tag" style="left:120px;top:110px;font-size:38px;color:var(--cyan)">EE5223  /  RISC-V + NPU</div>
+  <div class="a" id="s1-title" style="left:120px;top:190px;width:1680px;font-size:104px;font-weight:800;line-height:1.08;letter-spacing:-0.03em">INT8 systolic-array NPU<br><span style="color:var(--cyan)">for CNN and LSTM</span><br>in a RISC-V system</div>
+  <div class="a t" id="s1-prob" style="left:120px;top:590px;font-size:46px;color:var(--dim)">Problem: a CPU-only core burns <span style="color:var(--amber)">millions of cycles</span> per image on MACs.</div>
+  <div class="box" id="s1-cpu" style="left:120px;top:780px;width:440px;height:130px;font-size:42px">PicoRV32 CPU</div>
+  <div class="a" id="s1-ar1" style="left:575px;top:810px;font-size:60px;color:var(--dim)">&#8596;</div>
+  <div class="box" id="s1-npu" style="left:680px;top:780px;width:440px;height:130px;font-size:42px;border-color:var(--cyan);color:var(--cyan)">INT8 NPU 4&#215;4</div>
+  <div class="a" id="s1-ar2" style="left:1135px;top:810px;font-size:60px;color:var(--dim)">&#8596;</div>
+  <div class="box" id="s1-mem" style="left:1240px;top:780px;width:440px;height:130px;font-size:42px">Shared memory</div>
+</div></div>
+
+<div id="s2" class="scene clip" data-start="12" data-duration="28" data-track-index="1"><div class="wrap" id="s2w">
+  <div class="a h1" id="s2-h">Weight-stationary 4&#215;4 systolic array</div>
+  <div class="a t" id="s2-Alab" style="left:70px;top:190px;color:var(--cyan)">A (3&#215;4)</div>
+  <div id="s2-A"></div>
+  <div class="a t" id="s2-skew" style="left:70px;top:520px;white-space:normal;width:360px;font-size:38px;line-height:1.25;color:var(--dim)">Row <span style="color:var(--cyan)">k</span> of A enters<br>delayed <span style="color:var(--cyan)">k</span> cycles</div>
+  <div class="a t" id="s2-wlab" style="left:640px;top:130px;font-size:38px;color:var(--amber)">W stays in the PEs</div>
+  <div id="s2-grid"></div>
+  <div class="a t" id="s2-Clab" style="left:1450px;top:190px;color:var(--green)">C = A &#215; W</div>
+  <div id="s2-C"></div>
+  <div class="a mono" id="s2-clk" style="left:1450px;top:490px;font-size:44px;color:var(--ink)"></div>
+  <div class="box" id="s2-pe" style="left:1420px;top:580px;width:470px;height:210px;font-size:36px;line-height:1.35;border-color:var(--green);font-family:var(--mono)"><div>psum_out = psum_in<br>&nbsp;&nbsp;+ a &#215; w<br><span style="color:var(--cyan)">a</span> passes right</div></div>
+  <div class="a t" id="s2-lat" style="left:1420px;top:830px;width:470px;white-space:normal;font-size:38px;line-height:1.25;color:var(--green)">Row 0 of C done after<br>2N&#8722;1 = 7 cycles</div>
+  <div class="a t" id="s2-lat2" style="left:1420px;top:830px;width:470px;white-space:normal;font-size:38px;line-height:1.25;color:var(--green)">All 3 rows done after<br>M+2N&#8722;2 = 9 cycles</div>
+</div></div>
+
+<div id="s3" class="scene clip" data-start="40" data-duration="18" data-track-index="1"><div class="wrap" id="s3w">
+  <div class="a h1" id="s3-h">CNN: convolution becomes a GEMM</div>
+  <div class="a" id="s3-dig" style="left:100px;top:180px"><!--DIGIT--></div>
+  <div class="a" id="s3-win" style="left:100px;top:180px;width:60px;height:60px;border:4px solid var(--red);box-shadow:0 0 16px rgba(248,113,113,.7)"></div>
+  <div class="a t" id="s3-diglab" style="left:100px;top:530px;font-size:38px">28&#215;28 digit, 5&#215;5 kernel</div>
+  <div class="a t" id="s3-im" style="left:470px;top:290px;font-size:40px;color:var(--amber);text-align:center;width:150px;line-height:1.2">im2<br>col<br>&#8594;</div>
+  <div class="box" id="s3-A" style="left:640px;top:180px;width:260px;height:336px;border-color:var(--cyan);color:var(--cyan)">A<br>576&#215;25</div>
+  <div class="a" id="s3-x" style="left:915px;top:300px;font-size:64px">&#215;</div>
+  <div class="box" id="s3-W" style="left:985px;top:180px;width:170px;height:336px;border-color:var(--amber);color:var(--amber)">W<br>25&#215;6</div>
+  <div class="a" id="s3-eq" style="left:1175px;top:300px;font-size:64px">=</div>
+  <div class="box" id="s3-C" style="left:1250px;top:180px;width:170px;height:336px;border-color:var(--green);color:var(--green)">C<br>576&#215;6</div>
+  <div class="a t dim" id="s3-note" style="left:1450px;top:200px;width:430px;white-space:normal;font-size:38px;line-height:1.25">576 patches (24&#215;24)<br>25 = 5&#215;5 inputs<br>6 filters</div>
+  <div class="a t" id="s3-tl" style="left:100px;top:600px;font-size:40px">GEMM on the 4&#215;4 array: K = 25 in chunks of N = 4, accumulate</div>
+  <div id="s3-tiles"></div>
+  <div class="box" id="s3-p1" style="left:100px;top:850px;width:520px;height:110px">INT32 accumulate</div>
+  <div class="box" id="s3-p2" style="left:700px;top:850px;width:520px;height:110px">Requant (scale + shift)</div>
+  <div class="box" id="s3-p3" style="left:1300px;top:850px;width:520px;height:110px;border-color:var(--green);color:var(--green)">ReLU &#8594; INT8 (in HW)</div>
+</div></div>
+
+<div id="s4" class="scene clip" data-start="58" data-duration="16" data-track-index="1"><div class="wrap" id="s4w">
+  <div class="a h1" id="s4-h">LSTM step: 4 gates in one GEMM</div>
+  <div class="a" id="s4-xh" style="left:80px;top:230px;width:440px;height:80px;display:flex;font:700 36px/80px var(--mono);text-align:center">
+    <div style="width:280px;background:var(--cyan);color:#04121c;border-radius:12px 0 0 12px">x_t 28</div><div style="width:160px;background:var(--pink);color:#2a0716;border-radius:0 12px 12px 0">h 16</div></div>
+  <div class="a t dim" id="s4-xhl" style="left:80px;top:330px;font-size:38px">[x_t | h_(t-1)] 1&#215;44</div>
+  <div class="a" id="s4-x" style="left:545px;top:225px;font-size:64px">&#215;</div>
+  <div class="box" id="s4-W" style="left:630px;top:190px;width:560px;height:200px;border-color:var(--amber);color:var(--amber)">W_cat 44&#215;64</div>
+  <div class="a" id="s4-eq" style="left:1210px;top:225px;font-size:64px">=</div>
+  <div class="a" id="s4-g" style="left:1290px;top:230px;width:560px;height:80px;display:flex;font:700 38px/80px var(--mono);text-align:center">
+    <div style="width:140px;background:#38bdf8;color:#04121c;border-radius:12px 0 0 12px">i</div><div style="width:140px;background:#34d399;color:#04201a">f</div><div style="width:140px;background:#fbbf24;color:#2b1d00">g</div><div style="width:140px;background:#f472b6;color:#2a0716;border-radius:0 12px 12px 0">o</div></div>
+  <div class="a t dim" id="s4-gl" style="left:1290px;top:330px;font-size:38px">4 gates &#215; 16 = 64</div>
+  <div class="box" id="s4-lut" style="left:80px;top:450px;width:780px;height:110px;border-color:var(--cyan);color:var(--cyan)">sigmoid / tanh LUT (HW)</div>
+  <div class="a" id="s4-ar" style="left:880px;top:462px;font-size:60px;color:var(--dim)">&#8594;</div>
+  <div class="box" id="s4-cpu" style="left:960px;top:450px;width:880px;height:110px;font-size:36px">CPU: c = f&#215;c + i&#215;g , h = o&#215;tanh(c)</div>
+  <div class="box" id="s4-p1" style="left:80px;top:620px;width:860px;height:370px;border-color:var(--red)">
+    <div style="position:absolute;left:30px;top:14px;font-size:42px;font-weight:700;color:var(--red)">batch = 1</div>
+    <div id="s4-b1" style="position:absolute;left:40px;top:90px;width:250px"></div>
+    <div style="position:absolute;left:330px;top:90px;text-align:left;font-size:38px;line-height:1.3">1 row per weight load<br>weights reloaded<br>every step:<br><span style="color:var(--red)">low utilisation</span></div></div>
+  <div class="box" id="s4-p2" style="left:980px;top:620px;width:860px;height:370px;border-color:var(--green)">
+    <div style="position:absolute;left:30px;top:14px;font-size:42px;font-weight:700;color:var(--green)">batch = 16</div>
+    <div id="s4-b2" style="position:absolute;left:40px;top:90px;width:250px"></div>
+    <div style="position:absolute;left:330px;top:90px;text-align:left;font-size:38px;line-height:1.3">16 rows reuse the<br>same weights<br><span style="color:var(--green)">high utilisation</span></div></div>
+</div></div>
+
+<div id="s5" class="scene clip" data-start="74" data-duration="12" data-track-index="1"><div class="wrap" id="s5w">
+  <div class="a h1" id="s5-h">Results: cycles per image</div>
+  <div class="a t" id="s5-c1" style="left:100px;top:160px;color:var(--dim)">CNN (LeNet), Mcycles</div>
+  <div class="a t" id="s5-c2" style="left:1000px;top:160px;color:var(--dim)">LSTM, Mcycles</div>
+  <div style="position:absolute;left:80px;top:600px;width:820px;height:3px;background:var(--line)"></div>
+  <div style="position:absolute;left:1000px;top:600px;width:820px;height:3px;background:var(--line)"></div>
+  <div class="bar" id="b-cc" style="left:170px;top:270px;width:200px;height:330px;background:var(--red)"></div>
+  <div class="bar" id="b-cn" style="left:560px;top:552px;width:200px;height:48px;background:var(--green)"></div>
+  <div class="a mono" id="v-cc" style="left:170px;top:215px;width:200px;text-align:center;font-size:38px;font-weight:700">13.25M</div>
+  <div class="a mono" id="v-cn" style="left:560px;top:497px;width:200px;text-align:center;font-size:38px;font-weight:700">1.92M</div>
+  <div class="a badge" id="x-cn" style="left:500px;top:380px;width:320px;text-align:center">6.9&#215;</div>
+  <div class="a t" id="n-cc" style="left:150px;top:620px;width:240px;text-align:center">CPU-only</div>
+  <div class="a t" id="n-cn" style="left:540px;top:620px;width:240px;text-align:center">NPU</div>
+  <div class="bar" id="b-lc" style="left:1050px;top:270px;width:170px;height:330px;background:var(--red)"></div>
+  <div class="bar" id="b-l1" style="left:1290px;top:501px;width:170px;height:99px;background:var(--amber)"></div>
+  <div class="bar" id="b-l16" style="left:1530px;top:580px;width:170px;height:20px;background:var(--green)"></div>
+  <div class="a mono" id="v-lc" style="left:1030px;top:215px;width:210px;text-align:center;font-size:38px;font-weight:700">3.56M</div>
+  <div class="a mono" id="v-l1" style="left:1270px;top:446px;width:210px;text-align:center;font-size:38px;font-weight:700">1.07M</div>
+  <div class="a mono" id="v-l16" style="left:1510px;top:525px;width:210px;text-align:center;font-size:38px;font-weight:700">217K</div>
+  <div class="a badge" id="x-l1" style="left:1250px;top:370px;width:250px;text-align:center">3.3&#215;</div>
+  <div class="a badge" id="x-l16" style="left:1490px;top:440px;width:250px;text-align:center">16.4&#215;</div>
+  <div class="a t" id="n-lc" style="left:1030px;top:620px;width:210px;text-align:center">CPU</div>
+  <div class="a t" id="n-l1" style="left:1270px;top:620px;width:210px;text-align:center;line-height:1.1">NPU<br>b=1</div>
+  <div class="a t" id="n-l16" style="left:1510px;top:620px;width:210px;text-align:center;line-height:1.1">NPU<br>b=16</div>
+  <div class="box" id="s5-a1" style="left:100px;top:790px;width:830px;height:210px;font-size:40px;line-height:1.3;border-color:var(--cyan)"><div>LeNet INT8 accuracy<br><span class="mono" style="font-size:64px;font-weight:800;color:var(--cyan)">98.85%</span><br><span class="dim">float 98.83%</span></div></div>
+  <div class="box" id="s5-a2" style="left:990px;top:790px;width:830px;height:210px;font-size:40px;line-height:1.3;border-color:var(--pink)"><div>LSTM INT8 accuracy<br><span class="mono" style="font-size:64px;font-weight:800;color:var(--pink)">97.5%</span><br><span class="dim">float 97.58%</span></div></div>
+</div></div>
+
+<div id="s6" class="scene clip" data-start="86" data-duration="4" data-track-index="1"><div class="wrap" id="s6w">
+  <div class="a" id="s6-1" style="left:0;top:340px;width:1920px;text-align:center;font-size:64px;font-weight:700">Simulated with <span style="color:var(--cyan)">Verilator + PicoRV32</span></div>
+  <div class="a" id="s6-1b" style="left:0;top:430px;width:1920px;text-align:center;font-size:44px;color:var(--dim)">open source</div>
+  <div class="a" id="s6-2" style="left:0;top:580px;width:1920px;text-align:center;font-size:64px;font-weight:700">Target board: <span style="color:var(--amber)">DE10-Nano + Nios V</span></div>
+</div></div>
+
+</div>
+<script>
+/*DATA*/
+window.__timelines = window.__timelines || {};
+const tl = gsap.timeline({ paused: true });
+const show=(s,at,d=0.6,y=20)=>tl.fromTo(s,{opacity:0,y:y},{opacity:1,y:0,duration:d,ease:"power3.out"},at);
+const hide=(s,at,d=0.4)=>tl.fromTo(s,{opacity:1},{opacity:0,duration:d,ease:"power2.in",immediateRender:false},at);
+const mk=(par,cls,id,css,txt)=>{const e=document.createElement("div");e.className=cls;e.id=id;e.style.cssText=css;if(txt!==undefined)e.textContent=txt;document.getElementById(par).appendChild(e);return e;};
+
+/* S1 */
+show("#s1-tag",0.3); show("#s1-title",0.8,0.9,30); show("#s1-prob",3.4);
+show("#s1-cpu",6.0);show("#s1-ar1",6.6,.4,0);show("#s1-npu",7.0);show("#s1-ar2",7.6,.4,0);show("#s1-mem",8.0);
+hide("#s1w",11.5,0.5);
+
+/* S2 weight-stationary array (DOM for PEs/chips built from the numpy-computed data D) */
+const N=4,M=3,X0=640,Y0=190,P=180,T=t=>18+1.8*t;
+const cx=c=>X0+c*P, ry=r=>Y0+r*P;
+D.A.forEach((row,m)=>row.forEach((v,k)=>{mk("s2-A","cell","A"+m+k,`left:${70+k*95}px;top:${250+m*70}px;width:90px;height:60px;color:var(--cyan);background:var(--panel)`,v);}));
+for(let m=0;m<M;m++)for(let c=0;c<N;c++){mk("s2-C","cell","C"+m+c,`left:${1450+c*110}px;top:${250+m*70}px;width:104px;height:60px;border:2px solid var(--green);color:var(--green)`,D.C[m][c]);}
+for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+  const pe=mk("s2-grid","pe","pe"+r+c,`left:${cx(c)}px;top:${ry(r)}px`);
+  const w=document.createElement("div");w.className="w";w.textContent=D.W[r][c];pe.appendChild(w);
+  mk("s2-grid","glow","gl"+r+c,`left:${cx(c)}px;top:${ry(r)}px`);
+}
+for(let m=0;m<M;m++)for(let k=0;k<N;k++){
+  const id="ca"+m+k, t0=m+k;
+  mk("s2-grid","chipA",id,`left:${cx(0)+30-P}px;top:${ry(k)+62}px`,D.A[m][k]);
+  tl.fromTo("#"+id,{opacity:0,x:0},{opacity:1,x:0,duration:.4},T(t0-1)+0.2);
+  for(let s=0;s<=3;s++){ tl.fromTo("#"+id,{x:s*P},{x:(s+1)*P,duration:.45,ease:"power2.inOut",immediateRender:false},T(t0+s)+0.05); }
+  tl.fromTo("#"+id,{opacity:1},{opacity:0,duration:.4,immediateRender:false},T(t0+4)-0.3);
+}
+for(let m=0;m<M;m++)for(let c=0;c<N;c++)for(let k=0;k<N;k++){
+  let p=0;for(let j=0;j<=k;j++)p+=D.A[m][j]*D.W[j][c];
+  const id=`cp${m}${c}${k}`, t=m+k+c;
+  mk("s2-grid","chipP",id,`left:${cx(c)+30}px;top:${ry(k)+116}px`,p);
+  tl.fromTo("#"+id,{opacity:0,scale:.6},{opacity:1,scale:1,duration:.3,ease:"back.out(2)"},T(t)+0.35);
+  tl.fromTo("#"+id,{opacity:1},{opacity:0,duration:.25,immediateRender:false},T(t+1)+0.25);
+  if(k===N-1) tl.fromTo("#C"+m+c,{opacity:0,scale:.5},{opacity:1,scale:1,duration:.4,ease:"back.out(2)"},T(t)+1.3);
+}
+for(let r=0;r<N;r++)for(let c=0;c<N;c++){ tl.set("#gl"+r+c,{opacity:1},T(r+c)); tl.set("#gl"+r+c,{opacity:0},T(r+c+M)); }
+for(let t=0;t<=8;t++){ mk("s2-clk","a mono","clk"+t,"left:0;top:0;white-space:nowrap","cycle t = "+t);
+  tl.set("#clk"+t,{opacity:1},T(t)); tl.set("#clk"+t,{opacity:0},T(t+1)); }
+show("#s2-h",12.3); show("#s2-wlab",13.2);
+for(let r=0;r<N;r++)for(let c=0;c<N;c++) show("#pe"+r+c,13.0+0.06*(r*4+c),0.4,0);
+show("#s2-Alab",14.2); D.A.forEach((row,m)=>row.forEach((v,k)=>show("#A"+m+k,14.4+0.05*(m*4+k),0.3,0)));
+show("#s2-skew",15.3); show("#s2-pe",15.8); show("#s2-Clab",16.4);
+const caps=[["Weights W loaded once, held in the PEs",13.6,17.5],["Skewed rows of A stream in; partial sums flow down",18.0,26.5],["De-skewed outputs C = A × W leave the bottom",26.6,34.0],["Check: C equals A × W exactly (INT8 in, INT32 sums)",34.4,39.3]];
+caps.forEach((c,i)=>{mk("s2w","a t","cap"+i,"left:70px;top:975px",c[0]);
+  tl.fromTo("#cap"+i,{opacity:0},{opacity:1,duration:.4},c[1]); tl.fromTo("#cap"+i,{opacity:1},{opacity:0,duration:.3,immediateRender:false},c[2]);});
+show("#s2-lat",T(6)+1.3,.5,10); hide("#s2-lat",T(8)-.1,.3);
+show("#s2-lat2",T(8)+1.0,.5,10);
+hide("#s2w",39.4,0.5);
+
+/* S3 CNN */
+show("#s3-h",40.3); show("#s3-dig",41,.7,0); show("#s3-diglab",41.4,.5,10);
+tl.fromTo("#s3-win",{opacity:0,x:60,y:60},{opacity:1,x:60,y:60,duration:.3},42);
+tl.fromTo("#s3-win",{x:60,y:60},{x:180,y:84,duration:.8,ease:"power2.inOut",immediateRender:false},42.6);
+tl.fromTo("#s3-win",{x:180,y:84},{x:96,y:156,duration:.8,ease:"power2.inOut",immediateRender:false},43.6);
+tl.fromTo("#s3-win",{x:96,y:156},{x:132,y:72,duration:.8,ease:"power2.inOut",immediateRender:false},44.6);
+show("#s3-im",45.2); show("#s3-A",45.6); show("#s3-x",46.4,.4,0); show("#s3-W",46.6); show("#s3-eq",47.2,.4,0); show("#s3-C",47.4); show("#s3-note",47.9);
+show("#s3-tl",48.8);
+for(let i=0;i<7;i++){ mk("s3-tiles","box","tile"+i,`left:${100+i*130}px;top:680px;width:115px;height:90px;font-size:36px`,"K"+i);
+  tl.fromTo("#tile"+i,{opacity:0,y:20},{opacity:1,y:0,duration:.3},49.2+i*0.12);
+  tl.fromTo("#tile"+i,{backgroundColor:"#141b2f",color:"#e6ebff"},{backgroundColor:"#38bdf8",color:"#04121c",duration:.25,immediateRender:false},50.6+i*0.5); }
+mk("s3-tiles","a t","tile-acc","left:1050px;top:705px;font-size:38px;color:var(--cyan)","acc += A_tile × W_tile");
+tl.fromTo("#tile-acc",{opacity:0},{opacity:1,duration:.4},50.6);
+show("#s3-p1",54.3,.4,12); show("#s3-p2",55.0,.4,12); show("#s3-p3",55.7,.4,12);
+hide("#s3w",57.5,0.5);
+
+/* S4 LSTM */
+show("#s4-h",58.3);
+show("#s4-xh",59.0);show("#s4-xhl",59.3,.4,10);show("#s4-x",59.8,.4,0);show("#s4-W",60.0);show("#s4-eq",60.7,.4,0);show("#s4-g",60.9);show("#s4-gl",61.2,.4,10);
+show("#s4-lut",62.2);show("#s4-ar",62.8,.4,0);show("#s4-cpu",63.1);
+const bars=(par,lit)=>{for(let i=0;i<16;i++)mk(par,"",par+"r"+i,`position:absolute;left:0;top:${i*17}px;width:250px;height:11px;border-radius:5px;background:${i<lit?'#f87171':'#2a3556'}`);};
+bars("s4-b1",1);bars("s4-b2",0);
+show("#s4-p1",65.0,.5,15);show("#s4-p2",68.0,.5,15);
+for(let i=0;i<16;i++) tl.fromTo("#s4-b2r"+i,{backgroundColor:"#2a3556"},{backgroundColor:"#34d399",duration:.15,immediateRender:false},68.6+i*0.1);
+hide("#s4w",73.5,0.5);
+
+/* S5 results */
+show("#s5-h",74.3);show("#s5-c1",74.8,.4,10);show("#s5-c2",74.8,.4,10);
+const grow=(b,at)=>tl.fromTo(b,{scaleY:0},{scaleY:1,duration:.9,ease:"power3.out"},at);
+grow("#b-cc",75.2);show("#v-cc",75.9,.4,0);show("#n-cc",75.2,.4,0);
+grow("#b-cn",76.4);show("#v-cn",77.1,.4,0);show("#n-cn",76.4,.4,0);show("#x-cn",77.6,.5,10);
+grow("#b-lc",78.2);show("#v-lc",78.9,.4,0);show("#n-lc",78.2,.4,0);
+grow("#b-l1",79.2);show("#v-l1",79.9,.4,0);show("#n-l1",79.2,.4,0);show("#x-l1",80.3,.5,10);
+grow("#b-l16",80.8);show("#v-l16",81.5,.4,0);show("#n-l16",80.8,.4,0);show("#x-l16",81.9,.5,10);
+show("#s5-a1",82.8,.6,20);show("#s5-a2",83.6,.6,20);
+hide("#s5w",85.5,0.5);
+
+/* S6 */
+show("#s6-1",86.3);show("#s6-1b",86.7,.5,10);show("#s6-2",87.4);
+
+window.__timelines["main"] = tl;
+</script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+\usepackage{geometry}
+\geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+\usepackage{fontspec}
+\usepackage[english,vietnamese]{babel}
+\usepackage{graphicx}
+% Ensure included graphics do not overflow the page
+\setkeys{Gin}{width=\linewidth, keepaspectratio}
+\graphicspath{{figures/}}
+\usepackage{amsmath, amssymb}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,matrix,decorations.pathreplacing,shapes.misc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=ieee,sorting=none,language=english,autolang=none]{biblatex}
+\addbibresource{references.bib}
+\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue,
+  pdftitle={EE5223 - INT8 systolic array accelerator in a RISC-V system},
+  pdfauthor={EE5223 project group}}
+\setmainfont{Latin Modern Roman}
+\setsansfont{Latin Modern Sans}
+\setmonofont{Latin Modern Mono}
+\sisetup{detect-all = true, output-decimal-marker = {,}, group-separator = {\,}}
+\usepackage{listings}
+\captionsetup{font=small, labelfont=bf}
+\setlist{itemsep=2pt, topsep=4pt}
+\emergencystretch=2em
+
+% Listings styles for consistent pretty code blocks (same theme as the template)
+\definecolor{codebg}{RGB}{36,41,46}
+\definecolor{codefg}{RGB}{248,248,242}
+\definecolor{codekw}{RGB}{97,175,239}
+\definecolor{codestr}{RGB}{198,120,221}
+\definecolor{codecom}{RGB}{152,195,121}
+\definecolor{codenum}{RGB}{130,130,130}
+\lstdefinestyle{codecommon}{
+  basicstyle=\ttfamily\footnotesize\color{codefg},
+  numbers=left,
+  numberstyle=\scriptsize\color{codenum},
+  stepnumber=1,
+  numbersep=8pt,
+  frame=single,
+  framerule=0.6pt,
+  rulecolor=\color{black!50},
+  backgroundcolor=\color{codebg},
+  keywordstyle=\color{codekw},
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecom},
+  showstringspaces=false,
+  tabsize=2,
+  breaklines=true,
+  keepspaces=true,
+  columns=fullflexible,
+  aboveskip=6pt,
+  belowskip=8pt
+}
+\lstdefinestyle{codepy}{style=codecommon, language=Python}
+\lstdefinestyle{codebash}{style=codecommon, language=bash}
+\lstdefinestyle{codec}{style=codecommon, language=C}
+\lstdefinestyle{codesv}{style=codecommon, language=Verilog,
+  morekeywords={logic,always_ff,always_comb,genvar,int,automatic,function,endfunction,localparam,signed,unique,case,endcase}}
+\lstdefinestyle{codelog}{style=codecommon, numbers=none}
+\renewcommand{\lstlistingname}{Đoạn mã}
+\renewcommand{\lstlistlistingname}{Danh sách đoạn mã}
+
+% Visible placeholder for values that are still pending (FPGA fit, board run, ...)
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+% Placeholder for unknown identity fields on the title page
+\newcommand{\ph}[1]{\textcolor{red}{[#1]}}
+
+% Short-hands
+\newcommand{\NPU}{NPU}
+% inline code: allow line breaks after explicit hyphens and slashes in long tool/file names
+\newcommand{\code}[1]{\texttt{\hyphenchar\font=`\-\relax #1}}
+\DeclareRobustCommand{\_}{\ifmmode\mathunderscore\else\textunderscore\allowbreak\fi}
+\providecommand{\mathunderscore}{\textunderscore}
+\newcommand{\cyc}[1]{\num{#1}}

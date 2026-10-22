@@ -1,0 +1,30 @@
+
+8. Printing statistics.
+
+=== npu_avmm ===
+
+   Number of wires:              23988
+   Number of wire bits:          97104
+   Number of public wires:       23988
+   Number of public wire bits:   97104
+   Number of ports:                  9
+   Number of port bits:             84
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              53963
+     $scopeinfo                     82
+     MISTRAL_ALUT2                 643
+     MISTRAL_ALUT3                1037
+     MISTRAL_ALUT4                9609
+     MISTRAL_ALUT5                9389
+     MISTRAL_ALUT6                3285
+     MISTRAL_ALUT_ARITH           4285
+     MISTRAL_CLKBUF                  1
+     MISTRAL_FF                  25332
+     MISTRAL_IB                     50
+     MISTRAL_MLAB                  128
+     MISTRAL_MUL27X27                8
+     MISTRAL_MUL9X9                 80
+     MISTRAL_OB                     34
+

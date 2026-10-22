@@ -1,0 +1,58 @@
+mkdir -p build_soc_N8
+riscv64-unknown-elf-gcc -march=rv32im_zicsr -mabi=ilp32 -O2 -ffreestanding -nostdlib -DNN=8 -Ifw  -T fw/link.ld -o build_soc_N8/selftest.elf fw/start.S fw/selftest.c -lgcc
+/usr/lib/gcc/riscv64-unknown-elf/14.2.0/../../../riscv64-unknown-elf/bin/ld: warning: build_soc_N8/selftest.elf has a LOAD segment with RWX permissions
+riscv64-unknown-elf-objcopy -O binary build_soc_N8/selftest.elf build_soc_N8/selftest.bin
+python3 scripts/bin2hex.py build_soc_N8/selftest.bin > build_soc_N8/selftest.hex
+riscv64-unknown-elf-size build_soc_N8/selftest.elf
+   text	   data	    bss	    dec	    hex	filename
+   3832	      4	   3232	   7068	   1b9c	build_soc_N8/selftest.elf
+mkdir -p build_soc_N8
+verilator --binary --timing --trace -Wno-fatal -Wno-lint -Irtl \
+  --top-module tb_soc -DNPU_N=8 \
+  -Mdir build_soc_N8/obj third_party/picorv32/picorv32.v rtl/delay.sv rtl/pe.sv rtl/sa_top.sv rtl/npu_avmm.sv soc/soc_top.sv soc/tb_soc.sv -o ../Vtb_soc
+make[1]: Entering directory '/root/work_fit/build_soc_N8/obj'
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_vcd_c.o /usr/share/verilator/include/verilated_vcd_c.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_timing.o /usr/share/verilator/include/verilated_timing.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vtb_soc.cpp Vtb_soc___024root__DepSet_h21e26c16__0.cpp Vtb_soc___024root__DepSet_h5b1571fe__0.cpp Vtb_soc__main.cpp Vtb_soc__Trace__0.cpp Vtb_soc__ConstPool_0.cpp Vtb_soc___024root__Slow.cpp Vtb_soc___024root__DepSet_h21e26c16__0__Slow.cpp Vtb_soc___024root__DepSet_h5b1571fe__0__Slow.cpp Vtb_soc__Syms.cpp Vtb_soc__Trace__0__Slow.cpp Vtb_soc__TraceDecls__0__Slow.cpp > Vtb_soc__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=1 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DVL_TIME_CONTEXT   -fcoroutines -c -o Vtb_soc__ALL.o Vtb_soc__ALL.cpp
+echo "" > Vtb_soc__ALL.verilator_deplist.tmp
+g++    verilated.o verilated_vcd_c.o verilated_timing.o verilated_threads.o Vtb_soc__ALL.a    -pthread -lpthread -latomic   -o ../Vtb_soc
+rm Vtb_soc__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/root/work_fit/build_soc_N8/obj'
+- V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
+- Verilator: Built from 0.810 MB sources in 16 modules, into 1.192 MB in 12 C++ files needing 0.001 MB
+- Verilator: Walltime 18.666 s (elab=0.027, cvt=0.161, bld=18.427); cpu 0.236 s on 1 threads; alloced 19.156 MB
+cd build_soc_N8 && cp selftest.hex fw.hex && ./Vtb_soc | tee selftest.log
+selftest N=8
+trial 0 M=1 act=0 mult=32767 shift=0 PASS
+trial 1 M=64 act=1 mult=26142 shift=18 PASS
+trial 2 M=31 act=2 mult=13061 shift=27 PASS
+trial 3 M=51 act=3 mult=-7222 shift=8 PASS
+trial 4 M=5 act=0 mult=14932 shift=28 PASS
+trial 5 M=64 act=1 mult=32767 shift=31 PASS
+trial 6 M=12 act=2 mult=12643 shift=0 PASS
+trial 7 M=2 act=3 mult=32120 shift=18 PASS
+trial 8 M=58 act=0 mult=9706 shift=26 PASS
+trial 9 M=50 act=1 mult=23117 shift=25 PASS
+trial 10 M=4 act=2 mult=-32767 shift=27 PASS
+trial 11 M=20 act=3 mult=17966 shift=25 PASS
+trial 12 M=40 act=0 mult=6574 shift=0 PASS
+trial 13 M=57 act=1 mult=15916 shift=31 PASS
+trial 14 M=61 act=2 mult=23107 shift=26 PASS
+trial 15 M=20 act=3 mult=32767 shift=24 PASS
+trial 16 M=54 act=0 mult=25770 shift=21 PASS
+trial 17 M=59 act=1 mult=-319 shift=16 PASS
+trial 18 M=60 act=2 mult=20492 shift=0 PASS
+trial 19 M=8 act=3 mult=6165 shift=12 PASS
+trial 20 M=30 act=0 mult=32767 shift=19 PASS
+trial 21 M=45 act=1 mult=2106 shift=12 PASS
+trial 22 M=3 act=2 mult=29190 shift=20 PASS
+trial 23 M=27 act=3 mult=21084 shift=17 PASS
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 71ms; walltime 8.942 s; speed 7.929 ms/s
+- Verilator: cpu 8.941 s on 1 threads; alloced 57 MB

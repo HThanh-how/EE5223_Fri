@@ -1,0 +1,100 @@
+\chapter{Trích đoạn log kiểm thử}
+\label{app:logs}
+Các trích đoạn dưới đây được chép nguyên văn (chỉ bỏ bớt dòng lặp, đánh dấu ``\ldots'') từ các tệp trong \code{results/} và \code{demo/demo\_output/}.
+
+\section{Unit test mảng ($N=4$, \code{demo/demo\_output/stage1\_unit.txt})}
+\begin{lstlisting}[style=codelog]
+[identity] M=8 gap=0 : PASS
+[single-row] M=1 gap=0 : PASS
+[random-back2back] M=32 gap=0 : PASS
+[random-gaps] M=32 gap=3 : PASS
+[extreme-neg] M=16 gap=0 : PASS
+[extreme-mix] M=16 gap=0 : PASS
+[random-sweep] M=12 gap=0 : PASS
+[random-sweep] M=37 gap=3 : PASS
+...
+[random-sweep] M=36 gap=0 : PASS
+N=4 : 26 tests, ALL PASS
+\end{lstlisting}
+
+\section{Self-test hậu xử lý ($N=8$, \code{results/selftest\_N8.log})}
+\begin{lstlisting}[style=codelog]
+selftest N=8
+trial 0 M=1 act=0 mult=32767 shift=0 PASS
+trial 1 M=64 act=1 mult=26142 shift=18 PASS
+trial 2 M=31 act=2 mult=13061 shift=27 PASS
+trial 3 M=51 act=3 mult=-7222 shift=8 PASS
+...
+trial 5 M=64 act=1 mult=32767 shift=31 PASS
+...
+trial 10 M=4 act=2 mult=-32767 shift=27 PASS
+...
+trial 23 M=27 act=3 mult=21084 shift=17 PASS
+RESULT: ALL PASS
+\end{lstlisting}
+
+\section{GEMM demo ($N=8$, \code{results/gemm\_demo\_N8.log})}
+\begin{lstlisting}[style=codelog]
+NPU N=8 DEPTH=64
+M=1 cpu_cycles=2785 npu_total=1629 npu_compute=17 mismatches=0 PASS
+M=8 cpu_cycles=22133 npu_total=4576 npu_compute=24 mismatches=0 PASS
+M=32 cpu_cycles=88469 npu_total=14718 npu_compute=48 mismatches=0 PASS
+M=64 cpu_cycles=176917 npu_total=28209 npu_compute=80 mismatches=0 PASS
+RESULT: ALL PASS
+\end{lstlisting}
+
+\section{LeNet-5 ($N=8$, \code{results/cnn\_N8.log})}
+\begin{lstlisting}[style=codelog]
+LeNet-5 INT8, N=8
+  profile(img0): weight_wr=279357 act_wr=257523 run+poll=141576 result_rd=33291 other(im2col,pool,...)=1211873
+img 0 label=7 pred=7 cpu_cyc=13254614 npu_cyc=1923620 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+img 1 label=2 pred=2 cpu_cyc=13253922 npu_cyc=1923734 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+...
+img 7 label=9 pred=9 cpu_cyc=13253877 npu_cyc=1923677 npu_busy=17298 calls=741 mism(cpu/npu vs golden)=0/0
+avg cpu_cyc=13254324 avg npu_cyc=1923665 speedup_x100=689 npu_busy_share_x100=89
+correct=8/8
+RESULT: ALL PASS
+\end{lstlisting}
+
+\section{LeNet-5 ($N=4$, \code{results/cnn\_N4.log})}
+\begin{lstlisting}[style=codelog]
+LeNet-5 INT8, N=4
+  profile(img0): weight_wr=524628 act_wr=727524 run+poll=596100 result_rd=54870 other(im2col,pool,...)=1524004
+img 0 label=7 pred=7 cpu_cyc=13235873 npu_cyc=3427126 npu_busy=45402 calls=2964 mism(cpu/npu vs golden)=0/0
+...
+avg cpu_cyc=13235583 avg npu_cyc=3427171 speedup_x100=386 npu_busy_share_x100=132
+correct=8/8
+RESULT: ALL PASS
+\end{lstlisting}
+
+\section{LSTM ($N=8$ và $N=4$, \code{results/lstm\_N*.log})}
+\begin{lstlisting}[style=codelog]
+LSTM INT8, N=8 images=16
+cpu_only batch=1   cycles/img=3559094
+npu batch=1        cycles/img=1068230 npu_busy/img=23142 calls/img=1348 correct=16/16
+npu batch=16       cycles/img=217262 npu_busy/img=2710 calls total=1348 correct=16/16
+speedup_x100 vs cpu: batch1=333 batchN=1638
+mismatches vs golden: 0
+RESULT: ALL PASS
+
+LSTM INT8, N=4 images=16
+cpu_only batch=1   cycles/img=3559094
+npu batch=1        cycles/img=2275843 npu_busy/img=48980 calls/img=5392 correct=16/16
+npu batch=16       cycles/img=387103 npu_busy/img=8116 calls total=5392 correct=16/16
+speedup_x100 vs cpu: batch1=156 batchN=919
+mismatches vs golden: 0
+RESULT: ALL PASS
+\end{lstlisting}
+
+\section{Firmware DE10 trên bản đồ bộ nhớ DE10}
+Trích từ \code{de10/sim/logs/cnn\_run.log} (rút gọn):
+\begin{lstlisting}[style=codelog]
+LeNet-5 INT8, N=8
+...
+avg cpu_cyc=13254287 avg npu_cyc=1923654 speedup_x100=689 npu_busy_share_x100=89
+correct=8/8
+RESULT: ALL PASS
+[niosv] exit code 0
+[tb] LED PIO = 0x0c
+[tb] firmware finished: PASS
+\end{lstlisting}

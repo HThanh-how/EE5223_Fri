@@ -1,0 +1,54 @@
+\chapter{Các phép dẫn chi tiết}
+\label{app:derivations}
+
+\section{Độ trễ của mảng systolic}
+\label{app:latency}
+\paragraph{Quy ước.} Gọi $x^{(t)}$ là giá trị của tín hiệu $x$ trong chu kỳ $t$ (giữa sườn $t$ và $t+1$). Một thanh ghi cho $y^{(t+1)}=f(x^{(t)})$. Mô-đun \code{delay} với tham số $D$ cho $\text{dout}^{(t)}=\text{din}^{(t-D)}$. Hàng $A_{m,:}$ được đưa vào \code{a\_in} trong chu kỳ $m$ (đưa liên tiếp, không khoảng trống; trường hợp có khoảng trống chỉ dịch chỉ số thời gian).
+
+\paragraph{Mệnh đề 1 (kích hoạt).} $a\_bus[i][j]^{(t)} = A_{t-i-j,\,i}$ với mọi $0\le i<N$, $0\le j\le N$.
+
+\emph{Chứng minh.} Với $j=0$: \code{a\_bus[i][0]} là đầu ra của \code{delay} $D=i$ nối với \code{a\_in[i]}, nên bằng $A_{t-i,i}$. Giả sử đúng với $j$; PE$(i,j)$ thanh ghi $a$ nên $a\_bus[i][j+1]^{(t)}=a\_bus[i][j]^{(t-1)}=A_{t-1-i-j,i}$. $\square$
+
+\paragraph{Mệnh đề 2 (tổng riêng).} $ps\_bus[i][j]^{(t)} = \sum_{r=0}^{i-1} A_{t-i-j,\,r}\,W_{r,j}$ với $0\le i\le N$.
+
+\emph{Chứng minh.} Với $i=0$ tổng rỗng bằng 0 (\code{ps\_bus[0][j]}$=0$). Giả sử đúng với $i$. PE$(i,j)$ cho
+\[
+ps\_bus[i+1][j]^{(t)} = ps\_bus[i][j]^{(t-1)} + a\_bus[i][j]^{(t-1)}\,W_{i,j}
+= \sum_{r=0}^{i-1}A_{t-1-i-j,r}W_{r,j} + A_{t-1-i-j,i}W_{i,j},
+\]
+và $t-1-i-j=t-(i+1)-j$, nên đúng với $i+1$. $\square$
+
+\paragraph{Hệ quả.} Với $i=N$: $ps\_bus[N][j]^{(t)} = C_{t-N-j,\,j}$. Sau de-skew $D=N-1-j$:
+\[
+c\_out[j]^{(t)} = ps\_bus[N][j]^{(t-N+1+j)} = C_{t-2N+1,\,j},
+\]
+không phụ thuộc $j$. Đồng thời $\text{out\_valid}^{(t)}=\text{in\_valid}^{(t-2N+1)}$. Vậy hàng $C_{m,:}$ xuất hiện đầy đủ đúng ở chu kỳ $t=m+2N-1$ cùng với \code{out\_valid}. Độ trễ là $2N-1$. $\blacksquare$
+
+\paragraph{Chu kỳ busy của một lượt.} Gọi chu kỳ đầu tiên có \code{busy}$=1$ là chu kỳ 1. Trong chu kỳ $s$ ($1\le s\le M$) sequencer đọc \code{amem[s-1]} vào thanh ghi \code{a\_q}, nên hàng $m$ có mặt ở \code{a\_in} trong chu kỳ $m+2$ và ra ở chu kỳ $m+2+2N-1=m+2N+1$. Hàng cuối $m=M-1$ ra ở chu kỳ $M+2N$; trong chu kỳ này CBUF được ghi và \code{busy} được hạ (không QUANT). Bộ đếm CYCLES tăng ở mọi chu kỳ busy, nên $T_\text{busy}=M+2N$. Với QUANT, hàng cuối còn đi qua thêm thanh ghi \code{prod} rồi mới ghi QBUF ở chu kỳ kế tiếp: $T_\text{busy}=M+2N+1$. Hai công thức này khớp với mọi số đo (Bảng~\ref{tab:gemm}, Mục~\ref{sec:res-cnn}).
+
+\section{Độ rộng bit của đường dữ liệu}
+\label{app:bitwidth}
+\begin{table}[H]
+  \centering
+  \caption{Khoảng giá trị và độ rộng bit trong đường dữ liệu}
+  \label{tab:bitwidth}
+  \begin{tabular}{llll}
+    \toprule
+    Đại lượng & Khoảng giá trị & Bit cần & Bit trong RTL \\
+    \midrule
+    $a$, $w$ & $[-128,127]$ & 8 & 8 \\
+    $a\cdot w$ & $[-16256,\,16384]$ & 16 & 32 (mở rộng dấu) \\
+    tổng riêng sau $N$ PE & $|\cdot|\le 2^{14}N$ & $15+\log_2N+1$ & 32 \\
+    acc sau $K$ (CBUF) & $|\cdot|\le 2^{14}K$ & $\le32$ nếu $K\le\num{131071}$ & 32 \\
+    $\text{acc}+\text{bias}$ & $|\cdot|<2^{32}$ & 33 & 48 \\
+    $(\text{acc}+\text{bias})\cdot\mu$ & $|\cdot|<2^{32}\cdot2^{15}=2^{47}$ & 48 & 48 (\code{prod}) \\
+    $+2^{\sigma-1}$, $\gg\sigma$ & & 49 & 64 (trong hàm \code{post}) \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Điều kiện không tràn của bộ tích lũy INT32 là $2^{14}K\le2^{31}-1$, tức $K\le\num{131071}$. Với các mạng trong đề tài, $K_p\le256$ nên $|\text{acc}|\le 2^{22}$, dư rất xa. Tích 48 bit đủ chứa trường hợp xấu nhất $|\text{acc}+\text{bias}|<2^{32}$ nhân $|\mu|\le2^{15}$. Phần cộng hằng làm tròn và dịch được làm trong 64 bit để tránh tràn khi $\sigma=31$.
+
+\paragraph{Sai số của xấp xỉ $\mathcal{M}\approx\mu2^{-\sigma}$.} Vì $\sigma$ được chọn lớn nhất sao cho $|\mu|\le32767$, ta có $|\mu|\ge 16384$ (trừ khi $\sigma=31$ đạt trần), nên sai số làm tròn tương đối $|\mathcal{M}-\mu2^{-\sigma}|/\mathcal{M}\le 2^{-1}/|\mu|\le2^{-15}\approx3\cdot10^{-5}$ -- nhỏ hơn rất nhiều so với sai số lượng tử INT8 ($2^{-8}$).
+
+\paragraph{Làm tròn.} Cộng $2^{\sigma-1}$ rồi dịch số học là làm tròn ``nửa lên'' (round half up, về phía $+\infty$) -- khác với làm tròn ``nửa ra xa 0'' của một số thư viện. Điều quan trọng là phần cứng, C và Python dùng cùng một quy ước, nên kết quả trùng bit.

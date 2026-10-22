@@ -1,0 +1,46 @@
+# build outputs
+build_*/
+preflight_logs/
+*.vcd
+*.fst
+*.o
+*.log.tmp
+__pycache__/
+node_modules/
+
+# large / regenerable data (published as release assets instead)
+data/
+video/out/
+viz/web/dist/
+de10/out/
+report_preview.pdf
+
+# Quartus
+**/db/
+**/incremental_db/
+**/output_files/
+**/qdb/
+**/.qsys_edit/
+**/*.qws
+**/*.sopcinfo.bak
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.run.xml
+report.pdf
+
+# large generated reports and media (published in the release bundle instead)
+*.sof
+*.fit.rpt
+*.map.rpt
+synth/reports/*.log
+de10/fw/build/
+de10/reports/ref_rtl/
+media/video/

@@ -1,0 +1,1 @@
+create_system: core=intel_niosv_g N=8 DEPTH=64 init=onchip_init.hex

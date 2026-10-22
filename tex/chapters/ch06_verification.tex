@@ -1,0 +1,94 @@
+\chapter{Phương pháp kiểm chứng}
+\label{ch:verif}
+
+\section{Chiến lược}
+Kiểm chứng được tổ chức theo tầng, từ khối nhỏ nhất tới hệ thống đầy đủ, và ở mọi tầng đều dùng \textbf{so sánh bit-exact} với một mô hình tham chiếu độc lập (golden model) chứ không so sánh gần đúng. Điều này khả thi vì toàn bộ đường dữ liệu là số nguyên với công thức làm tròn được định nghĩa chính xác (\eqref{eq:requant}). Hình~\ref{fig:verif-flow} tóm tắt bốn tầng.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[node distance=0.5cm and 0.6cm, >={Stealth[length=2mm]}, font=\footnotesize,
+      box/.style={draw, thick, rounded corners, align=center, minimum width=3.2cm, minimum height=1.1cm, fill=blue!6},
+      ref/.style={draw, thick, rounded corners, align=center, minimum width=3.2cm, minimum height=1.1cm, fill=green!8}]
+    \node[box] (t1) {Tầng 1: \code{sa\_top}\\Verilator C++ TB};
+    \node[box, below=of t1] (t2) {Tầng 2: \code{npu\_avmm}\\+ PicoRV32 (selftest)};
+    \node[box, below=of t2] (t3) {Tầng 3: GEMM demo\\CPU vs \NPU{}};
+    \node[box, below=of t3] (t4) {Tầng 4: LeNet-5, LSTM\\CPU vs \NPU{} vs golden};
+    \node[ref, right=2.2cm of t1] (r1) {GEMM C++\\(\code{int32})};
+    \node[ref, right=2.2cm of t2] (r2) {\code{requant\_ref} (C)};
+    \node[ref, right=2.2cm of t3] (r3) {GEMM C trên CPU};
+    \node[ref, right=2.2cm of t4] (r4) {Python \code{cnn\_int}/\\\code{lstm\_int}};
+    \foreach \k in {1,2,3,4} { \draw[<->, thick] (t\k) -- node[above]{bit-exact} (r\k); }
+    \draw[->] (t1) -- (t2); \draw[->] (t2) -- (t3); \draw[->] (t3) -- (t4);
+  \end{tikzpicture}
+  \caption{Bốn tầng kiểm chứng và mô hình tham chiếu tương ứng}
+  \label{fig:verif-flow}
+\end{figure}
+
+\section{Tầng 1: unit test mảng systolic}
+Testbench \code{sim/tb\_sa.cpp} điều khiển trực tiếp \code{sa\_top} đã được Verilator biên dịch: nạp trọng số qua cổng ghi từ 32 bit, đưa $M$ hàng kích hoạt (có thể chèn chu kỳ rỗng), thu các hàng ra khi \code{out\_valid}$=1$, và so sánh với GEMM tham chiếu C++ tính bằng \code{int32\_t}. Nó cũng kiểm tra số hàng ra đúng bằng $M$ (không mất, không thừa hàng). Bảng~\ref{tab:unit-tests} liệt kê 26 test cho mỗi $N$.
+
+\begin{table}[H]
+  \centering
+  \caption{Danh mục unit test của \code{sa\_top} (mỗi giá trị $N$)}
+  \label{tab:unit-tests}
+  \begin{tabularx}{\linewidth}{lcclX}
+    \toprule
+    Tên & $M$ & Số test & Khoảng trống & Mục đích \\
+    \midrule
+    \code{identity} & 8 & 1 & không & $W=I$: kiểm tra định tuyến và skew/de-skew \\
+    \code{single-row} & 1 & 1 & không & đường ống chỉ có một hàng (độ trễ thuần) \\
+    \code{random-back2back} & 32 & 1 & không & hàng liên tiếp, đường ống đầy \\
+    \code{random-gaps} & 32 & 1 & mỗi 3 chu kỳ & \code{in\_valid} gián đoạn, căn chỉnh \code{out\_valid} \\
+    \code{extreme-neg} & 16 & 1 & không & mọi giá trị $-128$: tích lớn nhất $16384$, kiểm tra dấu \\
+    \code{extreme-mix} & 16 & 1 & không & $A\in\{-128,-127\}$, $W\in\{126,127\}$: tổng âm lớn \\
+    \code{random-sweep} & 1--40 & 20 & 0, 2 hoặc 3 & $M$ và khoảng trống ngẫu nhiên \\
+    \midrule
+    \textbf{Tổng} & & \textbf{26} & & \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Testbench có thể ghi dạng sóng VCD (\code{make wave}) để quan sát độ trễ $2N-1$ (Hình~\ref{fig:waveform}).
+
+\section{Tầng 2: self-test hậu xử lý trên SoC}
+\code{fw/selftest.c} chạy trên PicoRV32 trong SoC mô phỏng, đi qua toàn bộ đường Avalon-MM. Mỗi phép thử gồm hai lượt chạy: lượt 1 (không cờ) với khối $W_0$, lượt 2 (ACCUM|QUANT) với khối $W_1$, nên kiểm tra được tích lũy $K$ với $K=2N$. Firmware so sánh \emph{cả} CBUF (INT32) với tích lũy tham chiếu \emph{và} QBUF (INT8) với \code{requant\_ref}. 24 phép thử được sinh bởi bộ sinh số giả ngẫu nhiên, có chủ ý bao phủ các góc:
+\begin{itemize}
+  \item $M=1$ (phép thử 0) và $M=64=$ DEPTH (phép thử 1), các $M$ ngẫu nhiên khác;
+  \item cả 4 chế độ kích hoạt (\code{act} $=$ trial mod 4);
+  \item $\mu=32767$ (lớn nhất), $\mu$ âm (trial mod 7 $=3$, và $\mu=-32767$), $\sigma=0$ (không làm tròn) và $\sigma=31$ (lớn nhất);
+  \item phép thử 2: mọi $A$ và $W$ bằng $-128$ (tích lũy dương lớn nhất $2N\cdot16384$);
+  \item bias ngẫu nhiên trong $[-10000, 10000]$.
+\end{itemize}
+
+\section{Tầng 3: GEMM demo}
+\code{fw/gemm\_demo.c} nhân $M\times N$ với $N\times N$ cho $M\in\{1,8,32,64\}$ bằng CPU và bằng \NPU{}, so sánh toàn bộ $M\cdot N$ phần tử INT32, đồng thời đo số chu kỳ CPU, tổng số chu kỳ \NPU{} nhìn từ host và số chu kỳ busy của \NPU{}. Phần tử $A_{0,0}=W_{0,0}=-128$ được cài cố ý.
+
+\section{Tầng 4: suy luận đầu-cuối}
+\code{fw/cnn.c} chạy 8 ảnh MNIST đầu tiên của tập kiểm tra; với mỗi ảnh, chạy bản chỉ-CPU rồi bản \NPU{}, so sánh cả 10 logit của mỗi bản với logit vàng do \code{quantize.py} tính. \code{fw/lstm.c} chạy 16 ảnh với ba cấu hình: chỉ-CPU (2 ảnh, vì chi phí không phụ thuộc dữ liệu), \NPU{} batch 1 (16 ảnh) và \NPU{} batch 16. Dòng \code{mism(cpu/npu vs golden)} và \code{mismatches vs golden} trong log phải bằng 0.
+
+\section{Tổng hợp kết quả kiểm chứng}
+Bảng~\ref{tab:verif-summary} tổng hợp. Mọi số liệu lấy từ các tệp log trong \code{results/} và \code{demo/demo\_output/} (trích đoạn ở Phụ lục~\ref{app:logs}).
+
+\begin{table}[H]
+  \centering
+  \caption{Tổng hợp kết quả kiểm chứng (mô phỏng Verilator 5.032)}
+  \label{tab:verif-summary}
+  \small
+  \begin{tabularx}{\linewidth}{>{\raggedright}X>{\raggedright}p{2.1cm}>{\raggedright}p{2.1cm}>{\raggedright\arraybackslash}p{4.3cm}}
+    \toprule
+    Bộ kiểm chứng & $N=4$ & $N=8$ & Nguồn log \\
+    \midrule
+    Unit test \code{sa\_top} (26 test) & 26/26 PASS & 26/26 PASS\textsuperscript{a} & \code{demo/demo\_output/stage1\_unit.txt} \\
+    Selftest hậu xử lý (24 phép thử) & 24/24 PASS & 24/24 PASS & \code{results/selftest\_N*.log} \\
+    GEMM demo ($M=1,8,32,64$) & 4/4, 0 sai & 4/4, 0 sai & \code{results/run\_N4.log}, \code{gemm\_demo\_N8.log} \\
+    LeNet-5, 8 ảnh (CPU và \NPU{} vs golden) & 0/0 sai, 8/8 đúng nhãn & 0/0 sai, 8/8 đúng nhãn & \code{results/cnn\_N*.log} \\
+    LSTM, 16 ảnh (CPU, batch 1, batch 16) & 0 sai, 16/16 & 0 sai, 16/16 & \code{results/lstm\_N*.log} \\
+    \bottomrule
+  \end{tabularx}
+
+  \smallskip
+  \raggedright\footnotesize \textsuperscript{a} Log $N=8$: \code{results/test\_N8.log} (chạy lại \code{make test N=8} trên Verilator 5.032, dòng cuối \code{N=8 : 26 tests, ALL PASS}).
+\end{table}
+
+\section{Giới hạn của phương pháp kiểm chứng}
+Kiểm chứng ở đây là \emph{mô phỏng có định hướng cộng ngẫu nhiên} (directed + random). Đề tài \textbf{không} dùng kiểm chứng hình thức (formal), không đo độ bao phủ mã/chức năng (coverage), và không dùng assertion SystemVerilog (SVA). Một số tình huống chưa được kiểm tra có hệ thống: ghi vào ABUF/WEIGHT khi đang busy (RTL bỏ qua theo thiết kế, nhưng chưa có test), lỗi $M=0$ hoặc $M>64$ (bit err), đọc ngoài phạm vi bộ đệm, và các tổ hợp $\sigma$ nhỏ với tích lũy rất lớn gần ngưỡng tràn (Phụ lục~\ref{app:bitwidth} chỉ ra rằng với INT8 và $K\le\num{131071}$ thì bộ tích lũy 32 bit và tích 48 bit đều không tràn). Số ảnh suy luận đầu-cuối trên RTL (8 và 16) là nhỏ do tốc độ mô phỏng (khoảng 10\,ms thời gian mô phỏng mỗi giây thực); độ chính xác trên \num{10000} ảnh được đo bằng mô hình số nguyên Python, mà tính tương đương bit với RTL được xác lập trên các ảnh đã chạy.

@@ -1,0 +1,54 @@
+\chapter{Hướng dẫn tái lập kết quả}
+\label{app:repro}
+
+\section{Môi trường}
+Luồng mô phỏng chạy trên Linux với các công cụ: Verilator $\ge5$ (đã dùng 5.032); trình biên dịch chéo \code{riscv64-unknown-elf-gcc} (đã dùng bản 14); Python 3 với NumPy; GNU make và g++. Mã nguồn PicoRV32 nằm trong thư mục \code{third\_party/picorv32} (giấy phép ISC). Trên Debian/Ubuntu:
+\begin{lstlisting}[style=codebash]
+sudo apt-get install verilator gcc-riscv64-unknown-elf make g++ python3 python3-numpy
+\end{lstlisting}
+Hoặc dùng ảnh Docker của dự án (Phụ lục~\ref{app:docker}).
+
+\section{Mô phỏng}
+\begin{lstlisting}[style=codebash]
+make test N=8                  # unit test sa_top: 26 tests
+make wave N=4                  # same, with sa_top.vcd waveform
+make soc  N=8 FW=gemm_demo     # GEMM CPU vs NPU, M = 1, 8, 32, 64
+make soc  N=8 FW=selftest      # 24 post-processing trials
+make soc  N=8 FW=cnn           # LeNet-5, 8 images (about 2 minutes)
+make soc  N=8 FW=lstm          # LSTM, 16 images, batch 1 and 16
+bash scripts/preflight.sh      # everything above for N=4 and N=8, summary table
+\end{lstlisting}
+Log của mỗi lần chạy nằm ở \code{build\_soc\_N<N>/<FW>.log}; các bản đã lưu ở \code{results/}.
+
+\section{Lượng tử hóa và sinh mô hình}
+\begin{lstlisting}[style=codebash]
+python3 scripts/gen_lut.py .       # rtl/lut_tables.svh, fw/lut_tables.h
+python3 scripts/quantize.py        # needs data/mnist.npz and model/*.npz
+# prints float / int8 accuracy on 10k test images and writes fw/model_*.h
+python3 model/train.py             # (optional) retrain the float models
+\end{lstlisting}
+Tệp \code{data/mnist.npz} không nằm trong kho (xem \code{.gitignore}); cần tải MNIST và lưu dưới dạng các mảng \code{x\_train}, \code{y\_train}, \code{x\_test}, \code{y\_test}.
+
+\section{Hình vẽ}
+\begin{lstlisting}[style=codebash]
+python demo/make_figures.py        # regenerates demo/figures/*.png from results/*.log
+demo/prepare.sh && demo/run_demo.sh --pause   # live demo, 5 stages
+\end{lstlisting}
+
+\section{FPGA DE10-Nano}
+\begin{lstlisting}[style=codebash]
+# open-source check of the DE10 firmware on the DE10 memory map (PicoRV32 stand-in)
+de10/sim/run_sim.sh cnn 8
+# full Quartus build (Quartus Prime Lite + Platform Designer in PATH, de10/env.sh)
+FW=cnn NPU_N=8 de10/scripts/build.sh
+# program the FPGA (device 2 on the DE10-Nano JTAG chain) and open the console
+quartus_pgm -m jtag -o "p;de10/output_files/de10_nano_npu.sof@2"
+juart-terminal
+\end{lstlisting}
+\todo{xác nhận lệnh nạp và tên tệp \code{.sof} theo README của \code{de10/} khi tác vụ FPGA hoàn tất}.
+
+\section{Báo cáo này}
+\begin{lstlisting}[style=codebash]
+latexmk -xelatex -shell-escape report.tex    # or: make -f Makefile.report
+powershell -File build.ps1                    # Windows (MiKTeX / TeX Live)
+\end{lstlisting}

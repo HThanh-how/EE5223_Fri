@@ -1,0 +1,45 @@
+verilator --cc --exe --build --trace -Wall -Wno-UNUSEDSIGNAL -Wno-DECLFILENAME \
+  --top-module sa_top -GN=8 -CFLAGS -DN_=8 \
+  -Mdir build_N8 rtl/delay.sv rtl/pe.sv rtl/sa_top.sv sim/tb_sa.cpp -o Vsa_top
+make[1]: Entering directory '/root/work_fit/build_N8'
+g++  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DN_=8   -Os  -c -o tb_sa.o ../sim/tb_sa.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DN_=8   -c -o verilated.o /usr/share/verilator/include/verilated.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DN_=8   -c -o verilated_vcd_c.o /usr/share/verilator/include/verilated_vcd_c.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DN_=8   -c -o verilated_threads.o /usr/share/verilator/include/verilated_threads.cpp
+python3 /usr/share/verilator/bin/verilator_includer -DVL_INCLUDE_OPT=include Vsa_top.cpp Vsa_top___024root__DepSet_h685b4070__0.cpp Vsa_top___024root__DepSet_hcb45b15d__0.cpp Vsa_top__Trace__0.cpp Vsa_top___024root__Slow.cpp Vsa_top___024root__DepSet_h685b4070__0__Slow.cpp Vsa_top___024root__DepSet_hcb45b15d__0__Slow.cpp Vsa_top__Syms.cpp Vsa_top__Trace__0__Slow.cpp Vsa_top__TraceDecls__0__Slow.cpp > Vsa_top__ALL.cpp
+g++ -Os  -I.  -MMD -I/usr/share/verilator/include -I/usr/share/verilator/include/vltstd -DVM_COVERAGE=0 -DVM_SC=0 -DVM_TIMING=0 -DVM_TRACE=1 -DVM_TRACE_FST=0 -DVM_TRACE_VCD=1 -faligned-new -fcf-protection=none -Wno-bool-operation -Wno-shadow -Wno-sign-compare -Wno-tautological-compare -Wno-uninitialized -Wno-unused-but-set-parameter -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unused-variable    -DN_=8   -c -o Vsa_top__ALL.o Vsa_top__ALL.cpp
+echo "" > Vsa_top__ALL.verilator_deplist.tmp
+g++    tb_sa.o verilated.o verilated_vcd_c.o verilated_threads.o Vsa_top__ALL.a    -pthread -lpthread -latomic   -o Vsa_top
+rm Vsa_top__ALL.verilator_deplist.tmp
+make[1]: Leaving directory '/root/work_fit/build_N8'
+- V e r i l a t i o n   R e p o r t: Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
+- Verilator: Built from 0.042 MB sources in 4 modules, into 0.492 MB in 10 C++ files needing 0.000 MB
+- Verilator: Walltime 13.714 s (elab=0.006, cvt=0.052, bld=13.643); cpu 0.071 s on 1 threads; alloced 13.105 MB
+./build_N8/Vsa_top
+[identity] M=8 gap=0 : PASS
+[single-row] M=1 gap=0 : PASS
+[random-back2back] M=32 gap=0 : PASS
+[random-gaps] M=32 gap=3 : PASS
+[extreme-neg] M=16 gap=0 : PASS
+[extreme-mix] M=16 gap=0 : PASS
+[random-sweep] M=19 gap=0 : PASS
+[random-sweep] M=23 gap=0 : PASS
+[random-sweep] M=15 gap=0 : PASS
+[random-sweep] M=8 gap=0 : PASS
+[random-sweep] M=11 gap=3 : PASS
+[random-sweep] M=35 gap=0 : PASS
+[random-sweep] M=36 gap=0 : PASS
+[random-sweep] M=13 gap=0 : PASS
+[random-sweep] M=1 gap=2 : PASS
+[random-sweep] M=14 gap=0 : PASS
+[random-sweep] M=23 gap=0 : PASS
+[random-sweep] M=38 gap=2 : PASS
+[random-sweep] M=35 gap=0 : PASS
+[random-sweep] M=12 gap=0 : PASS
+[random-sweep] M=38 gap=2 : PASS
+[random-sweep] M=28 gap=3 : PASS
+[random-sweep] M=27 gap=0 : PASS
+[random-sweep] M=27 gap=2 : PASS
+[random-sweep] M=20 gap=3 : PASS
+[random-sweep] M=14 gap=2 : PASS
+N=8 : 26 tests, ALL PASS

@@ -1,0 +1,17 @@
+   text	   data	    bss	    dec	    hex	filename
+  23916	      0	   3168	  27084	   69cc	de10/sim/build_N8/lstm.elf
+[tb] LED PIO = 0x02
+LSTM INT8, N=8 images=16
+cpu_only batch=1   cycles/img=3558958
+npu batch=1        cycles/img=1066615 npu_busy/img=23142 calls/img=1348 correct=16/16
+npu batch=16       cycles/img=217162 npu_busy/img=2710 calls total=1348 correct=16/16
+speedup_x100 vs cpu: batch1=333 batchN=1638
+mismatches vs golden: 0
+RESULT: ALL PASS
+[niosv] exit code 0
+[tb] LED PIO = 0x0c
+[tb] firmware finished: PASS
+- de10/sim/tb_de10_map.sv:83: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 554ms; walltime 29.836 s; speed 18.794 ms/s
+- Verilator: cpu 29.479 s on 1 threads; alloced 57 MB

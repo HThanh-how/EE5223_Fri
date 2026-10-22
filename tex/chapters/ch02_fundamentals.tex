@@ -1,0 +1,204 @@
+\chapter{Cơ sở lý thuyết}
+\label{ch:fund}
+
+\section{Nhân ma trận và khối lượng tính toán của mạng nơ-ron}
+Cho $A\in\mathbb{Z}^{M\times K}$ (ma trận kích hoạt, mỗi hàng là một ``mẫu'' hoặc một vị trí không gian), $W\in\mathbb{Z}^{K\times C}$ (ma trận trọng số) và vector bias $b\in\mathbb{Z}^{C}$. Lớp tuyến tính tính
+\begin{equation}
+  C_{m,c} \;=\; b_c + \sum_{k=0}^{K-1} A_{m,k}\, W_{k,c}, \qquad 0\le m<M,\; 0\le c<C,
+  \label{eq:gemm}
+\end{equation}
+gồm đúng $M\cdot K\cdot C$ phép MAC. Lớp kết nối đầy đủ (FC) là \eqref{eq:gemm} với $M$ bằng kích thước batch. Lớp tích chập trở thành \eqref{eq:gemm} sau phép im2col (Mục~\ref{sec:im2col}), và mỗi bước thời gian của LSTM gồm một GEMM cho cả bốn cổng (Mục~\ref{sec:lstm}). Bảng~\ref{tab:macs} tổng hợp số MAC của hai mạng dùng trong đề tài, tính từ kích thước lớp trong \code{fw/model\_cnn.h} và \code{fw/model\_lstm.h}.
+
+\begin{table}[H]
+  \centering
+  \caption{Số phép MAC trên một ảnh của hai mạng trong đề tài}
+  \label{tab:macs}
+  \begin{tabular}{llrrrr}
+    \toprule
+    Mạng & Lớp & $M$ & $K$ & $C$ & MAC \\
+    \midrule
+    \multirow{6}{*}{LeNet-5} & conv1 (im2col) & 576 & 25 & 6 & \num{86400}\\
+     & conv2 (im2col) & 64 & 150 & 16 & \num{153600}\\
+     & fc1 & 1 & 256 & 120 & \num{30720}\\
+     & fc2 & 1 & 120 & 84 & \num{10080}\\
+     & fc3 & 1 & 84 & 10 & \num{840}\\
+     & \textbf{Tổng} & & & & \textbf{\num{281640}}\\
+    \midrule
+    \multirow{3}{*}{LSTM} & cổng (mỗi bước, $\times 28$) & 1 & 44 & 64 & $28\times\num{2816}=\num{78848}$\\
+     & FC cuối & 1 & 16 & 10 & \num{160}\\
+     & \textbf{Tổng} & & & & \textbf{\num{79008}}\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Với một CPU vô hướng như PicoRV32, mỗi MAC INT8 cần ít nhất hai lệnh nạp, một lệnh nhân, một lệnh cộng và chi phí vòng lặp; mỗi lệnh lại tốn nhiều chu kỳ. Điều này giải thích vì sao bản chỉ-CPU của LeNet-5 cần khoảng 13,25 triệu chu kỳ cho \num{281640} MAC (khoảng 47 chu kỳ/MAC, bao gồm cả im2col và pooling).
+
+\section{Mảng systolic}
+\label{sec:systolic}
+Mảng systolic \cite{kung1982} là một lưới hai chiều các PE giống nhau. Ở mỗi sườn đồng hồ, mỗi PE nhận dữ liệu từ PE lân cận, thực hiện một phép MAC và chuyển dữ liệu (đã thanh ghi) sang PE kế tiếp. Ba đặc điểm làm kiến trúc này hấp dẫn:
+\begin{itemize}
+  \item \textbf{Tái sử dụng dữ liệu}: một giá trị kích hoạt được đọc một lần nhưng tham gia $N$ phép MAC khi đi ngang qua một hàng PE; một tổng riêng (partial sum) tích lũy $N$ tích khi đi dọc một cột.
+  \item \textbf{Giao tiếp cục bộ}: chỉ có dây nối giữa các PE kề nhau, không có bus toàn cục hay bộ dồn kênh lớn, nên đường găng ngắn và độc lập với $N$.
+  \item \textbf{Điều khiển đơn giản}: không PE nào cần bộ điều khiển riêng; toàn bộ lịch trình được quyết định bởi thời điểm dữ liệu được đưa vào biên của mảng.
+\end{itemize}
+Một mảng $N\times N$ có $N^2$ bộ MAC, do đó thông lượng đỉnh là $N^2$ MAC/chu kỳ khi đường ống đầy. Với $N=8$ là 64 MAC/chu kỳ.
+
+\subsection{Các kiểu dataflow}
+Theo phân loại của Chen và cộng sự \cite{chen2016eyeriss,sze2017survey}, dataflow được đặt tên theo đại lượng \emph{đứng yên} trong PE trong suốt một lượt tính:
+\begin{description}[style=nextline]
+  \item[Weight-stationary (WS)] Mỗi PE$(i,j)$ giữ cố định trọng số $W_{i,j}$. Kích hoạt chảy ngang (theo hàng), tổng riêng chảy dọc (theo cột). Mỗi chu kỳ một hàng $A_{m,:}$ đi vào và (sau độ trễ đường ống) một hàng $C_{m,:}$ đi ra. Phù hợp khi cùng một khối trọng số được dùng cho nhiều hàng $M$ (tích chập với nhiều vị trí, batch lớn). Google TPU v1 dùng dataflow này \cite{jouppi2017tpu}.
+  \item[Output-stationary (OS)] Mỗi PE$(i,j)$ giữ bộ tích lũy $C_{i,j}$; cả $A$ (theo hàng) và $W$ (theo cột) cùng chảy qua. Sau $K$ chu kỳ (cộng độ trễ), mỗi PE chứa một phần tử kết quả, sau đó phải được đọc ra. Tốt khi $K$ lớn, tránh phải truyền tổng riêng 32 bit giữa các PE.
+  \item[Input-stationary (IS)] Đối xứng với WS: kích hoạt được giữ cố định, trọng số chảy qua. Có lợi khi số kênh đầu ra lớn so với số vị trí.
+\end{description}
+
+\begin{table}[H]
+  \centering
+  \caption{So sánh định tính ba kiểu dataflow cho mảng $N\times N$}
+  \label{tab:dataflow}
+  \begin{tabularx}{\linewidth}{lXXX}
+    \toprule
+     & WS & OS & IS \\
+    \midrule
+    Đứng yên trong PE & $W$ ($N^2$ phần tử) & $C$ (tích lũy) & $A$ \\
+    Chảy ngang / dọc & $A$ / tổng riêng & $A$ / $W$ & $W$ / tổng riêng \\
+    Nạp lại khi đổi khối & $N^2$ trọng số & đọc ra $N^2$ kết quả & $N^2$ kích hoạt \\
+    Tái sử dụng tốt nhất khi & $M$ lớn & $K$ lớn & $C$ lớn \\
+    Độ rộng dây dọc & 32 bit (tổng riêng) & 8 bit & 32 bit \\
+    Dùng trong & TPU v1, đề tài này & nhiều thiết kế FPGA & -- \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Đề tài chọn WS vì: (i) LeNet-5 có $M$ lớn ở các lớp tích chập ($M=576$ và $64$), (ii) LSTM với batch $B$ cho phép một khối trọng số được dùng $B$ lần, (iii) một hàng vào/một hàng ra mỗi chu kỳ khớp tự nhiên với các bộ đệm hàng (row buffer) và việc tích lũy theo $K$ đơn giản (cộng cả hàng vào CBUF).
+
+\subsection{Ví dụ minh họa mảng WS $4\times4$}
+\label{sec:ws-example}
+Xét $N=4$ và một khối $A\in\mathbb{Z}^{M\times4}$, $W\in\mathbb{Z}^{4\times4}$. PE$(i,j)$ (hàng $i$, cột $j$) giữ $W_{i,j}$. Kích hoạt $A_{m,i}$ đi vào hàng $i$ từ bên trái và dịch sang phải một cột mỗi chu kỳ; tổng riêng đi từ trên xuống, PE$(i,j)$ cộng $A_{m,i}W_{i,j}$ vào tổng riêng nhận từ PE$(i-1,j)$. Khi tổng riêng ra khỏi hàng cuối, nó bằng $\sum_{i}A_{m,i}W_{i,j}=C_{m,j}$.
+
+Để $A_{m,i}$ và tổng riêng của hàng $m$ gặp nhau đúng lúc tại PE$(i,j)$, hàng $i$ của đầu vào phải bị trễ $i$ chu kỳ (skew). Khi đó $A_{m,i}$ tới PE$(i,j)$ ở chu kỳ
+\begin{equation}
+  t_{\mathrm{PE}}(m,i,j) = m + i + j,
+  \label{eq:wavefront}
+\end{equation}
+tạo thành một ``mặt sóng'' chéo (Hình~\ref{fig:wavefront}). Cột $j$ cho kết quả ở chu kỳ $m+N+j$, nên cần trễ thêm $N-1-j$ chu kỳ (de-skew) để cả hàng $C_{m,:}$ xuất hiện đồng thời tại chu kỳ $m+2N-1$. Phép dẫn chi tiết ở Phụ lục~\ref{app:latency}.
+
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}[
+      pe/.style={draw, thick, minimum size=1.25cm, fill=orange!15, align=center, font=\footnotesize},
+      >={Stealth[length=2mm]}]
+    \foreach \i in {0,...,3} {
+      \foreach \j in {0,...,3} {
+        \pgfmathtruncatemacro{\t}{\i+\j}
+        \pgfmathsetmacro{\shade}{15+12*\t}
+        \node[pe, fill=orange!\shade] (p\i\j) at (1.6*\j, -1.6*\i) {PE(\i,\j)\\$W_{\i\j}$\\$t=m{+}\t$};
+      }
+    }
+    \foreach \i in {0,...,3} {
+      \node[left=0.9cm of p\i0, font=\footnotesize] (in\i) {$A_{m,\i}$ trễ \i};
+      \draw[->] (in\i) -- (p\i0);
+      \foreach \j/\k in {0/1,1/2,2/3} { \draw[->] (p\i\j) -- (p\i\k); }
+    }
+    \foreach \j in {0,...,3} {
+      \draw[->] ($(p0\j.north)+(0,0.5)$) node[above, font=\scriptsize]{0} -- (p0\j.north);
+      \foreach \i/\k in {0/1,1/2,2/3} { \draw[->,blue] (p\i\j) -- (p\k\j); }
+      \pgfmathtruncatemacro{\dd}{3-\j}
+      \node[below=0.5cm of p3\j, draw, fill=blue!10, font=\scriptsize, align=center] (ds\j) {de-skew\\trễ \dd};
+      \draw[->,blue] (p3\j) -- (ds\j);
+      \draw[->,blue] (ds\j.south) -- ++(0,-0.4) node[below, font=\footnotesize]{$C_{m,\j}$};
+    }
+  \end{tikzpicture}
+  \caption{Mảng WS $4\times4$: kích hoạt (đen) chảy sang phải, tổng riêng (xanh) chảy xuống. Số $t$ trong mỗi PE là chu kỳ mà hàng $m$ được xử lý tại PE đó (công thức~\eqref{eq:wavefront}); màu càng đậm càng muộn. Sau de-skew mọi cột ra cùng chu kỳ $m+2N-1=m+7$.}
+  \label{fig:wavefront}
+\end{figure}
+
+Bảng~\ref{tab:ws-timing} liệt kê, cho $M=3$ hàng đưa vào liên tiếp ở các chu kỳ $0,1,2$, phần tử kích hoạt nào có mặt ở cột 0 của từng hàng PE theo thời gian. Có thể thấy tối đa $N$ hàng $m$ khác nhau cùng ``bay'' trong mảng; khi $M\gg N$ mảng đạt thông lượng một hàng kết quả mỗi chu kỳ.
+
+\begin{table}[H]
+  \centering
+  \caption{Lịch đưa kích hoạt vào cột 0 của mảng $4\times4$ sau skew ($M=3$, hàng $m$ vào ở chu kỳ $m$)}
+  \label{tab:ws-timing}
+  \begin{tabular}{c|cccccccccc}
+    \toprule
+    Chu kỳ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9\\
+    \midrule
+    Hàng PE 0 & $A_{00}$ & $A_{10}$ & $A_{20}$ & -- & -- & -- & -- & -- & -- & --\\
+    Hàng PE 1 & -- & $A_{01}$ & $A_{11}$ & $A_{21}$ & -- & -- & -- & -- & -- & --\\
+    Hàng PE 2 & -- & -- & $A_{02}$ & $A_{12}$ & $A_{22}$ & -- & -- & -- & -- & --\\
+    Hàng PE 3 & -- & -- & -- & $A_{03}$ & $A_{13}$ & $A_{23}$ & -- & -- & -- & --\\
+    \midrule
+    Ra $C_{m,:}$ & & & & & & & & $C_{0,:}$ & $C_{1,:}$ & $C_{2,:}$\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Ví dụ số: chọn $A_{0,:}=(1,2,3,4)$ và $W=I_4$ (ma trận đơn vị). Ở chu kỳ 0, PE$(0,0)$ tính $0+1\cdot1=1$; ở chu kỳ 1, PE$(1,0)$ nhận tổng riêng 1 và kích hoạt $A_{0,1}=2$ nhân $W_{1,0}=0$, giữ nguyên 1; tiếp tục như vậy, cột 0 ra $C_{0,0}=1$ ở chu kỳ $0+4+0=4$, và sau de-skew 3 chu kỳ thì xuất hiện ở chu kỳ 7 cùng với $C_{0,1}=2$, $C_{0,2}=3$, $C_{0,3}=4$. Đây chính là test \code{identity} trong unit test (Chương~\ref{ch:verif}).
+
+\section{Lượng tử hóa INT8}
+\label{sec:quant}
+\subsection{Lượng tử hóa đối xứng}
+Theo \cite{jacob2018quant,krishnamoorthi2018}, một tensor thực $r$ được biểu diễn bởi số nguyên $q$ và hệ số tỉ lệ (scale) $s>0$: $r \approx s\,q$. Đề tài dùng lượng tử hóa \emph{đối xứng, theo tensor} (zero-point bằng 0):
+\begin{equation}
+  s_w = \frac{\max|W|}{127},\qquad W_q = \operatorname{clamp}\!\left(\operatorname{round}\!\left(\frac{W}{s_w}\right),-127,127\right).
+\end{equation}
+Scale của kích hoạt được hiệu chỉnh (calibration) trên \num{2000} ảnh huấn luyện: với LeNet-5 là phân vị 99,9\% của $|a|$ chia 127 cho các lớp ẩn và $\max|a|/127$ cho lớp ra (\code{scripts/quantize.py}). Ảnh đầu vào được biểu diễn bằng $x_q=\lfloor p/2\rfloor\in[0,127]$ với $p$ là giá trị điểm ảnh 8 bit.
+
+\subsection{Dẫn xuất công thức lượng tử hóa lại}
+\label{sec:requant}
+Xét một lớp với đầu vào scale $s_x$, trọng số scale $s_w$, đầu ra scale $s_y$. Bộ tích lũy số nguyên
+\begin{equation}
+  \mathrm{acc}_{m,c} = \sum_k x_{q,m,k}\,W_{q,k,c}
+\end{equation}
+biểu diễn giá trị thực $s_x s_w\,\mathrm{acc}$. Bias được lượng tử hóa vào cùng scale với bộ tích lũy: $b_q=\operatorname{round}(b/(s_xs_w))$ (số nguyên 32 bit). Giá trị đầu ra cần là
+\begin{equation}
+  y_q = \operatorname{round}\!\left(\frac{s_x s_w}{s_y}\,(\mathrm{acc}+b_q)\right) = \operatorname{round}\big(\mathcal{M}\,(\mathrm{acc}+b_q)\big),\qquad \mathcal{M}=\frac{s_xs_w}{s_y}.
+\end{equation}
+$\mathcal{M}$ là số thực (thường $\ll1$), được xấp xỉ bằng số nguyên $\mu$ 16 bit có dấu và phép dịch $\sigma$:
+\begin{equation}
+  \mathcal{M}\approx \mu\cdot 2^{-\sigma},\qquad \mu=\operatorname{round}(\mathcal{M}\,2^{\sigma}),\; |\mu|\le 32767,\; 0\le\sigma\le31,
+\end{equation}
+trong đó $\sigma$ được chọn \emph{lớn nhất} sao cho $|\mu|$ vẫn vừa 16 bit (hàm \code{mult\_shift}), để sai số tương đối của $\mathcal{M}$ nhỏ hơn $2^{-15}$ khi $|\mu|\ge 2^{14}$. Phép làm tròn tới số gần nhất được thực hiện bằng cách cộng nửa đơn vị trước khi dịch số học, rồi bão hòa về INT8:
+\begin{equation}
+  \boxed{\,y_q = \operatorname{clamp}_{[-128,127]}\!\left( \Big( (\mathrm{acc}+b_q)\,\mu + 2^{\sigma-1}\Big) \gg \sigma \right)\,}
+  \label{eq:requant}
+\end{equation}
+(với $\sigma=0$ thì không cộng số hạng làm tròn). Đây chính là công thức mà phần cứng (\code{npu\_avmm.sv}), driver C (\code{requant\_ref}) và mô hình Python (\code{requant\_np}) cùng hiện thực, nhờ vậy kết quả trùng khớp từng bit. Các tham số thực tế của LeNet-5 là $(\mu,\sigma)=(29579,24)$, $(17655,23)$, $(18083,23)$, $(27299,23)$, $(29275,24)$ cho conv1, conv2, fc1, fc2, fc3. Phân tích độ rộng bit (tích $(\mathrm{acc}+b)\mu$ cần tối đa 48 bit) được trình bày ở Phụ lục~\ref{app:bitwidth}.
+
+\subsection{Hàm kích hoạt bằng bảng tra}
+ReLU trên INT8 chỉ là $\max(y_q,0)$. Sigmoid và tanh được hiện thực bằng LUT 256 phần tử chỉ số bởi byte $y_q$ (bù hai), với quy ước giá trị vào $x=y_q/16\in[-8,8)$ và giá trị ra có scale $1/128$:
+\begin{align}
+  \mathrm{SIG}[y_q]&=\operatorname{clamp}_{[0,127]}\big(\operatorname{round}(128\,\sigma(y_q/16))\big),\\
+  \mathrm{TANH}[y_q]&=\operatorname{clamp}_{[-127,127]}\big(\operatorname{round}(128\tanh(y_q/16))\big).
+\end{align}
+Các bảng được sinh bởi \code{scripts/gen\_lut.py} thành hai tệp: hàm \code{case} SystemVerilog (\code{rtl/lut\_tables.svh}) và mảng C (\code{fw/lut\_tables.h}), đảm bảo phần cứng và phần mềm dùng chung một bảng.
+
+\section{Biến đổi tích chập thành GEMM (im2col)}
+\label{sec:im2col}
+Tích chập 2D với $C_\text{in}$ kênh vào, $C_\text{out}$ kênh ra, nhân $k\times k$, bước 1, không padding, trên ảnh $H\times W$ cho bản đồ đặc trưng $H_o\times W_o$ với $H_o=H-k+1$, $W_o=W-k+1$:
+\begin{equation}
+  Y_{c,y,x} = b_c + \sum_{c'=0}^{C_\text{in}-1}\sum_{u=0}^{k-1}\sum_{v=0}^{k-1} X_{c',y+u,x+v}\,K_{c,c',u,v}.
+\end{equation}
+Phép im2col \cite{chellapilla2006im2col} xếp mỗi cửa sổ $C_\text{in}\times k\times k$ thành một hàng của ma trận $A\in\mathbb{Z}^{(H_oW_o)\times(C_\text{in}k^2)}$ theo thứ tự $(c',u,v)$, và xếp nhân tích chập thành $W\in\mathbb{Z}^{(C_\text{in}k^2)\times C_\text{out}}$. Khi đó tích chập trở thành GEMM \eqref{eq:gemm} với $M=H_oW_o$, $K=C_\text{in}k^2$, $C=C_\text{out}$. Với LeNet-5: conv1 có $M=24\cdot24=576$, $K=25$, $C=6$; conv2 có $M=8\cdot8=64$, $K=6\cdot25=150$, $C=16$. Cái giá phải trả là ma trận $A$ lớn hơn ảnh gốc $k^2$ lần (mỗi điểm ảnh bị chép tới 25 lần), và việc sao chép này, nếu làm bằng CPU, tốn nhiều thời gian (Chương~\ref{ch:results}).
+
+\section{Mạng LSTM}
+\label{sec:lstm}
+\subsection{Phương trình}
+LSTM \cite{hochreiter1997lstm} ở bước $t$ với đầu vào $x_t\in\mathbb{R}^F$, trạng thái ẩn $h_{t-1}\in\mathbb{R}^H$ và trạng thái ô nhớ $c_{t-1}\in\mathbb{R}^H$ tính:
+\begin{align}
+  z_t &= W_{ih}x_t + W_{hh}h_{t-1} + b = W\begin{bmatrix}x_t\\ h_{t-1}\end{bmatrix} + b, \qquad z_t\in\mathbb{R}^{4H}\\
+  i_t &= \sigma(z_t^{[0:H]}),\qquad f_t = \sigma(z_t^{[H:2H]}),\\
+  g_t &= \tanh(z_t^{[2H:3H]}),\qquad o_t = \sigma(z_t^{[3H:4H]}),\\
+  c_t &= f_t\odot c_{t-1} + i_t\odot g_t\\
+  h_t &= o_t\odot\tanh(c_t).
+\end{align}
+Điểm mấu chốt: \textbf{cả bốn cổng} được tính bằng \textbf{một} phép nhân ma trận với $K=F+H$ và $C=4H$. Với $F=28$ (một hàng ảnh MNIST), $H=16$: $K=44$, $C=64$. Phần cập nhật ô nhớ là phép toán theo từng phần tử (element-wise), khối lượng nhỏ ($O(H)$) so với GEMM ($O(KC)$).
+
+\subsection{Biểu diễn điểm cố định}
+\label{sec:lstm-fixed}
+Để dùng chung một scale cho $[x_t;h_{t-1}]$, cả $x$ và $h$ đều có scale $1/128$: $x_q=\lfloor p/2\rfloor$ ($x=x_q/128\in[0,1)$) và $h_q\in[-127,127]$. Do đó $W_{ih}$ và $W_{hh}$ được ghép thành một ma trận $44\times64$ và lượng tử hóa với một scale chung $s_w$. Bộ tích lũy có scale $s_w/128$; hệ số requant được chọn để đưa về miền chỉ số của LUT ($x=q/16$), tức $\mathcal{M}=16\,s_w/128$, cho $(\mu,\sigma)=(16513,23)$. Đầu ra LUT có scale $1/128$. Trên CPU, phần element-wise được làm hoàn toàn bằng số nguyên:
+\begin{align}
+  c_t &= \big((f\cdot c_{t-1})\gg7\big) + i\cdot g && \text{scale } 2^{-14}\\
+  \tau &= \operatorname{clamp}_{[-128,127]}\big((c_t+512)\gg10\big) && \text{scale } 2^{-4}=1/16\\
+  h_t &= \big(o\cdot\mathrm{TANH}[\tau] + 64\big)\gg7 && \text{scale } 1/128
+\end{align}
+Tích $i\cdot g$ của hai số scale $2^{-7}$ có scale $2^{-14}$; $f\cdot c$ có scale $2^{-21}$ nên dịch 7 bit để về $2^{-14}$; dịch 10 bit (có làm tròn) đưa $c$ về đúng miền chỉ số LUT $1/16$. Như vậy LUT tanh của phần cứng được dùng lại cho $\tanh(c_t)$ trên CPU. Lớp FC cuối ($16\to10$) chạy trên \NPU{} như một GEMM bình thường.

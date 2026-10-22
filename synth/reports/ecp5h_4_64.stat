@@ -1,0 +1,230 @@
+
+8. Printing statistics.
+
+=== $paramod$50fda0da4096107223fe8d5cbeab345b0154ffc7\delay ===
+
+   Number of wires:                  6
+   Number of wire bits:             99
+   Number of public wires:           6
+   Number of public wire bits:      99
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 33
+     LUT4                            1
+     TRELLIS_FF                     32
+
+=== $paramod$55b41685264aa8f827760d4e745f163d533a66c8\delay ===
+
+   Number of wires:                  8
+   Number of wire bits:             43
+   Number of public wires:           8
+   Number of public wire bits:      43
+   Number of ports:                  4
+   Number of port bits:             18
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 25
+     LUT4                            1
+     TRELLIS_FF                     24
+
+=== $paramod$58dfa9f22b5d4e67555a77082a0f140cdd1fd52f\delay ===
+
+   Number of wires:                  7
+   Number of wire bits:            131
+   Number of public wires:           7
+   Number of public wire bits:     131
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 65
+     LUT4                            1
+     TRELLIS_FF                     64
+
+=== $paramod$78b7e0f42ec7f668f986bc032c5ef6e19b8ccfd4\delay ===
+
+   Number of wires:                  8
+   Number of wire bits:            163
+   Number of public wires:           8
+   Number of public wire bits:     163
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 97
+     LUT4                            1
+     TRELLIS_FF                     96
+
+=== $paramod$8f55a0343e8098e05cf26dd43fca7e161611382a\delay ===
+
+   Number of wires:                  4
+   Number of wire bits:             18
+   Number of public wires:           4
+   Number of public wire bits:      18
+   Number of ports:                  4
+   Number of port bits:             18
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  0
+
+=== $paramod$964f73e14193a77a7a5ec1888b72b5ff320b6f2e\delay ===
+
+   Number of wires:                  4
+   Number of wire bits:             66
+   Number of public wires:           4
+   Number of public wire bits:      66
+   Number of ports:                  4
+   Number of port bits:             66
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  0
+
+=== $paramod$cac7bdbe358b08939d6a42b9256d2fbe28437431\delay ===
+
+   Number of wires:                  7
+   Number of wire bits:             35
+   Number of public wires:           7
+   Number of public wire bits:      35
+   Number of ports:                  4
+   Number of port bits:             18
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 17
+     LUT4                            1
+     TRELLIS_FF                     16
+
+=== $paramod$ee8858a7502a1871c5096ba7b539d3ffd0f531b2\delay ===
+
+   Number of wires:                  6
+   Number of wire bits:             27
+   Number of public wires:           6
+   Number of public wire bits:      27
+   Number of ports:                  4
+   Number of port bits:             18
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  9
+     LUT4                            1
+     TRELLIS_FF                      8
+
+=== $paramod$fb30245a4580563dbdcc70c643197ca118e31d66\delay ===
+
+   Number of wires:                 12
+   Number of wire bits:             12
+   Number of public wires:          12
+   Number of public wire bits:      12
+   Number of ports:                  4
+   Number of port bits:              4
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                  8
+     LUT4                            1
+     TRELLIS_FF                      7
+
+=== $paramod\sa_top\N=32'00000000000000000000000000000100 ===
+
+   Number of wires:                 86
+   Number of wire bits:           1356
+   Number of public wires:          86
+   Number of public wire bits:    1356
+   Number of ports:                  9
+   Number of port bits:            199
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                222
+     $paramod$50fda0da4096107223fe8d5cbeab345b0154ffc7\delay      1
+     $paramod$55b41685264aa8f827760d4e745f163d533a66c8\delay      1
+     $paramod$58dfa9f22b5d4e67555a77082a0f140cdd1fd52f\delay      1
+     $paramod$78b7e0f42ec7f668f986bc032c5ef6e19b8ccfd4\delay      1
+     $paramod$8f55a0343e8098e05cf26dd43fca7e161611382a\delay      1
+     $paramod$964f73e14193a77a7a5ec1888b72b5ff320b6f2e\delay      1
+     $paramod$cac7bdbe358b08939d6a42b9256d2fbe28437431\delay      1
+     $paramod$ee8858a7502a1871c5096ba7b539d3ffd0f531b2\delay      1
+     $paramod$fb30245a4580563dbdcc70c643197ca118e31d66\delay      1
+     LUT4                           69
+     TRELLIS_FF                    128
+     pe                             16
+
+=== npu_avmm ===
+
+   Number of wires:              15418
+   Number of wire bits:          44663
+   Number of public wires:       15418
+   Number of public wire bits:   44663
+   Number of ports:                  9
+   Number of port bits:             84
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              33791
+     $paramod\sa_top\N=32'00000000000000000000000000000100      1
+     CCU2C                         583
+     DP16KD                          1
+     L6MUX21                      1204
+     LUT4                        18385
+     MULT18X18D                      8
+     PFUMX                        2916
+     TRELLIS_FF                  10693
+
+=== pe ===
+
+   Number of wires:                 27
+   Number of wire bits:            191
+   Number of public wires:          27
+   Number of public wire bits:     191
+   Number of ports:                  7
+   Number of port bits:             90
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:                 58
+     CCU2C                          16
+     LUT4                            1
+     MULT18X18D                      1
+     TRELLIS_FF                     40
+
+=== design hierarchy ===
+
+   npu_avmm                          1
+     $paramod\sa_top\N=32'00000000000000000000000000000100      1
+       $paramod$50fda0da4096107223fe8d5cbeab345b0154ffc7\delay      1
+       $paramod$55b41685264aa8f827760d4e745f163d533a66c8\delay      1
+       $paramod$58dfa9f22b5d4e67555a77082a0f140cdd1fd52f\delay      1
+       $paramod$78b7e0f42ec7f668f986bc032c5ef6e19b8ccfd4\delay      1
+       $paramod$8f55a0343e8098e05cf26dd43fca7e161611382a\delay      1
+       $paramod$964f73e14193a77a7a5ec1888b72b5ff320b6f2e\delay      1
+       $paramod$cac7bdbe358b08939d6a42b9256d2fbe28437431\delay      1
+       $paramod$ee8858a7502a1871c5096ba7b539d3ffd0f531b2\delay      1
+       $paramod$fb30245a4580563dbdcc70c643197ca118e31d66\delay      1
+       pe                           16
+
+   Number of wires:              15998
+   Number of wire bits:          49669
+   Number of public wires:       15998
+   Number of public wire bits:   49669
+   Number of ports:                166
+   Number of port bits:           2063
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              35169
+     CCU2C                         839
+     DP16KD                          1
+     L6MUX21                      1204
+     LUT4                        18477
+     MULT18X18D                     24
+     PFUMX                        2916
+     TRELLIS_FF                  11708
+

@@ -1,0 +1,28 @@
+== tools
+  tool: verilator                                      PASS  Verilator 5.032 2025-01-01 rev (Debian 5.032-1+b2)
+  tool: riscv64-unknown-elf-gcc                        PASS  riscv64-unknown-elf-gcc (14.2.0+19) 14.2.0
+  tool: python3                                        PASS  Python 3.13.5
+  tool: make                                           PASS  GNU Make 4.4.1
+  tool: g++                                            PASS  g++ (Debian 14.2.0-19) 14.2.0
+  third_party/picorv32                                 PASS  present
+== generated files are reproducible
+  LUT tables (sigmoid/tanh) regenerate identically     PASS  
+== systolic array unit test
+  array unit test N=4 (26 tests)                       PASS  (14 s)
+  array unit test N=8 (26 tests)                       PASS  (15 s)
+== PicoRV32 + Avalon-MM NPU SoC simulation
+  gemm_demo N=4                                        PASS  (19 s)
+  selftest (accumulate/requant/LUT) N=4                PASS  (2 s)
+  gemm_demo N=8                                        PASS  (26 s)
+  selftest (accumulate/requant/LUT) N=8                PASS  (8 s)
+  LeNet-5 INT8, CPU+NPU vs golden, N=8                 PASS  (165 s)
+  LSTM INT8, CPU+NPU vs golden, N=8                    PASS  (33 s)
+== cycle counts equal the recorded reference (results/)
+  LeNet-5 cycles N=8 vs results/cnn_N8.log             PASS  identical
+  LSTM cycles N=8 vs results/lstm_N8.log               PASS  identical
+== model / golden data
+  quantize.py regenerate                               WARN  differs or numpy missing (see preflight_logs/quantize.log)
+  model headers present                                PASS  
+
+SUMMARY: 18 passed, 0 failed, 1 warnings
+PREFLIGHT: OK

@@ -1,0 +1,11 @@
+NPU N=8 DEPTH=64
+M=1 cpu_cycles=2785 npu_total=1629 npu_compute=17 mismatches=0 PASS
+M=8 cpu_cycles=22133 npu_total=4576 npu_compute=24 mismatches=0 PASS
+M=32 cpu_cycles=88469 npu_total=14718 npu_compute=48 mismatches=0 PASS
+M=64 cpu_cycles=176917 npu_total=28209 npu_compute=80 mismatches=0 PASS
+RESULT: ALL PASS
+[soc] exit code 0
+- soc/soc_top.sv:76: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 4ms; walltime 0.427 s; speed 9.965 ms/s
+- Verilator: cpu 0.427 s on 1 threads; alloced 57 MB

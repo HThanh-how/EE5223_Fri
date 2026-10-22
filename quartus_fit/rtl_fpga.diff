@@ -1,0 +1,1763 @@
+--- rtl/delay.sv	2026-10-22 21:33:39.672820500 +0700
++++ quartus_fit/rtl_fpga/delay.sv	2026-10-22 22:22:41.227232700 +0700
+@@ -1,25 +1,27 @@
+-// D-cycle delay line (D=0 is a wire)
+-module delay #(
+-    parameter W = 8,
+-    parameter D = 1
+-) (
+-    input  logic         clk,
+-    input  logic         rst_n,
+-    input  logic [W-1:0] din,
+-    output logic [W-1:0] dout
+-);
+-    if (D == 0) begin : g_wire
+-        assign dout = din;
+-    end else begin : g_pipe
+-        logic [W-1:0] sr [D];
+-        always_ff @(posedge clk or negedge rst_n) begin
+-            if (!rst_n) begin
+-                for (int k = 0; k < D; k++) sr[k] <= '0;
+-            end else begin
+-                sr[0] <= din;
+-                for (int k = 1; k < D; k++) sr[k] <= sr[k-1];
+-            end
+-        end
+-        assign dout = sr[D-1];
+-    end
+-endmodule
++// D-cycle delay line (D=0 is a wire)
++module delay #(
++    parameter W = 8,
++    parameter D = 1
++) (
++    input  logic         clk,
++    input  logic         rst_n,
++    input  logic [W-1:0] din,
++    output logic [W-1:0] dout
++);
++    generate
++    if (D == 0) begin : g_wire
++        assign dout = din;
++    end else begin : g_pipe
++        logic [W-1:0] sr [D];
++        always_ff @(posedge clk or negedge rst_n) begin
++            if (!rst_n) begin
++                for (int k = 0; k < D; k++) sr[k] <= '0;
++            end else begin
++                sr[0] <= din;
++                for (int k = 1; k < D; k++) sr[k] <= sr[k-1];
++            end
++        end
++        assign dout = sr[D-1];
++    end
++    endgenerate
++endmodule
+--- rtl/sa_top.sv	2026-10-22 22:44:13.867348400 +0700
++++ quartus_fit/rtl_fpga/sa_top.sv	2026-10-22 22:22:41.246948200 +0700
+@@ -1,69 +1,72 @@
+-// NxN INT8 weight-stationary systolic array, C[m][:] = A[m][:] * W
+-// - one row vector of A per cycle on a_in (element k -> bits [8k+7:8k])
+-// - input skew and output de-skew are inside; out_valid aligns with a full row of c_out
+-// - latency from in_valid to out_valid: 2N-1 cycles
+-module sa_top #(
+-    parameter N = 4
+-) (
+-    input  logic                   clk,
+-    input  logic                   rst_n,
+-    // weight write port: word w_widx = row*(N/4) + q carries W[row][4q .. 4q+3] (byte b -> col 4q+b)
+-    input  logic                   w_we,
+-    input  logic [$clog2(N*N/4)-1:0] w_widx,
+-    input  logic [31:0]            w_wdata,
+-    // activation stream
+-    input  logic                   in_valid,
+-    input  logic [N*8-1:0]         a_in,
+-    // result stream (element j -> bits [32j+31:32j])
+-    output logic                   out_valid,
+-    output logic [N*32-1:0]        c_out
+-);
+-    logic signed [7:0] w [N][N];
+-
+-    always_ff @(posedge clk or negedge rst_n) begin
+-        if (!rst_n) begin
+-            for (int i = 0; i < N; i++)
+-                for (int j = 0; j < N; j++) w[i][j] <= '0;
+-        end else if (w_we) begin
+-            for (int b = 0; b < 4; b++)
+-                w[int'(w_widx) / (N/4)][(int'(w_widx) % (N/4)) * 4 + b] <= w_wdata[8*b +: 8];
+-        end
+-    end
+-
+-    // buses between PEs
+-    logic signed [7:0]  a_bus  [N][N+1];
+-    logic signed [31:0] ps_bus [N+1][N];
+-
+-    // input skew: row i delayed by i cycles
+-    for (genvar i = 0; i < N; i++) begin : g_skew
+-        logic [7:0] a_sk;
+-        delay #(.W(8), .D(i)) u_d (.clk, .rst_n, .din(a_in[8*i +: 8]), .dout(a_sk));
+-        assign a_bus[i][0] = a_sk;
+-    end
+-
+-    for (genvar j = 0; j < N; j++) begin : g_top
+-        assign ps_bus[0][j] = '0;
+-    end
+-
+-    for (genvar i = 0; i < N; i++) begin : g_row
+-        for (genvar j = 0; j < N; j++) begin : g_col
+-            pe u_pe (
+-                .clk, .rst_n,
+-                .w       (w[i][j]),
+-                .a_in    (a_bus[i][j]),
+-                .psum_in (ps_bus[i][j]),
+-                .a_out   (a_bus[i][j+1]),
+-                .psum_out(ps_bus[i+1][j])
+-            );
+-        end
+-    end
+-
+-    // output de-skew: column j delayed by N-1-j cycles
+-    for (genvar j = 0; j < N; j++) begin : g_deskew
+-        logic [31:0] c_d;
+-        delay #(.W(32), .D(N-1-j)) u_d (.clk, .rst_n, .din(ps_bus[N][j]), .dout(c_d));
+-        assign c_out[32*j +: 32] = c_d;
+-    end
+-
+-    delay #(.W(1), .D(2*N-1)) u_v (.clk, .rst_n, .din(in_valid), .dout(out_valid));
+-endmodule
++// NxN INT8 weight-stationary systolic array, C[m][:] = A[m][:] * W
++// - one row vector of A per cycle on a_in (element k -> bits [8k+7:8k])
++// - input skew and output de-skew are inside; out_valid aligns with a full row of c_out
++// - latency from in_valid to out_valid: 2N-1 cycles
++module sa_top #(
++    parameter N = 4
++) (
++    input  logic                   clk,
++    input  logic                   rst_n,
++    // weight write port: word w_widx = row*(N/4) + q carries W[row][4q .. 4q+3] (byte b -> col 4q+b)
++    input  logic                   w_we,
++    input  logic [$clog2(N*N/4)-1:0] w_widx,
++    input  logic [31:0]            w_wdata,
++    // activation stream
++    input  logic                   in_valid,
++    input  logic [N*8-1:0]         a_in,
++    // result stream (element j -> bits [32j+31:32j])
++    output logic                   out_valid,
++    output logic [N*32-1:0]        c_out
++);
++    logic signed [7:0] w [N][N];
++
++    always_ff @(posedge clk or negedge rst_n) begin
++        if (!rst_n) begin
++            for (int i = 0; i < N; i++)
++                for (int j = 0; j < N; j++) w[i][j] <= '0;
++        end else if (w_we) begin
++            for (int b = 0; b < 4; b++)
++                w[int'(w_widx) / (N/4)][(int'(w_widx) % (N/4)) * 4 + b] <= w_wdata[8*b +: 8];
++        end
++    end
++
++    // buses between PEs
++    logic signed [7:0]  a_bus  [N][N+1];
++    logic signed [31:0] ps_bus [N+1][N];
++
++    genvar i, j;
++    generate
++    // input skew: row i delayed by i cycles
++    for (i = 0; i < N; i++) begin : g_skew
++        logic [7:0] a_sk;
++        delay #(.W(8), .D(i)) u_d (.clk, .rst_n, .din(a_in[8*i +: 8]), .dout(a_sk));
++        assign a_bus[i][0] = a_sk;
++    end
++
++    for (j = 0; j < N; j++) begin : g_top
++        assign ps_bus[0][j] = '0;
++    end
++
++    for (i = 0; i < N; i++) begin : g_row
++        for (j = 0; j < N; j++) begin : g_col
++            pe u_pe (
++                .clk, .rst_n,
++                .w       (w[i][j]),
++                .a_in    (a_bus[i][j]),
++                .psum_in (ps_bus[i][j]),
++                .a_out   (a_bus[i][j+1]),
++                .psum_out(ps_bus[i+1][j])
++            );
++        end
++    end
++
++    // output de-skew: column j delayed by N-1-j cycles
++    for (j = 0; j < N; j++) begin : g_deskew
++        logic [31:0] c_d;
++        delay #(.W(32), .D(N-1-j)) u_d (.clk, .rst_n, .din(ps_bus[N][j]), .dout(c_d));
++        assign c_out[32*j +: 32] = c_d;
++    end
++
++    delay #(.W(1), .D(2*N-1)) u_v (.clk, .rst_n, .din(in_valid), .dout(out_valid));
++    endgenerate
++endmodule
+--- rtl/npu_avmm.sv	2026-10-22 22:44:13.475503800 +0700
++++ quartus_fit/rtl_fpga/npu_avmm.sv	2026-10-22 22:22:41.552354700 +0700
+@@ -1,221 +1,291 @@
+-// Avalon-MM slave wrapper: systolic array + buffers + accumulate / requant / activation post-processing.
+-// Same interface is used by PicoRV32 (simulation) and Nios V (DE10-Nano).
+-// Slave is word-addressed (14-bit word address = 64 KiB byte space), readLatency = 1, no waitrequest.
+-//
+-// Byte offsets:
+-//   0x0000 CTRL    (W) bit0 start, bit1 clear done/err, bit2 ACCUM (add into CBUF instead of overwrite),
+-//                      bit3 QUANT (after accumulation run bias+requant+activation into QBUF)
+-//   0x0004 STATUS  (R) bit0 busy, bit1 done, bit2 err
+-//   0x0008 M       (RW) number of input rows (1..DEPTH)
+-//   0x000C CYCLES  (R) busy cycles of the last run
+-//   0x0010 INFO    (R) {DEPTH[15:0], N[15:0]}
+-//   0x0014 QMULT   (W) signed 16-bit multiplier
+-//   0x0018 QSHIFT  (W) right shift 0..31
+-//   0x001C ACT     (W) 0 none, 1 ReLU, 2 sigmoid LUT, 3 tanh LUT
+-//   0x0040 BIAS[j] (W) int32, 0x0040 + 4*j
+-//   0x1000 QBUF    (R) int8 results, row m byte j at 0x1000 + 4*m*(N/4) + j
+-//   0x4000 WEIGHT  (W) word i*(N/4)+q at 0x4000 + 4*(i*(N/4)+q) = W[i][4q..4q+3] (byte b -> column 4q+b)
+-//   0x8000 ABUF    (W) row m byte k at 0x8000 + 4*m*(N/4) + k
+-//   0xC000 CBUF    (R) int32 accumulators, C[m][j] at 0xC000 + 4*(m*N+j)
+-// requant: y = clamp8((acc + bias[j]) * QMULT + (1 << (QSHIFT-1))  >>> QSHIFT), then ACT.
+-module npu_avmm #(
+-    parameter N     = 4,
+-    parameter DEPTH = 64
+-) (
+-    input  logic        clk,
+-    input  logic        reset_n,
+-    input  logic [13:0] avs_address,
+-    input  logic        avs_read,
+-    input  logic        avs_write,
+-    input  logic [31:0] avs_writedata,
+-    output logic [31:0] avs_readdata,
+-    output logic        avs_readdatavalid,
+-    output logic        avs_waitrequest
+-);
+-    `include "lut_tables.svh"
+-
+-    localparam LOGN = $clog2(N);
+-    localparam WPR  = N / 4;                 // words per activation row
+-    localparam AW   = $clog2(DEPTH + 1);
+-
+-    assign avs_waitrequest = 1'b0;
+-
+-    wire [1:0]  region  = avs_address[13:12];
+-    wire [11:0] idx     = avs_address[11:0];
+-    wire        reg_sel = region == 2'd0 && idx[11:10] == 2'd0;
+-    wire        q_sel   = region == 2'd0 && idx[11:10] == 2'd1;
+-
+-    logic busy, done, err;
+-    logic [15:0] m_cnt;
+-    logic [31:0] cycles;
+-    logic start_req, accum_f, quant_f;
+-    logic signed [15:0] q_mult;
+-    logic [4:0]         q_shift;
+-    logic [1:0]         q_act;
+-    logic signed [31:0] bias [N];
+-
+-    // ---------------- systolic core ----------------
+-    logic                 w_we, in_valid, out_valid;
+-    logic [$clog2(N*N/4)-1:0] w_widx;
+-    logic [N*8-1:0]       a_in;
+-    logic [N*32-1:0]      c_out;
+-
+-    assign w_we  = avs_write && region == 2'd1 && !busy;
+-    assign w_widx = idx[$clog2(N*N/4)-1:0];
+-
+-    sa_top #(.N(N)) u_sa (
+-        .clk, .rst_n(reset_n),
+-        .w_we, .w_widx, .w_wdata(avs_writedata),
+-        .in_valid, .a_in, .out_valid, .c_out
+-    );
+-
+-    // ---------------- buffers ----------------
+-    logic [N*8-1:0]  amem [DEPTH];
+-    logic [N*32-1:0] cmem [DEPTH];
+-    logic [N*8-1:0]  qmem [DEPTH];
+-
+-    wire [11:0] a_row = 12'(idx / WPR);
+-    wire [11:0] a_sub = 12'(idx % WPR);
+-    wire [11:0] c_row = 12'(idx / N);
+-    wire [11:0] c_col = 12'(idx % N);
+-    wire [9:0]  qw    = idx[9:0];
+-    wire [9:0]  q_row = 10'(qw / WPR);
+-    wire [9:0]  q_sub = 10'(qw % WPR);
+-
+-    always_ff @(posedge clk) begin
+-        if (avs_write && region == 2'd2 && !busy && a_row < DEPTH)
+-            amem[a_row][32*a_sub +: 32] <= avs_writedata;
+-    end
+-
+-    // ---------------- post-processing (requant + activation) ----------------
+-    function automatic logic [7:0] post(input logic signed [47:0] pr, input logic [4:0] sh, input logic [1:0] act);
+-        logic signed [63:0] p, y;
+-        logic [7:0] b;
+-        p = 64'(pr) + ((sh == 0) ? 64'sd0 : (64'sd1 <<< (sh - 1)));
+-        y = p >>> sh;
+-        if (y > 64'sd127)       b = 8'sd127;
+-        else if (y < -64'sd128) b = -8'sd128;
+-        else                    b = y[7:0];
+-        case (act)
+-            2'd1:    post = b[7] ? 8'd0 : b;
+-            2'd2:    post = lut_sig(b);
+-            2'd3:    post = lut_tanh(b);
+-            default: post = b;
+-        endcase
+-    endfunction
+-
+-    // ---------------- sequencer ----------------
+-    logic [AW-1:0]   sent, recv, arow;
+-    logic            rd_v, va;
+-    logic [N*8-1:0]  a_q;
+-    logic signed [47:0] prod [N];
+-    logic [N*32-1:0] sum_row;
+-    logic [N*8-1:0]  q_row_data;
+-
+-    assign in_valid = rd_v;
+-    assign a_in     = a_q;
+-
+-    always_comb begin
+-        for (int j = 0; j < N; j++) begin
+-            sum_row[32*j +: 32] = (accum_f ? cmem[recv][32*j +: 32] : 32'd0) + c_out[32*j +: 32];
+-            q_row_data[8*j +: 8] = post(prod[j], q_shift, q_act);
+-        end
+-    end
+-
+-    wire do_start = start_req && !busy;
+-    wire m_ok     = m_cnt != 0 && m_cnt <= DEPTH;
+-    wire [15:0] recv16 = 16'(recv);
+-    wire [15:0] arow16 = 16'(arow);
+-
+-    always_ff @(posedge clk or negedge reset_n) begin
+-        if (!reset_n) begin
+-            busy <= 0; done <= 0; err <= 0; m_cnt <= 0; cycles <= 0;
+-            sent <= 0; recv <= 0; arow <= 0; rd_v <= 0; va <= 0; a_q <= '0; start_req <= 0;
+-            accum_f <= 0; quant_f <= 0; q_mult <= 0; q_shift <= 0; q_act <= 0;
+-            for (int j = 0; j < N; j++) begin bias[j] <= 0; prod[j] <= 0; end
+-        end else begin
+-            start_req <= 0;
+-            if (avs_write && reg_sel) begin
+-                if (idx[9:4] == 6'd1) begin
+-                    bias[idx[3:0]] <= avs_writedata;      // byte 0x40 + 4*j
+-                end else if (idx[9:4] == 6'd0) begin
+-                    case (idx[3:0])
+-                        4'd0: begin
+-                            if (avs_writedata[0]) begin
+-                                start_req <= 1; accum_f <= avs_writedata[2]; quant_f <= avs_writedata[3];
+-                            end
+-                            if (avs_writedata[1]) begin done <= 0; err <= 0; end
+-                        end
+-                        4'd2: if (!busy) m_cnt <= avs_writedata[15:0];
+-                        4'd5: q_mult  <= avs_writedata[15:0];
+-                        4'd6: q_shift <= avs_writedata[4:0];
+-                        4'd7: q_act   <= avs_writedata[1:0];
+-                        default: ;
+-                    endcase
+-                end
+-            end
+-
+-            if (do_start) begin
+-                if (m_ok) begin
+-                    busy <= 1; done <= 0; err <= 0; cycles <= 0;
+-                    sent <= 0; recv <= 0; rd_v <= 0; va <= 0;
+-                end else begin
+-                    err <= 1;
+-                end
+-            end
+-
+-            if (busy) begin
+-                cycles <= cycles + 1;
+-                rd_v   <= sent < m_cnt;
+-                va     <= 0;
+-                if (sent < m_cnt) begin
+-                    a_q  <= amem[sent[AW-1:0]];
+-                    sent <= sent + 1'b1;
+-                end
+-                if (out_valid) begin
+-                    cmem[recv[AW-1:0]] <= sum_row;
+-                    recv <= recv + 1'b1;
+-                    if (quant_f) begin
+-                        va <= 1; arow <= recv;
+-                        for (int j = 0; j < N; j++)
+-                            prod[j] <= 48'($signed(sum_row[32*j +: 32]) + bias[j]) * 48'(q_mult);
+-                    end else if (recv16 + 16'd1 == m_cnt) begin
+-                        busy <= 0; done <= 1;
+-                    end
+-                end
+-                if (va) begin
+-                    qmem[arow[AW-1:0]] <= q_row_data;
+-                    if (arow16 + 16'd1 == m_cnt) begin
+-                        busy <= 0; done <= 1;
+-                    end
+-                end
+-            end
+-        end
+-    end
+-
+-    // ---------------- read path (latency 1) ----------------
+-    always_ff @(posedge clk or negedge reset_n) begin
+-        if (!reset_n) begin
+-            avs_readdata <= '0; avs_readdatavalid <= 0;
+-        end else begin
+-            avs_readdatavalid <= avs_read;
+-            if (avs_read) begin
+-                if (reg_sel) begin
+-                    case (idx[9:0] == {6'd0, idx[3:0]} ? idx[3:0] : 4'd15)
+-                        4'd1:    avs_readdata <= {29'd0, err, done, busy};
+-                        4'd2:    avs_readdata <= {16'd0, m_cnt};
+-                        4'd3:    avs_readdata <= cycles;
+-                        4'd4:    avs_readdata <= {16'(DEPTH), 16'(N)};
+-                        default: avs_readdata <= '0;
+-                    endcase
+-                end else if (q_sel) begin
+-                    avs_readdata <= (q_row < DEPTH) ? qmem[q_row[AW-1:0]][32*q_sub +: 32] : 32'd0;
+-                end else if (region == 2'd3) begin
+-                    avs_readdata <= (c_row < DEPTH) ? cmem[c_row[AW-1:0]][32*c_col +: 32] : 32'd0;
+-                end else begin
+-                    avs_readdata <= '0;
+-                end
+-            end
+-        end
+-    end
+-endmodule
++// Avalon-MM slave wrapper: systolic array + buffers + accumulate / requant / activation post-processing.
++// Same interface is used by PicoRV32 (simulation) and Nios V (DE10-Nano).
++// Slave is word-addressed (14-bit word address = 64 KiB byte space), readLatency = 1, no waitrequest.
++//
++// FPGA-oriented variant: amem/cmem/qmem are inferred M10K RAM banks and the accumulate / requant
++// stages are pipelined (a few extra cycles of latency, so CYCLES differs from the reference RTL;
++// register map, results and STATUS/done semantics are unchanged).
++//
++// Byte offsets:
++//   0x0000 CTRL    (W) bit0 start, bit1 clear done/err, bit2 ACCUM (add into CBUF instead of overwrite),
++//                      bit3 QUANT (after accumulation run bias+requant+activation into QBUF)
++//   0x0004 STATUS  (R) bit0 busy, bit1 done, bit2 err
++//   0x0008 M       (RW) number of input rows (1..DEPTH)
++//   0x000C CYCLES  (R) busy cycles of the last run
++//   0x0010 INFO    (R) {DEPTH[15:0], N[15:0]}
++//   0x0014 QMULT   (W) signed 16-bit multiplier
++//   0x0018 QSHIFT  (W) right shift 0..31
++//   0x001C ACT     (W) 0 none, 1 ReLU, 2 sigmoid LUT, 3 tanh LUT
++//   0x0040 BIAS[j] (W) int32, 0x0040 + 4*j
++//   0x1000 QBUF    (R) int8 results, row m byte j at 0x1000 + 4*m*(N/4) + j
++//   0x4000 WEIGHT  (W) word i*(N/4)+q at 0x4000 + 4*(i*(N/4)+q) = W[i][4q..4q+3] (byte b -> column 4q+b)
++//   0x8000 ABUF    (W) row m byte k at 0x8000 + 4*m*(N/4) + k
++//   0xC000 CBUF    (R) int32 accumulators, C[m][j] at 0xC000 + 4*(m*N+j)
++// requant: y = clamp8((acc + bias[j]) * QMULT + (1 << (QSHIFT-1))  >>> QSHIFT), then ACT.
++
++// Simple dual-port sync-read RAM, inferred as M10K (read enable holds the output register).
++module npu_ram #(
++    parameter W  = 32,
++    parameter D  = 64,
++    parameter AW = $clog2(D)
++) (
++    input  logic          clk,
++    input  logic          we,
++    input  logic [AW-1:0] waddr,
++    input  logic [W-1:0]  wdata,
++    input  logic          re,
++    input  logic [AW-1:0] raddr,
++    output logic [W-1:0]  rdata
++);
++    (* ramstyle = "M10K, no_rw_check" *) logic [W-1:0] mem [D];
++    always_ff @(posedge clk) begin
++        if (we) mem[waddr] <= wdata;
++        if (re) rdata <= mem[raddr];
++    end
++endmodule
++
++module npu_avmm #(
++    parameter N     = 4,
++    parameter DEPTH = 64
++) (
++    input  logic        clk,
++    input  logic        reset_n,
++    input  logic [13:0] avs_address,
++    input  logic        avs_read,
++    input  logic        avs_write,
++    input  logic [31:0] avs_writedata,
++    output logic [31:0] avs_readdata,
++    output logic        avs_readdatavalid,
++    output logic        avs_waitrequest
++);
++    `include "lut_tables.svh"
++
++    localparam LOGN = $clog2(N);
++    localparam WPR  = N / 4;                 // words per activation row
++    localparam AW   = $clog2(DEPTH + 1);
++    localparam RW   = $clog2(DEPTH);         // RAM row address width
++
++    assign avs_waitrequest = 1'b0;
++
++    wire [1:0]  region  = avs_address[13:12];
++    wire [11:0] idx     = avs_address[11:0];
++    wire        reg_sel = region == 2'd0 && idx[11:10] == 2'd0;
++    wire        q_sel   = region == 2'd0 && idx[11:10] == 2'd1;
++
++    logic busy, done, err;
++    logic [15:0] m_cnt;
++    logic [31:0] cycles;
++    logic start_req, accum_f, quant_f;
++    logic signed [15:0] q_mult;
++    logic [4:0]         q_shift;
++    logic [1:0]         q_act;
++    logic signed [31:0] bias [N];
++
++    // ---------------- systolic core ----------------
++    logic                 w_we, in_valid, out_valid;
++    logic [$clog2(N*N/4)-1:0] w_widx;
++    logic [N*8-1:0]       a_in;
++    logic [N*32-1:0]      c_out;
++
++    assign w_we  = avs_write && region == 2'd1 && !busy;
++    assign w_widx = idx[$clog2(N*N/4)-1:0];
++
++    sa_top #(.N(N)) u_sa (
++        .clk, .rst_n(reset_n),
++        .w_we, .w_widx, .w_wdata(avs_writedata),
++        .in_valid, .a_in, .out_valid, .c_out
++    );
++
++    // ---------------- address decode ----------------
++    wire [11:0] a_row = 12'(idx / WPR);
++    wire [11:0] a_sub = 12'(idx % WPR);
++    wire [11:0] c_row = 12'(idx / N);
++    wire [11:0] c_col = 12'(idx % N);
++    wire [9:0]  qw    = idx[9:0];
++    wire [9:0]  q_row = 10'(qw / WPR);
++    wire [9:0]  q_sub = 10'(qw % WPR);
++
++    // ---------------- sequencer state ----------------
++    logic [AW-1:0]   sent, recv;
++    logic            rd_v;
++    wire do_start = start_req && !busy;
++    wire m_ok     = m_cnt != 0 && m_cnt <= DEPTH;
++    wire [15:0] recv16 = 16'(recv);
++    wire        sent_lt = 16'(sent) < m_cnt;
++
++    // ---------------- amem: WPR banks of 32 bit, a full row is read in one cycle ----------------
++    logic [N*8-1:0] a_q;
++    genvar j, k;
++    generate
++    for (k = 0; k < WPR; k++) begin : g_amem
++        npu_ram #(.W(32), .D(DEPTH)) u_ram (
++            .clk,
++            .we    (avs_write && region == 2'd2 && !busy && a_row < DEPTH && a_sub == 12'(k)),
++            .waddr (a_row[RW-1:0]), .wdata(avs_writedata),
++            .re    (busy && sent_lt), .raddr(sent[RW-1:0]),
++            .rdata (a_q[32*k +: 32])
++        );
++    end
++    endgenerate
++    assign in_valid = rd_v;
++    assign a_in     = a_q;
++
++    // ---------------- result pipeline ----------------
++    // c0: out_valid/c_out, cmem(A) read issued   c1: sum = cmem + c_out
++    // c2: cmem write (+done if no quant), sum + bias   c3: * q_mult   c4: + rounding
++    // c5: >>> shift and clamp   c6: activation   c7: qmem write (+done)
++    logic [N*32-1:0] c_q, sum_r, a_rd;
++    logic            v1, v2, v3, v4, v5, v6, v7;
++    logic            l1, l2, l3, l4, l5, l6, l7;
++    logic [RW-1:0]   r1, r2, r3, r4, r5, r6, r7;
++    logic signed [31:0] sb   [N];
++    logic signed [47:0] prod [N];
++    logic signed [47:0] rr   [N];
++    logic [7:0]         bq   [N];
++    logic [N*8-1:0]     qd;
++
++    wire ov0   = busy && out_valid;
++    wire last0 = recv16 + 16'd1 == m_cnt;
++
++    logic [31:0] c_rd_bank [N];
++    generate
++    for (j = 0; j < N; j++) begin : g_cmem
++        npu_ram #(.W(32), .D(DEPTH)) u_a (       // read port used by accumulate
++            .clk, .we(v2), .waddr(r2), .wdata(sum_r[32*j +: 32]),
++            .re(ov0), .raddr(recv[RW-1:0]), .rdata(a_rd[32*j +: 32]));
++        npu_ram #(.W(32), .D(DEPTH)) u_b (       // read port used by Avalon CBUF reads
++            .clk, .we(v2), .waddr(r2), .wdata(sum_r[32*j +: 32]),
++            .re(avs_read), .raddr(c_row[RW-1:0]), .rdata(c_rd_bank[j]));
++    end
++
++    endgenerate
++
++    logic [31:0] q_rd_bank [WPR];
++    generate
++    for (k = 0; k < WPR; k++) begin : g_qmem
++        npu_ram #(.W(32), .D(DEPTH)) u_ram (
++            .clk, .we(v7), .waddr(r7), .wdata(qd[32*k +: 32]),
++            .re(avs_read), .raddr(q_row[RW-1:0]), .rdata(q_rd_bank[k]));
++    end
++
++    endgenerate
++
++    function automatic logic [47:0] rnd_add(input logic signed [47:0] pr, input logic [4:0] sh);
++        rnd_add = pr + ((sh == 0) ? 48'sd0 : (48'sd1 <<< (sh - 1)));
++    endfunction
++    function automatic logic [7:0] shclamp(input logic signed [47:0] p, input logic [4:0] sh);
++        logic signed [47:0] y;
++        y = p >>> sh;
++        if (y > 48'sd127)       shclamp = 8'sd127;
++        else if (y < -48'sd128) shclamp = -8'sd128;
++        else                    shclamp = y[7:0];
++    endfunction
++    function automatic logic [7:0] actf(input logic [7:0] b, input logic [1:0] act);
++        case (act)
++            2'd1:    actf = b[7] ? 8'd0 : b;
++            2'd2:    actf = lut_sig(b);
++            2'd3:    actf = lut_tanh(b);
++            default: actf = b;
++        endcase
++    endfunction
++
++    // data path (no reset needed: everything is qualified by the valid bits)
++    always_ff @(posedge clk) begin
++        c_q <= c_out;
++        for (int j = 0; j < N; j++) begin
++            sum_r[32*j +: 32] <= (accum_f ? a_rd[32*j +: 32] : 32'd0) + c_q[32*j +: 32];
++            sb[j]   <= $signed(sum_r[32*j +: 32]) + bias[j];
++            prod[j] <= sb[j] * q_mult;
++            rr[j]   <= rnd_add(prod[j], q_shift);
++            bq[j]   <= shclamp(rr[j], q_shift);
++            qd[8*j +: 8] <= actf(bq[j], q_act);
++        end
++        r1 <= recv[RW-1:0]; r2 <= r1; r3 <= r2; r4 <= r3; r5 <= r4; r6 <= r5; r7 <= r6;
++        l1 <= last0; l2 <= l1; l3 <= l2; l4 <= l3; l5 <= l4; l6 <= l5; l7 <= l6;
++    end
++
++    always_ff @(posedge clk or negedge reset_n) begin
++        if (!reset_n) begin
++            busy <= 0; done <= 0; err <= 0; m_cnt <= 0; cycles <= 0;
++            sent <= 0; recv <= 0; rd_v <= 0; start_req <= 0;
++            accum_f <= 0; quant_f <= 0; q_mult <= 0; q_shift <= 0; q_act <= 0;
++            v1 <= 0; v2 <= 0; v3 <= 0; v4 <= 0; v5 <= 0; v6 <= 0; v7 <= 0;
++            for (int j = 0; j < N; j++) bias[j] <= 0;
++        end else begin
++            start_req <= 0;
++            if (avs_write && reg_sel) begin
++                if (idx[9:4] == 6'd1) begin
++                    bias[idx[3:0]] <= avs_writedata;      // byte 0x40 + 4*j
++                end else if (idx[9:4] == 6'd0) begin
++                    case (idx[3:0])
++                        4'd0: begin
++                            if (avs_writedata[0]) begin
++                                start_req <= 1; accum_f <= avs_writedata[2]; quant_f <= avs_writedata[3];
++                            end
++                            if (avs_writedata[1]) begin done <= 0; err <= 0; end
++                        end
++                        4'd2: if (!busy) m_cnt <= avs_writedata[15:0];
++                        4'd5: q_mult  <= avs_writedata[15:0];
++                        4'd6: q_shift <= avs_writedata[4:0];
++                        4'd7: q_act   <= avs_writedata[1:0];
++                        default: ;
++                    endcase
++                end
++            end
++
++            if (do_start) begin
++                if (m_ok) begin
++                    busy <= 1; done <= 0; err <= 0; cycles <= 0;
++                    sent <= 0; recv <= 0; rd_v <= 0;
++                end else begin
++                    err <= 1;
++                end
++            end
++
++            v1 <= ov0; v2 <= v1; v3 <= v2 && quant_f; v4 <= v3; v5 <= v4; v6 <= v5; v7 <= v6;
++            if (busy) begin
++                cycles <= cycles + 1;
++                rd_v   <= sent_lt;
++                if (sent_lt) sent <= sent + 1'b1;
++                if (ov0)     recv <= recv + 1'b1;
++                if (v2 && !quant_f && l2) begin busy <= 0; done <= 1; end
++                if (v7 && l7)             begin busy <= 0; done <= 1; end
++            end
++        end
++    end
++
++    // ---------------- read path (latency 1) ----------------
++    // Selects are registered at read time; RAM outputs (read-enable gated) hold until the next read.
++    logic [31:0] reg_rd;
++    logic [1:0]  rsel;           // 0 register/zero, 1 qmem, 2 cmem
++    logic        r_inrange;
++    logic [9:0]  r_sub;
++    always_ff @(posedge clk or negedge reset_n) begin
++        if (!reset_n) begin
++            reg_rd <= '0; avs_readdatavalid <= 0; rsel <= 0; r_inrange <= 0; r_sub <= 0;
++        end else begin
++            avs_readdatavalid <= avs_read;
++            if (avs_read) begin
++                reg_rd <= '0; rsel <= 0; r_inrange <= 0; r_sub <= 0;
++                if (reg_sel) begin
++                    case (idx[9:0] == {6'd0, idx[3:0]} ? idx[3:0] : 4'd15)
++                        4'd1:    reg_rd <= {29'd0, err, done, busy};
++                        4'd2:    reg_rd <= {16'd0, m_cnt};
++                        4'd3:    reg_rd <= cycles;
++                        4'd4:    reg_rd <= {16'(DEPTH), 16'(N)};
++                        default: reg_rd <= '0;
++                    endcase
++                end else if (q_sel) begin
++                    rsel <= 1; r_inrange <= q_row < DEPTH; r_sub <= q_sub;
++                end else if (region == 2'd3) begin
++                    rsel <= 2; r_inrange <= c_row < DEPTH; r_sub <= 10'(c_col);
++                end
++            end
++        end
++    end
++    always_comb begin
++        avs_readdata = reg_rd;
++        if (rsel == 2'd1 && r_inrange)      avs_readdata = q_rd_bank[r_sub % WPR];
++        else if (rsel == 2'd2 && r_inrange) avs_readdata = c_rd_bank[r_sub % N];
++    end
++endmodule
+--- rtl/lut_tables.svh	2026-10-22 22:44:15.077288300 +0700
++++ quartus_fit/rtl_fpga/lut_tables.svh	2026-10-22 22:18:48.029977900 +0700
+@@ -1,523 +1,523 @@
+-// generated by scripts/gen_lut.py - do not edit
+-function automatic logic [7:0] lut_sig(input logic [7:0] i);
+-    case (i)
+-        8'd0: lut_sig = 8'sd64;
+-        8'd1: lut_sig = 8'sd66;
+-        8'd2: lut_sig = 8'sd68;
+-        8'd3: lut_sig = 8'sd70;
+-        8'd4: lut_sig = 8'sd72;
+-        8'd5: lut_sig = 8'sd74;
+-        8'd6: lut_sig = 8'sd76;
+-        8'd7: lut_sig = 8'sd78;
+-        8'd8: lut_sig = 8'sd80;
+-        8'd9: lut_sig = 8'sd82;
+-        8'd10: lut_sig = 8'sd83;
+-        8'd11: lut_sig = 8'sd85;
+-        8'd12: lut_sig = 8'sd87;
+-        8'd13: lut_sig = 8'sd89;
+-        8'd14: lut_sig = 8'sd90;
+-        8'd15: lut_sig = 8'sd92;
+-        8'd16: lut_sig = 8'sd94;
+-        8'd17: lut_sig = 8'sd95;
+-        8'd18: lut_sig = 8'sd97;
+-        8'd19: lut_sig = 8'sd98;
+-        8'd20: lut_sig = 8'sd99;
+-        8'd21: lut_sig = 8'sd101;
+-        8'd22: lut_sig = 8'sd102;
+-        8'd23: lut_sig = 8'sd103;
+-        8'd24: lut_sig = 8'sd105;
+-        8'd25: lut_sig = 8'sd106;
+-        8'd26: lut_sig = 8'sd107;
+-        8'd27: lut_sig = 8'sd108;
+-        8'd28: lut_sig = 8'sd109;
+-        8'd29: lut_sig = 8'sd110;
+-        8'd30: lut_sig = 8'sd111;
+-        8'd31: lut_sig = 8'sd112;
+-        8'd32: lut_sig = 8'sd113;
+-        8'd33: lut_sig = 8'sd114;
+-        8'd34: lut_sig = 8'sd114;
+-        8'd35: lut_sig = 8'sd115;
+-        8'd36: lut_sig = 8'sd116;
+-        8'd37: lut_sig = 8'sd116;
+-        8'd38: lut_sig = 8'sd117;
+-        8'd39: lut_sig = 8'sd118;
+-        8'd40: lut_sig = 8'sd118;
+-        8'd41: lut_sig = 8'sd119;
+-        8'd42: lut_sig = 8'sd119;
+-        8'd43: lut_sig = 8'sd120;
+-        8'd44: lut_sig = 8'sd120;
+-        8'd45: lut_sig = 8'sd121;
+-        8'd46: lut_sig = 8'sd121;
+-        8'd47: lut_sig = 8'sd122;
+-        8'd48: lut_sig = 8'sd122;
+-        8'd49: lut_sig = 8'sd122;
+-        8'd50: lut_sig = 8'sd123;
+-        8'd51: lut_sig = 8'sd123;
+-        8'd52: lut_sig = 8'sd123;
+-        8'd53: lut_sig = 8'sd124;
+-        8'd54: lut_sig = 8'sd124;
+-        8'd55: lut_sig = 8'sd124;
+-        8'd56: lut_sig = 8'sd124;
+-        8'd57: lut_sig = 8'sd124;
+-        8'd58: lut_sig = 8'sd125;
+-        8'd59: lut_sig = 8'sd125;
+-        8'd60: lut_sig = 8'sd125;
+-        8'd61: lut_sig = 8'sd125;
+-        8'd62: lut_sig = 8'sd125;
+-        8'd63: lut_sig = 8'sd126;
+-        8'd64: lut_sig = 8'sd126;
+-        8'd65: lut_sig = 8'sd126;
+-        8'd66: lut_sig = 8'sd126;
+-        8'd67: lut_sig = 8'sd126;
+-        8'd68: lut_sig = 8'sd126;
+-        8'd69: lut_sig = 8'sd126;
+-        8'd70: lut_sig = 8'sd126;
+-        8'd71: lut_sig = 8'sd127;
+-        8'd72: lut_sig = 8'sd127;
+-        8'd73: lut_sig = 8'sd127;
+-        8'd74: lut_sig = 8'sd127;
+-        8'd75: lut_sig = 8'sd127;
+-        8'd76: lut_sig = 8'sd127;
+-        8'd77: lut_sig = 8'sd127;
+-        8'd78: lut_sig = 8'sd127;
+-        8'd79: lut_sig = 8'sd127;
+-        8'd80: lut_sig = 8'sd127;
+-        8'd81: lut_sig = 8'sd127;
+-        8'd82: lut_sig = 8'sd127;
+-        8'd83: lut_sig = 8'sd127;
+-        8'd84: lut_sig = 8'sd127;
+-        8'd85: lut_sig = 8'sd127;
+-        8'd86: lut_sig = 8'sd127;
+-        8'd87: lut_sig = 8'sd127;
+-        8'd88: lut_sig = 8'sd127;
+-        8'd89: lut_sig = 8'sd127;
+-        8'd90: lut_sig = 8'sd127;
+-        8'd91: lut_sig = 8'sd127;
+-        8'd92: lut_sig = 8'sd127;
+-        8'd93: lut_sig = 8'sd127;
+-        8'd94: lut_sig = 8'sd127;
+-        8'd95: lut_sig = 8'sd127;
+-        8'd96: lut_sig = 8'sd127;
+-        8'd97: lut_sig = 8'sd127;
+-        8'd98: lut_sig = 8'sd127;
+-        8'd99: lut_sig = 8'sd127;
+-        8'd100: lut_sig = 8'sd127;
+-        8'd101: lut_sig = 8'sd127;
+-        8'd102: lut_sig = 8'sd127;
+-        8'd103: lut_sig = 8'sd127;
+-        8'd104: lut_sig = 8'sd127;
+-        8'd105: lut_sig = 8'sd127;
+-        8'd106: lut_sig = 8'sd127;
+-        8'd107: lut_sig = 8'sd127;
+-        8'd108: lut_sig = 8'sd127;
+-        8'd109: lut_sig = 8'sd127;
+-        8'd110: lut_sig = 8'sd127;
+-        8'd111: lut_sig = 8'sd127;
+-        8'd112: lut_sig = 8'sd127;
+-        8'd113: lut_sig = 8'sd127;
+-        8'd114: lut_sig = 8'sd127;
+-        8'd115: lut_sig = 8'sd127;
+-        8'd116: lut_sig = 8'sd127;
+-        8'd117: lut_sig = 8'sd127;
+-        8'd118: lut_sig = 8'sd127;
+-        8'd119: lut_sig = 8'sd127;
+-        8'd120: lut_sig = 8'sd127;
+-        8'd121: lut_sig = 8'sd127;
+-        8'd122: lut_sig = 8'sd127;
+-        8'd123: lut_sig = 8'sd127;
+-        8'd124: lut_sig = 8'sd127;
+-        8'd125: lut_sig = 8'sd127;
+-        8'd126: lut_sig = 8'sd127;
+-        8'd127: lut_sig = 8'sd127;
+-        8'd128: lut_sig = 8'sd0;
+-        8'd129: lut_sig = 8'sd0;
+-        8'd130: lut_sig = 8'sd0;
+-        8'd131: lut_sig = 8'sd0;
+-        8'd132: lut_sig = 8'sd0;
+-        8'd133: lut_sig = 8'sd0;
+-        8'd134: lut_sig = 8'sd0;
+-        8'd135: lut_sig = 8'sd0;
+-        8'd136: lut_sig = 8'sd0;
+-        8'd137: lut_sig = 8'sd0;
+-        8'd138: lut_sig = 8'sd0;
+-        8'd139: lut_sig = 8'sd0;
+-        8'd140: lut_sig = 8'sd0;
+-        8'd141: lut_sig = 8'sd0;
+-        8'd142: lut_sig = 8'sd0;
+-        8'd143: lut_sig = 8'sd0;
+-        8'd144: lut_sig = 8'sd0;
+-        8'd145: lut_sig = 8'sd0;
+-        8'd146: lut_sig = 8'sd0;
+-        8'd147: lut_sig = 8'sd0;
+-        8'd148: lut_sig = 8'sd0;
+-        8'd149: lut_sig = 8'sd0;
+-        8'd150: lut_sig = 8'sd0;
+-        8'd151: lut_sig = 8'sd0;
+-        8'd152: lut_sig = 8'sd0;
+-        8'd153: lut_sig = 8'sd0;
+-        8'd154: lut_sig = 8'sd0;
+-        8'd155: lut_sig = 8'sd0;
+-        8'd156: lut_sig = 8'sd0;
+-        8'd157: lut_sig = 8'sd0;
+-        8'd158: lut_sig = 8'sd0;
+-        8'd159: lut_sig = 8'sd0;
+-        8'd160: lut_sig = 8'sd0;
+-        8'd161: lut_sig = 8'sd0;
+-        8'd162: lut_sig = 8'sd0;
+-        8'd163: lut_sig = 8'sd0;
+-        8'd164: lut_sig = 8'sd0;
+-        8'd165: lut_sig = 8'sd0;
+-        8'd166: lut_sig = 8'sd0;
+-        8'd167: lut_sig = 8'sd0;
+-        8'd168: lut_sig = 8'sd1;
+-        8'd169: lut_sig = 8'sd1;
+-        8'd170: lut_sig = 8'sd1;
+-        8'd171: lut_sig = 8'sd1;
+-        8'd172: lut_sig = 8'sd1;
+-        8'd173: lut_sig = 8'sd1;
+-        8'd174: lut_sig = 8'sd1;
+-        8'd175: lut_sig = 8'sd1;
+-        8'd176: lut_sig = 8'sd1;
+-        8'd177: lut_sig = 8'sd1;
+-        8'd178: lut_sig = 8'sd1;
+-        8'd179: lut_sig = 8'sd1;
+-        8'd180: lut_sig = 8'sd1;
+-        8'd181: lut_sig = 8'sd1;
+-        8'd182: lut_sig = 8'sd1;
+-        8'd183: lut_sig = 8'sd1;
+-        8'd184: lut_sig = 8'sd1;
+-        8'd185: lut_sig = 8'sd1;
+-        8'd186: lut_sig = 8'sd2;
+-        8'd187: lut_sig = 8'sd2;
+-        8'd188: lut_sig = 8'sd2;
+-        8'd189: lut_sig = 8'sd2;
+-        8'd190: lut_sig = 8'sd2;
+-        8'd191: lut_sig = 8'sd2;
+-        8'd192: lut_sig = 8'sd2;
+-        8'd193: lut_sig = 8'sd2;
+-        8'd194: lut_sig = 8'sd3;
+-        8'd195: lut_sig = 8'sd3;
+-        8'd196: lut_sig = 8'sd3;
+-        8'd197: lut_sig = 8'sd3;
+-        8'd198: lut_sig = 8'sd3;
+-        8'd199: lut_sig = 8'sd4;
+-        8'd200: lut_sig = 8'sd4;
+-        8'd201: lut_sig = 8'sd4;
+-        8'd202: lut_sig = 8'sd4;
+-        8'd203: lut_sig = 8'sd4;
+-        8'd204: lut_sig = 8'sd5;
+-        8'd205: lut_sig = 8'sd5;
+-        8'd206: lut_sig = 8'sd5;
+-        8'd207: lut_sig = 8'sd6;
+-        8'd208: lut_sig = 8'sd6;
+-        8'd209: lut_sig = 8'sd6;
+-        8'd210: lut_sig = 8'sd7;
+-        8'd211: lut_sig = 8'sd7;
+-        8'd212: lut_sig = 8'sd8;
+-        8'd213: lut_sig = 8'sd8;
+-        8'd214: lut_sig = 8'sd9;
+-        8'd215: lut_sig = 8'sd9;
+-        8'd216: lut_sig = 8'sd10;
+-        8'd217: lut_sig = 8'sd10;
+-        8'd218: lut_sig = 8'sd11;
+-        8'd219: lut_sig = 8'sd12;
+-        8'd220: lut_sig = 8'sd12;
+-        8'd221: lut_sig = 8'sd13;
+-        8'd222: lut_sig = 8'sd14;
+-        8'd223: lut_sig = 8'sd14;
+-        8'd224: lut_sig = 8'sd15;
+-        8'd225: lut_sig = 8'sd16;
+-        8'd226: lut_sig = 8'sd17;
+-        8'd227: lut_sig = 8'sd18;
+-        8'd228: lut_sig = 8'sd19;
+-        8'd229: lut_sig = 8'sd20;
+-        8'd230: lut_sig = 8'sd21;
+-        8'd231: lut_sig = 8'sd22;
+-        8'd232: lut_sig = 8'sd23;
+-        8'd233: lut_sig = 8'sd25;
+-        8'd234: lut_sig = 8'sd26;
+-        8'd235: lut_sig = 8'sd27;
+-        8'd236: lut_sig = 8'sd29;
+-        8'd237: lut_sig = 8'sd30;
+-        8'd238: lut_sig = 8'sd31;
+-        8'd239: lut_sig = 8'sd33;
+-        8'd240: lut_sig = 8'sd34;
+-        8'd241: lut_sig = 8'sd36;
+-        8'd242: lut_sig = 8'sd38;
+-        8'd243: lut_sig = 8'sd39;
+-        8'd244: lut_sig = 8'sd41;
+-        8'd245: lut_sig = 8'sd43;
+-        8'd246: lut_sig = 8'sd45;
+-        8'd247: lut_sig = 8'sd46;
+-        8'd248: lut_sig = 8'sd48;
+-        8'd249: lut_sig = 8'sd50;
+-        8'd250: lut_sig = 8'sd52;
+-        8'd251: lut_sig = 8'sd54;
+-        8'd252: lut_sig = 8'sd56;
+-        8'd253: lut_sig = 8'sd58;
+-        8'd254: lut_sig = 8'sd60;
+-        8'd255: lut_sig = 8'sd62;
+-        default: lut_sig = 8'd0;
+-    endcase
+-endfunction
+-function automatic logic [7:0] lut_tanh(input logic [7:0] i);
+-    case (i)
+-        8'd0: lut_tanh = 8'sd0;
+-        8'd1: lut_tanh = 8'sd8;
+-        8'd2: lut_tanh = 8'sd16;
+-        8'd3: lut_tanh = 8'sd24;
+-        8'd4: lut_tanh = 8'sd31;
+-        8'd5: lut_tanh = 8'sd39;
+-        8'd6: lut_tanh = 8'sd46;
+-        8'd7: lut_tanh = 8'sd53;
+-        8'd8: lut_tanh = 8'sd59;
+-        8'd9: lut_tanh = 8'sd65;
+-        8'd10: lut_tanh = 8'sd71;
+-        8'd11: lut_tanh = 8'sd76;
+-        8'd12: lut_tanh = 8'sd81;
+-        8'd13: lut_tanh = 8'sd86;
+-        8'd14: lut_tanh = 8'sd90;
+-        8'd15: lut_tanh = 8'sd94;
+-        8'd16: lut_tanh = 8'sd97;
+-        8'd17: lut_tanh = 8'sd101;
+-        8'd18: lut_tanh = 8'sd104;
+-        8'd19: lut_tanh = 8'sd106;
+-        8'd20: lut_tanh = 8'sd109;
+-        8'd21: lut_tanh = 8'sd111;
+-        8'd22: lut_tanh = 8'sd113;
+-        8'd23: lut_tanh = 8'sd114;
+-        8'd24: lut_tanh = 8'sd116;
+-        8'd25: lut_tanh = 8'sd117;
+-        8'd26: lut_tanh = 8'sd118;
+-        8'd27: lut_tanh = 8'sd120;
+-        8'd28: lut_tanh = 8'sd120;
+-        8'd29: lut_tanh = 8'sd121;
+-        8'd30: lut_tanh = 8'sd122;
+-        8'd31: lut_tanh = 8'sd123;
+-        8'd32: lut_tanh = 8'sd123;
+-        8'd33: lut_tanh = 8'sd124;
+-        8'd34: lut_tanh = 8'sd124;
+-        8'd35: lut_tanh = 8'sd125;
+-        8'd36: lut_tanh = 8'sd125;
+-        8'd37: lut_tanh = 8'sd126;
+-        8'd38: lut_tanh = 8'sd126;
+-        8'd39: lut_tanh = 8'sd126;
+-        8'd40: lut_tanh = 8'sd126;
+-        8'd41: lut_tanh = 8'sd126;
+-        8'd42: lut_tanh = 8'sd127;
+-        8'd43: lut_tanh = 8'sd127;
+-        8'd44: lut_tanh = 8'sd127;
+-        8'd45: lut_tanh = 8'sd127;
+-        8'd46: lut_tanh = 8'sd127;
+-        8'd47: lut_tanh = 8'sd127;
+-        8'd48: lut_tanh = 8'sd127;
+-        8'd49: lut_tanh = 8'sd127;
+-        8'd50: lut_tanh = 8'sd127;
+-        8'd51: lut_tanh = 8'sd127;
+-        8'd52: lut_tanh = 8'sd127;
+-        8'd53: lut_tanh = 8'sd127;
+-        8'd54: lut_tanh = 8'sd127;
+-        8'd55: lut_tanh = 8'sd127;
+-        8'd56: lut_tanh = 8'sd127;
+-        8'd57: lut_tanh = 8'sd127;
+-        8'd58: lut_tanh = 8'sd127;
+-        8'd59: lut_tanh = 8'sd127;
+-        8'd60: lut_tanh = 8'sd127;
+-        8'd61: lut_tanh = 8'sd127;
+-        8'd62: lut_tanh = 8'sd127;
+-        8'd63: lut_tanh = 8'sd127;
+-        8'd64: lut_tanh = 8'sd127;
+-        8'd65: lut_tanh = 8'sd127;
+-        8'd66: lut_tanh = 8'sd127;
+-        8'd67: lut_tanh = 8'sd127;
+-        8'd68: lut_tanh = 8'sd127;
+-        8'd69: lut_tanh = 8'sd127;
+-        8'd70: lut_tanh = 8'sd127;
+-        8'd71: lut_tanh = 8'sd127;
+-        8'd72: lut_tanh = 8'sd127;
+-        8'd73: lut_tanh = 8'sd127;
+-        8'd74: lut_tanh = 8'sd127;
+-        8'd75: lut_tanh = 8'sd127;
+-        8'd76: lut_tanh = 8'sd127;
+-        8'd77: lut_tanh = 8'sd127;
+-        8'd78: lut_tanh = 8'sd127;
+-        8'd79: lut_tanh = 8'sd127;
+-        8'd80: lut_tanh = 8'sd127;
+-        8'd81: lut_tanh = 8'sd127;
+-        8'd82: lut_tanh = 8'sd127;
+-        8'd83: lut_tanh = 8'sd127;
+-        8'd84: lut_tanh = 8'sd127;
+-        8'd85: lut_tanh = 8'sd127;
+-        8'd86: lut_tanh = 8'sd127;
+-        8'd87: lut_tanh = 8'sd127;
+-        8'd88: lut_tanh = 8'sd127;
+-        8'd89: lut_tanh = 8'sd127;
+-        8'd90: lut_tanh = 8'sd127;
+-        8'd91: lut_tanh = 8'sd127;
+-        8'd92: lut_tanh = 8'sd127;
+-        8'd93: lut_tanh = 8'sd127;
+-        8'd94: lut_tanh = 8'sd127;
+-        8'd95: lut_tanh = 8'sd127;
+-        8'd96: lut_tanh = 8'sd127;
+-        8'd97: lut_tanh = 8'sd127;
+-        8'd98: lut_tanh = 8'sd127;
+-        8'd99: lut_tanh = 8'sd127;
+-        8'd100: lut_tanh = 8'sd127;
+-        8'd101: lut_tanh = 8'sd127;
+-        8'd102: lut_tanh = 8'sd127;
+-        8'd103: lut_tanh = 8'sd127;
+-        8'd104: lut_tanh = 8'sd127;
+-        8'd105: lut_tanh = 8'sd127;
+-        8'd106: lut_tanh = 8'sd127;
+-        8'd107: lut_tanh = 8'sd127;
+-        8'd108: lut_tanh = 8'sd127;
+-        8'd109: lut_tanh = 8'sd127;
+-        8'd110: lut_tanh = 8'sd127;
+-        8'd111: lut_tanh = 8'sd127;
+-        8'd112: lut_tanh = 8'sd127;
+-        8'd113: lut_tanh = 8'sd127;
+-        8'd114: lut_tanh = 8'sd127;
+-        8'd115: lut_tanh = 8'sd127;
+-        8'd116: lut_tanh = 8'sd127;
+-        8'd117: lut_tanh = 8'sd127;
+-        8'd118: lut_tanh = 8'sd127;
+-        8'd119: lut_tanh = 8'sd127;
+-        8'd120: lut_tanh = 8'sd127;
+-        8'd121: lut_tanh = 8'sd127;
+-        8'd122: lut_tanh = 8'sd127;
+-        8'd123: lut_tanh = 8'sd127;
+-        8'd124: lut_tanh = 8'sd127;
+-        8'd125: lut_tanh = 8'sd127;
+-        8'd126: lut_tanh = 8'sd127;
+-        8'd127: lut_tanh = 8'sd127;
+-        8'd128: lut_tanh = -8'sd127;
+-        8'd129: lut_tanh = -8'sd127;
+-        8'd130: lut_tanh = -8'sd127;
+-        8'd131: lut_tanh = -8'sd127;
+-        8'd132: lut_tanh = -8'sd127;
+-        8'd133: lut_tanh = -8'sd127;
+-        8'd134: lut_tanh = -8'sd127;
+-        8'd135: lut_tanh = -8'sd127;
+-        8'd136: lut_tanh = -8'sd127;
+-        8'd137: lut_tanh = -8'sd127;
+-        8'd138: lut_tanh = -8'sd127;
+-        8'd139: lut_tanh = -8'sd127;
+-        8'd140: lut_tanh = -8'sd127;
+-        8'd141: lut_tanh = -8'sd127;
+-        8'd142: lut_tanh = -8'sd127;
+-        8'd143: lut_tanh = -8'sd127;
+-        8'd144: lut_tanh = -8'sd127;
+-        8'd145: lut_tanh = -8'sd127;
+-        8'd146: lut_tanh = -8'sd127;
+-        8'd147: lut_tanh = -8'sd127;
+-        8'd148: lut_tanh = -8'sd127;
+-        8'd149: lut_tanh = -8'sd127;
+-        8'd150: lut_tanh = -8'sd127;
+-        8'd151: lut_tanh = -8'sd127;
+-        8'd152: lut_tanh = -8'sd127;
+-        8'd153: lut_tanh = -8'sd127;
+-        8'd154: lut_tanh = -8'sd127;
+-        8'd155: lut_tanh = -8'sd127;
+-        8'd156: lut_tanh = -8'sd127;
+-        8'd157: lut_tanh = -8'sd127;
+-        8'd158: lut_tanh = -8'sd127;
+-        8'd159: lut_tanh = -8'sd127;
+-        8'd160: lut_tanh = -8'sd127;
+-        8'd161: lut_tanh = -8'sd127;
+-        8'd162: lut_tanh = -8'sd127;
+-        8'd163: lut_tanh = -8'sd127;
+-        8'd164: lut_tanh = -8'sd127;
+-        8'd165: lut_tanh = -8'sd127;
+-        8'd166: lut_tanh = -8'sd127;
+-        8'd167: lut_tanh = -8'sd127;
+-        8'd168: lut_tanh = -8'sd127;
+-        8'd169: lut_tanh = -8'sd127;
+-        8'd170: lut_tanh = -8'sd127;
+-        8'd171: lut_tanh = -8'sd127;
+-        8'd172: lut_tanh = -8'sd127;
+-        8'd173: lut_tanh = -8'sd127;
+-        8'd174: lut_tanh = -8'sd127;
+-        8'd175: lut_tanh = -8'sd127;
+-        8'd176: lut_tanh = -8'sd127;
+-        8'd177: lut_tanh = -8'sd127;
+-        8'd178: lut_tanh = -8'sd127;
+-        8'd179: lut_tanh = -8'sd127;
+-        8'd180: lut_tanh = -8'sd127;
+-        8'd181: lut_tanh = -8'sd127;
+-        8'd182: lut_tanh = -8'sd127;
+-        8'd183: lut_tanh = -8'sd127;
+-        8'd184: lut_tanh = -8'sd127;
+-        8'd185: lut_tanh = -8'sd127;
+-        8'd186: lut_tanh = -8'sd127;
+-        8'd187: lut_tanh = -8'sd127;
+-        8'd188: lut_tanh = -8'sd127;
+-        8'd189: lut_tanh = -8'sd127;
+-        8'd190: lut_tanh = -8'sd127;
+-        8'd191: lut_tanh = -8'sd127;
+-        8'd192: lut_tanh = -8'sd127;
+-        8'd193: lut_tanh = -8'sd127;
+-        8'd194: lut_tanh = -8'sd127;
+-        8'd195: lut_tanh = -8'sd127;
+-        8'd196: lut_tanh = -8'sd127;
+-        8'd197: lut_tanh = -8'sd127;
+-        8'd198: lut_tanh = -8'sd127;
+-        8'd199: lut_tanh = -8'sd127;
+-        8'd200: lut_tanh = -8'sd127;
+-        8'd201: lut_tanh = -8'sd127;
+-        8'd202: lut_tanh = -8'sd127;
+-        8'd203: lut_tanh = -8'sd127;
+-        8'd204: lut_tanh = -8'sd127;
+-        8'd205: lut_tanh = -8'sd127;
+-        8'd206: lut_tanh = -8'sd127;
+-        8'd207: lut_tanh = -8'sd127;
+-        8'd208: lut_tanh = -8'sd127;
+-        8'd209: lut_tanh = -8'sd127;
+-        8'd210: lut_tanh = -8'sd127;
+-        8'd211: lut_tanh = -8'sd127;
+-        8'd212: lut_tanh = -8'sd127;
+-        8'd213: lut_tanh = -8'sd127;
+-        8'd214: lut_tanh = -8'sd127;
+-        8'd215: lut_tanh = -8'sd126;
+-        8'd216: lut_tanh = -8'sd126;
+-        8'd217: lut_tanh = -8'sd126;
+-        8'd218: lut_tanh = -8'sd126;
+-        8'd219: lut_tanh = -8'sd126;
+-        8'd220: lut_tanh = -8'sd125;
+-        8'd221: lut_tanh = -8'sd125;
+-        8'd222: lut_tanh = -8'sd124;
+-        8'd223: lut_tanh = -8'sd124;
+-        8'd224: lut_tanh = -8'sd123;
+-        8'd225: lut_tanh = -8'sd123;
+-        8'd226: lut_tanh = -8'sd122;
+-        8'd227: lut_tanh = -8'sd121;
+-        8'd228: lut_tanh = -8'sd120;
+-        8'd229: lut_tanh = -8'sd120;
+-        8'd230: lut_tanh = -8'sd118;
+-        8'd231: lut_tanh = -8'sd117;
+-        8'd232: lut_tanh = -8'sd116;
+-        8'd233: lut_tanh = -8'sd114;
+-        8'd234: lut_tanh = -8'sd113;
+-        8'd235: lut_tanh = -8'sd111;
+-        8'd236: lut_tanh = -8'sd109;
+-        8'd237: lut_tanh = -8'sd106;
+-        8'd238: lut_tanh = -8'sd104;
+-        8'd239: lut_tanh = -8'sd101;
+-        8'd240: lut_tanh = -8'sd97;
+-        8'd241: lut_tanh = -8'sd94;
+-        8'd242: lut_tanh = -8'sd90;
+-        8'd243: lut_tanh = -8'sd86;
+-        8'd244: lut_tanh = -8'sd81;
+-        8'd245: lut_tanh = -8'sd76;
+-        8'd246: lut_tanh = -8'sd71;
+-        8'd247: lut_tanh = -8'sd65;
+-        8'd248: lut_tanh = -8'sd59;
+-        8'd249: lut_tanh = -8'sd53;
+-        8'd250: lut_tanh = -8'sd46;
+-        8'd251: lut_tanh = -8'sd39;
+-        8'd252: lut_tanh = -8'sd31;
+-        8'd253: lut_tanh = -8'sd24;
+-        8'd254: lut_tanh = -8'sd16;
+-        8'd255: lut_tanh = -8'sd8;
+-        default: lut_tanh = 8'd0;
+-    endcase
+-endfunction
++// generated by scripts/gen_lut.py - do not edit
++function automatic logic [7:0] lut_sig(input logic [7:0] i);
++    case (i)
++        8'd0: lut_sig = 8'sd64;
++        8'd1: lut_sig = 8'sd66;
++        8'd2: lut_sig = 8'sd68;
++        8'd3: lut_sig = 8'sd70;
++        8'd4: lut_sig = 8'sd72;
++        8'd5: lut_sig = 8'sd74;
++        8'd6: lut_sig = 8'sd76;
++        8'd7: lut_sig = 8'sd78;
++        8'd8: lut_sig = 8'sd80;
++        8'd9: lut_sig = 8'sd82;
++        8'd10: lut_sig = 8'sd83;
++        8'd11: lut_sig = 8'sd85;
++        8'd12: lut_sig = 8'sd87;
++        8'd13: lut_sig = 8'sd89;
++        8'd14: lut_sig = 8'sd90;
++        8'd15: lut_sig = 8'sd92;
++        8'd16: lut_sig = 8'sd94;
++        8'd17: lut_sig = 8'sd95;
++        8'd18: lut_sig = 8'sd97;
++        8'd19: lut_sig = 8'sd98;
++        8'd20: lut_sig = 8'sd99;
++        8'd21: lut_sig = 8'sd101;
++        8'd22: lut_sig = 8'sd102;
++        8'd23: lut_sig = 8'sd103;
++        8'd24: lut_sig = 8'sd105;
++        8'd25: lut_sig = 8'sd106;
++        8'd26: lut_sig = 8'sd107;
++        8'd27: lut_sig = 8'sd108;
++        8'd28: lut_sig = 8'sd109;
++        8'd29: lut_sig = 8'sd110;
++        8'd30: lut_sig = 8'sd111;
++        8'd31: lut_sig = 8'sd112;
++        8'd32: lut_sig = 8'sd113;
++        8'd33: lut_sig = 8'sd114;
++        8'd34: lut_sig = 8'sd114;
++        8'd35: lut_sig = 8'sd115;
++        8'd36: lut_sig = 8'sd116;
++        8'd37: lut_sig = 8'sd116;
++        8'd38: lut_sig = 8'sd117;
++        8'd39: lut_sig = 8'sd118;
++        8'd40: lut_sig = 8'sd118;
++        8'd41: lut_sig = 8'sd119;
++        8'd42: lut_sig = 8'sd119;
++        8'd43: lut_sig = 8'sd120;
++        8'd44: lut_sig = 8'sd120;
++        8'd45: lut_sig = 8'sd121;
++        8'd46: lut_sig = 8'sd121;
++        8'd47: lut_sig = 8'sd122;
++        8'd48: lut_sig = 8'sd122;
++        8'd49: lut_sig = 8'sd122;
++        8'd50: lut_sig = 8'sd123;
++        8'd51: lut_sig = 8'sd123;
++        8'd52: lut_sig = 8'sd123;
++        8'd53: lut_sig = 8'sd124;
++        8'd54: lut_sig = 8'sd124;
++        8'd55: lut_sig = 8'sd124;
++        8'd56: lut_sig = 8'sd124;
++        8'd57: lut_sig = 8'sd124;
++        8'd58: lut_sig = 8'sd125;
++        8'd59: lut_sig = 8'sd125;
++        8'd60: lut_sig = 8'sd125;
++        8'd61: lut_sig = 8'sd125;
++        8'd62: lut_sig = 8'sd125;
++        8'd63: lut_sig = 8'sd126;
++        8'd64: lut_sig = 8'sd126;
++        8'd65: lut_sig = 8'sd126;
++        8'd66: lut_sig = 8'sd126;
++        8'd67: lut_sig = 8'sd126;
++        8'd68: lut_sig = 8'sd126;
++        8'd69: lut_sig = 8'sd126;
++        8'd70: lut_sig = 8'sd126;
++        8'd71: lut_sig = 8'sd127;
++        8'd72: lut_sig = 8'sd127;
++        8'd73: lut_sig = 8'sd127;
++        8'd74: lut_sig = 8'sd127;
++        8'd75: lut_sig = 8'sd127;
++        8'd76: lut_sig = 8'sd127;
++        8'd77: lut_sig = 8'sd127;
++        8'd78: lut_sig = 8'sd127;
++        8'd79: lut_sig = 8'sd127;
++        8'd80: lut_sig = 8'sd127;
++        8'd81: lut_sig = 8'sd127;
++        8'd82: lut_sig = 8'sd127;
++        8'd83: lut_sig = 8'sd127;
++        8'd84: lut_sig = 8'sd127;
++        8'd85: lut_sig = 8'sd127;
++        8'd86: lut_sig = 8'sd127;
++        8'd87: lut_sig = 8'sd127;
++        8'd88: lut_sig = 8'sd127;
++        8'd89: lut_sig = 8'sd127;
++        8'd90: lut_sig = 8'sd127;
++        8'd91: lut_sig = 8'sd127;
++        8'd92: lut_sig = 8'sd127;
++        8'd93: lut_sig = 8'sd127;
++        8'd94: lut_sig = 8'sd127;
++        8'd95: lut_sig = 8'sd127;
++        8'd96: lut_sig = 8'sd127;
++        8'd97: lut_sig = 8'sd127;
++        8'd98: lut_sig = 8'sd127;
++        8'd99: lut_sig = 8'sd127;
++        8'd100: lut_sig = 8'sd127;
++        8'd101: lut_sig = 8'sd127;
++        8'd102: lut_sig = 8'sd127;
++        8'd103: lut_sig = 8'sd127;
++        8'd104: lut_sig = 8'sd127;
++        8'd105: lut_sig = 8'sd127;
++        8'd106: lut_sig = 8'sd127;
++        8'd107: lut_sig = 8'sd127;
++        8'd108: lut_sig = 8'sd127;
++        8'd109: lut_sig = 8'sd127;
++        8'd110: lut_sig = 8'sd127;
++        8'd111: lut_sig = 8'sd127;
++        8'd112: lut_sig = 8'sd127;
++        8'd113: lut_sig = 8'sd127;
++        8'd114: lut_sig = 8'sd127;
++        8'd115: lut_sig = 8'sd127;
++        8'd116: lut_sig = 8'sd127;
++        8'd117: lut_sig = 8'sd127;
++        8'd118: lut_sig = 8'sd127;
++        8'd119: lut_sig = 8'sd127;
++        8'd120: lut_sig = 8'sd127;
++        8'd121: lut_sig = 8'sd127;
++        8'd122: lut_sig = 8'sd127;
++        8'd123: lut_sig = 8'sd127;
++        8'd124: lut_sig = 8'sd127;
++        8'd125: lut_sig = 8'sd127;
++        8'd126: lut_sig = 8'sd127;
++        8'd127: lut_sig = 8'sd127;
++        8'd128: lut_sig = 8'sd0;
++        8'd129: lut_sig = 8'sd0;
++        8'd130: lut_sig = 8'sd0;
++        8'd131: lut_sig = 8'sd0;
++        8'd132: lut_sig = 8'sd0;
++        8'd133: lut_sig = 8'sd0;
++        8'd134: lut_sig = 8'sd0;
++        8'd135: lut_sig = 8'sd0;
++        8'd136: lut_sig = 8'sd0;
++        8'd137: lut_sig = 8'sd0;
++        8'd138: lut_sig = 8'sd0;
++        8'd139: lut_sig = 8'sd0;
++        8'd140: lut_sig = 8'sd0;
++        8'd141: lut_sig = 8'sd0;
++        8'd142: lut_sig = 8'sd0;
++        8'd143: lut_sig = 8'sd0;
++        8'd144: lut_sig = 8'sd0;
++        8'd145: lut_sig = 8'sd0;
++        8'd146: lut_sig = 8'sd0;
++        8'd147: lut_sig = 8'sd0;
++        8'd148: lut_sig = 8'sd0;
++        8'd149: lut_sig = 8'sd0;
++        8'd150: lut_sig = 8'sd0;
++        8'd151: lut_sig = 8'sd0;
++        8'd152: lut_sig = 8'sd0;
++        8'd153: lut_sig = 8'sd0;
++        8'd154: lut_sig = 8'sd0;
++        8'd155: lut_sig = 8'sd0;
++        8'd156: lut_sig = 8'sd0;
++        8'd157: lut_sig = 8'sd0;
++        8'd158: lut_sig = 8'sd0;
++        8'd159: lut_sig = 8'sd0;
++        8'd160: lut_sig = 8'sd0;
++        8'd161: lut_sig = 8'sd0;
++        8'd162: lut_sig = 8'sd0;
++        8'd163: lut_sig = 8'sd0;
++        8'd164: lut_sig = 8'sd0;
++        8'd165: lut_sig = 8'sd0;
++        8'd166: lut_sig = 8'sd0;
++        8'd167: lut_sig = 8'sd0;
++        8'd168: lut_sig = 8'sd1;
++        8'd169: lut_sig = 8'sd1;
++        8'd170: lut_sig = 8'sd1;
++        8'd171: lut_sig = 8'sd1;
++        8'd172: lut_sig = 8'sd1;
++        8'd173: lut_sig = 8'sd1;
++        8'd174: lut_sig = 8'sd1;
++        8'd175: lut_sig = 8'sd1;
++        8'd176: lut_sig = 8'sd1;
++        8'd177: lut_sig = 8'sd1;
++        8'd178: lut_sig = 8'sd1;
++        8'd179: lut_sig = 8'sd1;
++        8'd180: lut_sig = 8'sd1;
++        8'd181: lut_sig = 8'sd1;
++        8'd182: lut_sig = 8'sd1;
++        8'd183: lut_sig = 8'sd1;
++        8'd184: lut_sig = 8'sd1;
++        8'd185: lut_sig = 8'sd1;
++        8'd186: lut_sig = 8'sd2;
++        8'd187: lut_sig = 8'sd2;
++        8'd188: lut_sig = 8'sd2;
++        8'd189: lut_sig = 8'sd2;
++        8'd190: lut_sig = 8'sd2;
++        8'd191: lut_sig = 8'sd2;
++        8'd192: lut_sig = 8'sd2;
++        8'd193: lut_sig = 8'sd2;
++        8'd194: lut_sig = 8'sd3;
++        8'd195: lut_sig = 8'sd3;
++        8'd196: lut_sig = 8'sd3;
++        8'd197: lut_sig = 8'sd3;
++        8'd198: lut_sig = 8'sd3;
++        8'd199: lut_sig = 8'sd4;
++        8'd200: lut_sig = 8'sd4;
++        8'd201: lut_sig = 8'sd4;
++        8'd202: lut_sig = 8'sd4;
++        8'd203: lut_sig = 8'sd4;
++        8'd204: lut_sig = 8'sd5;
++        8'd205: lut_sig = 8'sd5;
++        8'd206: lut_sig = 8'sd5;
++        8'd207: lut_sig = 8'sd6;
++        8'd208: lut_sig = 8'sd6;
++        8'd209: lut_sig = 8'sd6;
++        8'd210: lut_sig = 8'sd7;
++        8'd211: lut_sig = 8'sd7;
++        8'd212: lut_sig = 8'sd8;
++        8'd213: lut_sig = 8'sd8;
++        8'd214: lut_sig = 8'sd9;
++        8'd215: lut_sig = 8'sd9;
++        8'd216: lut_sig = 8'sd10;
++        8'd217: lut_sig = 8'sd10;
++        8'd218: lut_sig = 8'sd11;
++        8'd219: lut_sig = 8'sd12;
++        8'd220: lut_sig = 8'sd12;
++        8'd221: lut_sig = 8'sd13;
++        8'd222: lut_sig = 8'sd14;
++        8'd223: lut_sig = 8'sd14;
++        8'd224: lut_sig = 8'sd15;
++        8'd225: lut_sig = 8'sd16;
++        8'd226: lut_sig = 8'sd17;
++        8'd227: lut_sig = 8'sd18;
++        8'd228: lut_sig = 8'sd19;
++        8'd229: lut_sig = 8'sd20;
++        8'd230: lut_sig = 8'sd21;
++        8'd231: lut_sig = 8'sd22;
++        8'd232: lut_sig = 8'sd23;
++        8'd233: lut_sig = 8'sd25;
++        8'd234: lut_sig = 8'sd26;
++        8'd235: lut_sig = 8'sd27;
++        8'd236: lut_sig = 8'sd29;
++        8'd237: lut_sig = 8'sd30;
++        8'd238: lut_sig = 8'sd31;
++        8'd239: lut_sig = 8'sd33;
++        8'd240: lut_sig = 8'sd34;
++        8'd241: lut_sig = 8'sd36;
++        8'd242: lut_sig = 8'sd38;
++        8'd243: lut_sig = 8'sd39;
++        8'd244: lut_sig = 8'sd41;
++        8'd245: lut_sig = 8'sd43;
++        8'd246: lut_sig = 8'sd45;
++        8'd247: lut_sig = 8'sd46;
++        8'd248: lut_sig = 8'sd48;
++        8'd249: lut_sig = 8'sd50;
++        8'd250: lut_sig = 8'sd52;
++        8'd251: lut_sig = 8'sd54;
++        8'd252: lut_sig = 8'sd56;
++        8'd253: lut_sig = 8'sd58;
++        8'd254: lut_sig = 8'sd60;
++        8'd255: lut_sig = 8'sd62;
++        default: lut_sig = 8'd0;
++    endcase
++endfunction
++function automatic logic [7:0] lut_tanh(input logic [7:0] i);
++    case (i)
++        8'd0: lut_tanh = 8'sd0;
++        8'd1: lut_tanh = 8'sd8;
++        8'd2: lut_tanh = 8'sd16;
++        8'd3: lut_tanh = 8'sd24;
++        8'd4: lut_tanh = 8'sd31;
++        8'd5: lut_tanh = 8'sd39;
++        8'd6: lut_tanh = 8'sd46;
++        8'd7: lut_tanh = 8'sd53;
++        8'd8: lut_tanh = 8'sd59;
++        8'd9: lut_tanh = 8'sd65;
++        8'd10: lut_tanh = 8'sd71;
++        8'd11: lut_tanh = 8'sd76;
++        8'd12: lut_tanh = 8'sd81;
++        8'd13: lut_tanh = 8'sd86;
++        8'd14: lut_tanh = 8'sd90;
++        8'd15: lut_tanh = 8'sd94;
++        8'd16: lut_tanh = 8'sd97;
++        8'd17: lut_tanh = 8'sd101;
++        8'd18: lut_tanh = 8'sd104;
++        8'd19: lut_tanh = 8'sd106;
++        8'd20: lut_tanh = 8'sd109;
++        8'd21: lut_tanh = 8'sd111;
++        8'd22: lut_tanh = 8'sd113;
++        8'd23: lut_tanh = 8'sd114;
++        8'd24: lut_tanh = 8'sd116;
++        8'd25: lut_tanh = 8'sd117;
++        8'd26: lut_tanh = 8'sd118;
++        8'd27: lut_tanh = 8'sd120;
++        8'd28: lut_tanh = 8'sd120;
++        8'd29: lut_tanh = 8'sd121;
++        8'd30: lut_tanh = 8'sd122;
++        8'd31: lut_tanh = 8'sd123;
++        8'd32: lut_tanh = 8'sd123;
++        8'd33: lut_tanh = 8'sd124;
++        8'd34: lut_tanh = 8'sd124;
++        8'd35: lut_tanh = 8'sd125;
++        8'd36: lut_tanh = 8'sd125;
++        8'd37: lut_tanh = 8'sd126;
++        8'd38: lut_tanh = 8'sd126;
++        8'd39: lut_tanh = 8'sd126;
++        8'd40: lut_tanh = 8'sd126;
++        8'd41: lut_tanh = 8'sd126;
++        8'd42: lut_tanh = 8'sd127;
++        8'd43: lut_tanh = 8'sd127;
++        8'd44: lut_tanh = 8'sd127;
++        8'd45: lut_tanh = 8'sd127;
++        8'd46: lut_tanh = 8'sd127;
++        8'd47: lut_tanh = 8'sd127;
++        8'd48: lut_tanh = 8'sd127;
++        8'd49: lut_tanh = 8'sd127;
++        8'd50: lut_tanh = 8'sd127;
++        8'd51: lut_tanh = 8'sd127;
++        8'd52: lut_tanh = 8'sd127;
++        8'd53: lut_tanh = 8'sd127;
++        8'd54: lut_tanh = 8'sd127;
++        8'd55: lut_tanh = 8'sd127;
++        8'd56: lut_tanh = 8'sd127;
++        8'd57: lut_tanh = 8'sd127;
++        8'd58: lut_tanh = 8'sd127;
++        8'd59: lut_tanh = 8'sd127;
++        8'd60: lut_tanh = 8'sd127;
++        8'd61: lut_tanh = 8'sd127;
++        8'd62: lut_tanh = 8'sd127;
++        8'd63: lut_tanh = 8'sd127;
++        8'd64: lut_tanh = 8'sd127;
++        8'd65: lut_tanh = 8'sd127;
++        8'd66: lut_tanh = 8'sd127;
++        8'd67: lut_tanh = 8'sd127;
++        8'd68: lut_tanh = 8'sd127;
++        8'd69: lut_tanh = 8'sd127;
++        8'd70: lut_tanh = 8'sd127;
++        8'd71: lut_tanh = 8'sd127;
++        8'd72: lut_tanh = 8'sd127;
++        8'd73: lut_tanh = 8'sd127;
++        8'd74: lut_tanh = 8'sd127;
++        8'd75: lut_tanh = 8'sd127;
++        8'd76: lut_tanh = 8'sd127;
++        8'd77: lut_tanh = 8'sd127;
++        8'd78: lut_tanh = 8'sd127;
++        8'd79: lut_tanh = 8'sd127;
++        8'd80: lut_tanh = 8'sd127;
++        8'd81: lut_tanh = 8'sd127;
++        8'd82: lut_tanh = 8'sd127;
++        8'd83: lut_tanh = 8'sd127;
++        8'd84: lut_tanh = 8'sd127;
++        8'd85: lut_tanh = 8'sd127;
++        8'd86: lut_tanh = 8'sd127;
++        8'd87: lut_tanh = 8'sd127;
++        8'd88: lut_tanh = 8'sd127;
++        8'd89: lut_tanh = 8'sd127;
++        8'd90: lut_tanh = 8'sd127;
++        8'd91: lut_tanh = 8'sd127;
++        8'd92: lut_tanh = 8'sd127;
++        8'd93: lut_tanh = 8'sd127;
++        8'd94: lut_tanh = 8'sd127;
++        8'd95: lut_tanh = 8'sd127;
++        8'd96: lut_tanh = 8'sd127;
++        8'd97: lut_tanh = 8'sd127;
++        8'd98: lut_tanh = 8'sd127;
++        8'd99: lut_tanh = 8'sd127;
++        8'd100: lut_tanh = 8'sd127;
++        8'd101: lut_tanh = 8'sd127;
++        8'd102: lut_tanh = 8'sd127;
++        8'd103: lut_tanh = 8'sd127;
++        8'd104: lut_tanh = 8'sd127;
++        8'd105: lut_tanh = 8'sd127;
++        8'd106: lut_tanh = 8'sd127;
++        8'd107: lut_tanh = 8'sd127;
++        8'd108: lut_tanh = 8'sd127;
++        8'd109: lut_tanh = 8'sd127;
++        8'd110: lut_tanh = 8'sd127;
++        8'd111: lut_tanh = 8'sd127;
++        8'd112: lut_tanh = 8'sd127;
++        8'd113: lut_tanh = 8'sd127;
++        8'd114: lut_tanh = 8'sd127;
++        8'd115: lut_tanh = 8'sd127;
++        8'd116: lut_tanh = 8'sd127;
++        8'd117: lut_tanh = 8'sd127;
++        8'd118: lut_tanh = 8'sd127;
++        8'd119: lut_tanh = 8'sd127;
++        8'd120: lut_tanh = 8'sd127;
++        8'd121: lut_tanh = 8'sd127;
++        8'd122: lut_tanh = 8'sd127;
++        8'd123: lut_tanh = 8'sd127;
++        8'd124: lut_tanh = 8'sd127;
++        8'd125: lut_tanh = 8'sd127;
++        8'd126: lut_tanh = 8'sd127;
++        8'd127: lut_tanh = 8'sd127;
++        8'd128: lut_tanh = -8'sd127;
++        8'd129: lut_tanh = -8'sd127;
++        8'd130: lut_tanh = -8'sd127;
++        8'd131: lut_tanh = -8'sd127;
++        8'd132: lut_tanh = -8'sd127;
++        8'd133: lut_tanh = -8'sd127;
++        8'd134: lut_tanh = -8'sd127;
++        8'd135: lut_tanh = -8'sd127;
++        8'd136: lut_tanh = -8'sd127;
++        8'd137: lut_tanh = -8'sd127;
++        8'd138: lut_tanh = -8'sd127;
++        8'd139: lut_tanh = -8'sd127;
++        8'd140: lut_tanh = -8'sd127;
++        8'd141: lut_tanh = -8'sd127;
++        8'd142: lut_tanh = -8'sd127;
++        8'd143: lut_tanh = -8'sd127;
++        8'd144: lut_tanh = -8'sd127;
++        8'd145: lut_tanh = -8'sd127;
++        8'd146: lut_tanh = -8'sd127;
++        8'd147: lut_tanh = -8'sd127;
++        8'd148: lut_tanh = -8'sd127;
++        8'd149: lut_tanh = -8'sd127;
++        8'd150: lut_tanh = -8'sd127;
++        8'd151: lut_tanh = -8'sd127;
++        8'd152: lut_tanh = -8'sd127;
++        8'd153: lut_tanh = -8'sd127;
++        8'd154: lut_tanh = -8'sd127;
++        8'd155: lut_tanh = -8'sd127;
++        8'd156: lut_tanh = -8'sd127;
++        8'd157: lut_tanh = -8'sd127;
++        8'd158: lut_tanh = -8'sd127;
++        8'd159: lut_tanh = -8'sd127;
++        8'd160: lut_tanh = -8'sd127;
++        8'd161: lut_tanh = -8'sd127;
++        8'd162: lut_tanh = -8'sd127;
++        8'd163: lut_tanh = -8'sd127;
++        8'd164: lut_tanh = -8'sd127;
++        8'd165: lut_tanh = -8'sd127;
++        8'd166: lut_tanh = -8'sd127;
++        8'd167: lut_tanh = -8'sd127;
++        8'd168: lut_tanh = -8'sd127;
++        8'd169: lut_tanh = -8'sd127;
++        8'd170: lut_tanh = -8'sd127;
++        8'd171: lut_tanh = -8'sd127;
++        8'd172: lut_tanh = -8'sd127;
++        8'd173: lut_tanh = -8'sd127;
++        8'd174: lut_tanh = -8'sd127;
++        8'd175: lut_tanh = -8'sd127;
++        8'd176: lut_tanh = -8'sd127;
++        8'd177: lut_tanh = -8'sd127;
++        8'd178: lut_tanh = -8'sd127;
++        8'd179: lut_tanh = -8'sd127;
++        8'd180: lut_tanh = -8'sd127;
++        8'd181: lut_tanh = -8'sd127;
++        8'd182: lut_tanh = -8'sd127;
++        8'd183: lut_tanh = -8'sd127;
++        8'd184: lut_tanh = -8'sd127;
++        8'd185: lut_tanh = -8'sd127;
++        8'd186: lut_tanh = -8'sd127;
++        8'd187: lut_tanh = -8'sd127;
++        8'd188: lut_tanh = -8'sd127;
++        8'd189: lut_tanh = -8'sd127;
++        8'd190: lut_tanh = -8'sd127;
++        8'd191: lut_tanh = -8'sd127;
++        8'd192: lut_tanh = -8'sd127;
++        8'd193: lut_tanh = -8'sd127;
++        8'd194: lut_tanh = -8'sd127;
++        8'd195: lut_tanh = -8'sd127;
++        8'd196: lut_tanh = -8'sd127;
++        8'd197: lut_tanh = -8'sd127;
++        8'd198: lut_tanh = -8'sd127;
++        8'd199: lut_tanh = -8'sd127;
++        8'd200: lut_tanh = -8'sd127;
++        8'd201: lut_tanh = -8'sd127;
++        8'd202: lut_tanh = -8'sd127;
++        8'd203: lut_tanh = -8'sd127;
++        8'd204: lut_tanh = -8'sd127;
++        8'd205: lut_tanh = -8'sd127;
++        8'd206: lut_tanh = -8'sd127;
++        8'd207: lut_tanh = -8'sd127;
++        8'd208: lut_tanh = -8'sd127;
++        8'd209: lut_tanh = -8'sd127;
++        8'd210: lut_tanh = -8'sd127;
++        8'd211: lut_tanh = -8'sd127;
++        8'd212: lut_tanh = -8'sd127;
++        8'd213: lut_tanh = -8'sd127;
++        8'd214: lut_tanh = -8'sd127;
++        8'd215: lut_tanh = -8'sd126;
++        8'd216: lut_tanh = -8'sd126;
++        8'd217: lut_tanh = -8'sd126;
++        8'd218: lut_tanh = -8'sd126;
++        8'd219: lut_tanh = -8'sd126;
++        8'd220: lut_tanh = -8'sd125;
++        8'd221: lut_tanh = -8'sd125;
++        8'd222: lut_tanh = -8'sd124;
++        8'd223: lut_tanh = -8'sd124;
++        8'd224: lut_tanh = -8'sd123;
++        8'd225: lut_tanh = -8'sd123;
++        8'd226: lut_tanh = -8'sd122;
++        8'd227: lut_tanh = -8'sd121;
++        8'd228: lut_tanh = -8'sd120;
++        8'd229: lut_tanh = -8'sd120;
++        8'd230: lut_tanh = -8'sd118;
++        8'd231: lut_tanh = -8'sd117;
++        8'd232: lut_tanh = -8'sd116;
++        8'd233: lut_tanh = -8'sd114;
++        8'd234: lut_tanh = -8'sd113;
++        8'd235: lut_tanh = -8'sd111;
++        8'd236: lut_tanh = -8'sd109;
++        8'd237: lut_tanh = -8'sd106;
++        8'd238: lut_tanh = -8'sd104;
++        8'd239: lut_tanh = -8'sd101;
++        8'd240: lut_tanh = -8'sd97;
++        8'd241: lut_tanh = -8'sd94;
++        8'd242: lut_tanh = -8'sd90;
++        8'd243: lut_tanh = -8'sd86;
++        8'd244: lut_tanh = -8'sd81;
++        8'd245: lut_tanh = -8'sd76;
++        8'd246: lut_tanh = -8'sd71;
++        8'd247: lut_tanh = -8'sd65;
++        8'd248: lut_tanh = -8'sd59;
++        8'd249: lut_tanh = -8'sd53;
++        8'd250: lut_tanh = -8'sd46;
++        8'd251: lut_tanh = -8'sd39;
++        8'd252: lut_tanh = -8'sd31;
++        8'd253: lut_tanh = -8'sd24;
++        8'd254: lut_tanh = -8'sd16;
++        8'd255: lut_tanh = -8'sd8;
++        default: lut_tanh = 8'd0;
++    endcase
++endfunction

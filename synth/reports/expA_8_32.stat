@@ -1,0 +1,24 @@
+
+8. Printing statistics.
+
+=== npu_avmm ===
+
+   Number of wires:              23813
+   Number of wire bits:          47625
+   Number of public wires:       23813
+   Number of public wire bits:   47625
+   Number of ports:                  9
+   Number of port bits:             84
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:              25976
+     $scopeinfo                     82
+     CCU2C                        1905
+     L6MUX21                      2684
+     LUT4                        11549
+     MULT18X18D                     80
+     PFUMX                        4531
+     TRELLIS_DPR16X4               416
+     TRELLIS_FF                   4729
+

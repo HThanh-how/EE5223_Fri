@@ -1,0 +1,11 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import App from "@/components/App.tsx";
+import "@/styles/global.css";
+---
+<Layout
+  title="INT8 Systolic-Array NPU - live RTL demo"
+  description="Cycle-by-cycle animation of our INT8 weight-stationary 4x4 systolic array. The numbers come from the real SystemVerilog RTL (sa_top) compiled with Verilator to WebAssembly."
+>
+  <App client:only="react" />
+</Layout>

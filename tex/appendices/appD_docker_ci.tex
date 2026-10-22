@@ -1,0 +1,36 @@
+\chapter{Docker, CI và phát hành}
+\label{app:docker}
+
+Phụ lục này mô tả hạ tầng tái lập tự động của kho mã, theo nội dung của \code{Dockerfile} và \code{.github/workflows/} tại thời điểm viết báo cáo.
+
+\section{Ảnh Docker}
+\code{Dockerfile} xây một ảnh dựa trên \code{debian:trixie-slim} cài \code{verilator}, \code{gcc-riscv64-unknown-elf}, \code{make}, \code{g++}, \code{python3}, \code{python3-numpy}, chép các thư mục \code{rtl}, \code{sim}, \code{soc}, \code{fw}, \code{scripts}, \code{third\_party}, \code{results} cùng tệp \code{Makefile} vào \code{/opt/npu}, với lệnh mặc định \code{bash scripts/preflight.sh --quick}. Cách dùng:
+\begin{lstlisting}[style=codebash]
+docker build -t npu .
+docker run --rm npu                         # quick preflight
+docker run --rm npu make soc N=8 FW=cnn     # any single target
+\end{lstlisting}
+
+\section{Các workflow GitHub Actions}
+\begin{table}[H]
+  \centering
+  \caption{Các workflow trong \code{.github/workflows/}}
+  \small
+  \begin{tabularx}{\linewidth}{l>{\raggedright}p{2.6cm}>{\raggedright}p{2.0cm}X}
+    \toprule
+    Tệp & Kích hoạt & Job & Nội dung \\
+    \midrule
+    \code{ci.yml} & push (main/master), PR, thủ công & \code{preflight} & build ảnh Docker, chạy \code{preflight.sh --quick}, tải log lên làm artifact \code{preflight-logs} \\
+    \code{package.yml} & tag \code{v*}, thủ công & \code{image} & build ảnh, smoke test, đẩy lên GHCR (\code{ghcr.io/} + tên kho) \\
+    \code{latex.yml} & push, PR, thủ công & \code{build-pdf}, \code{release} & biên dịch báo cáo này bằng XeLaTeX + biber, đổi tên PDF, tải lên artifact; với push thì tạo GitHub Release đính kèm PDF \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Workflow báo cáo \code{latex.yml}}
+Workflow được chuyển thể từ mẫu báo cáo của môn EE5295:
+\begin{enumerate}
+  \item \textbf{build-pdf}: checkout; biên dịch \code{report.tex} ở gốc kho bằng \code{xu-cheng/latex-action@v3} (latexmk, XeLaTeX, biber, \code{-shell-escape}); đổi tên \code{report.pdf} thành \code{EE5223\_Report\_DD\_MM\_YY.pdf} theo ngày build; tải PDF lên artifact \code{ee5223-report-pdf} và log biên dịch lên \code{ee5223-report-logs}.
+  \item \textbf{release} (chỉ với sự kiện push): tải artifact PDF và tạo GitHub Release \code{build-<số lần chạy>} bằng \code{softprops/action-gh-release@v2}, đính kèm PDF.
+\end{enumerate}
+Tệp \code{report\_preview.pdf} trong kho (nếu có) chỉ là bản xem trước biên dịch cục bộ và bị \code{.gitignore} loại trừ; bản chính thức là PDF do CI sinh ra.

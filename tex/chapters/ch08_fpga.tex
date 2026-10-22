@@ -1,0 +1,170 @@
+\chapter{Hiện thực trên FPGA DE10-Nano}
+\label{ch:fpga}
+
+\section{Nền tảng}
+Board Terasic DE10-Nano \cite{de10nano} dùng FPGA SoC Intel Cyclone~V SE \code{5CSEBA6U23I7} (gói UFBGA 672 chân, cấp tốc độ 7, dải nhiệt công nghiệp), có cụm ARM Cortex-A9 cứng (HPS) nhưng đề tài \emph{không} dùng HPS: toàn bộ hệ thống nằm trong phần logic FPGA với CPU mềm Nios~V \cite{niosv} (lõi RISC-V RV32 của Intel), đồng hồ 50\,MHz từ chân \code{FPGA\_CLK1\_50}. Theo báo cáo fitter của Quartus, thiết bị có \num{41910} ALM, 112 khối DSP và 553 khối M10K (\num{5662720} bit). Công cụ là Quartus Prime Lite \cite{quartuslite} (phiên bản ghi trong tệp dự án: 25.1std) và Platform Designer.
+
+\section{Hệ thống Platform Designer}
+Script \code{de10/scripts/create\_system.tcl} sinh hệ thống \code{system.qsys} gồm các thành phần trong Bảng~\ref{tab:de10map}. \code{npu\_avmm} được đóng gói thành thành phần Platform Designer bằng \code{de10/ip/npu\_avmm\_hw.tcl}, khai báo đúng các thuộc tính giao diện đã dùng trong mô phỏng: địa chỉ từ 14 bit, \code{readLatency}$=1$, không \code{waitrequest}. Mặc định dùng lõi \code{intel\_niosv\_g} (có bộ nhân/chia, dự đoán nhánh, cache lệnh và dữ liệu 16\,KiB); vùng \code{0x2000\_0000}--\code{0x2003\_FFFF} được khai báo là vùng ngoại vi không cache để mọi truy cập MMIO tới \NPU{} đi thẳng ra bus. Có thể chọn \code{intel\_niosv\_m} (lõi vi điều khiển, không cache) bằng biến môi trường \code{NIOSV\_CORE}.
+
+\begin{table}[H]
+  \centering
+  \caption{Bản đồ bộ nhớ của hệ thống Nios~V trên DE10-Nano (\code{create\_system.tcl}, \code{de10/fw/platform.h})}
+  \label{tab:de10map}
+  \small
+  \begin{tabularx}{\linewidth}{llX}
+    \toprule
+    Địa chỉ & Thành phần & Ghi chú \\
+    \midrule
+    \code{0x0000\_0000} & RAM on-chip 256\,KiB & mã + dữ liệu, khởi tạo từ \code{onchip\_init.hex}; vector reset \\
+    \code{0x2000\_0000} & \code{npu\_avmm} (64\,KiB) & cùng \code{NPU\_BASE} với mô phỏng \\
+    \code{0x2001\_0000} & Nios~V debug module & JTAG debug \\
+    \code{0x2002\_0000} & timer (\code{mtime}) & đếm theo chu kỳ đồng hồ, dùng thay \code{rdcycle} \\
+    \code{0x2002\_0040} & JTAG UART & in kết quả ra máy tính (\code{juart-terminal}) \\
+    \code{0x2002\_0050} & LED PIO 8 bit & trạng thái RUN/DONE/PASS/FAIL \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+Vì NPU nằm ở cùng địa chỉ cơ sở như trong SoC mô phỏng, các tệp \code{fw/npu.h}, \code{fw/nn.h}, \code{fw/cnn.c}, \code{fw/lstm.c} và \code{fw/selftest.c} được biên dịch lại \emph{không sửa đổi}. Phần khác biệt nằm trong lớp nền tảng \code{de10/fw/platform.h} (được \code{-include} trước mọi tệp nguồn): \code{putc\_} ghi ra JTAG UART, \code{rdcycle} đọc từ thấp của \code{mtime} (tăng một mỗi chu kỳ đồng hồ CPU), và LED báo trạng thái.
+
+\section{Luồng xây dựng}
+Script \code{de10/scripts/build.sh} thực hiện toàn bộ chuỗi:
+\begin{enumerate}
+  \item biên dịch firmware (\code{FW=selftest|cnn|lstm}) với \code{-DNN=8} và nạp vào ảnh khởi tạo RAM;
+  \item chuyển RTL sang dạng tương thích với bộ phân tích SystemVerilog của Quartus (\code{make\_compat.py}) -- RTL gốc trong \code{rtl/} không bị sửa;
+  \item sinh hệ thống bằng \code{qsys-script} và \code{qsys-generate};
+  \item biên dịch Quartus (\code{quartus\_sh --flow compile}), thu các báo cáo \code{fit.summary}, \code{sta.summary}, tài nguyên theo thực thể (\code{utilization\_by\_entity.txt}) và Fmax (\code{fmax.txt}) vào \code{de10/reports/}.
+\end{enumerate}
+Ràng buộc thời gian (\code{de10\_nano\_npu.sdc}) khai báo đồng hồ 50\,MHz (chu kỳ 20\,ns), đồng hồ JTAG 25\,MHz bất đồng bộ, và false path cho nút bấm và LED.
+
+\section{Kiểm tra firmware trên bản đồ bộ nhớ DE10 (trước khi lên board)}
+Mô hình Nios~V của Intel được mã hóa và chỉ mô phỏng được trong Questa, nên để kiểm tra lớp nền tảng bằng công cụ mở, testbench \code{de10/sim/tb\_de10\_map.sv} dùng PicoRV32 thay cho Nios~V nhưng giữ \emph{đúng} bản đồ bộ nhớ Platform Designer và mô hình thanh ghi của JTAG UART, \code{mtime} và LED PIO, rồi chạy chính các ELF của \code{de10/fw}. Kết quả (\code{de10/sim/logs/}) cho LeNet-5 $N=8$: trung bình \num{13254287} chu kỳ CPU-only và \num{1923654} chu kỳ với \NPU{} (6,89$\times$), 8/8 đúng nhãn, 0 sai khác; LSTM $N=8$: \num{3558958} / \num{1066615} / \num{217162} chu kỳ mỗi ảnh (CPU-only / batch 1 / batch 16), 0 sai khác; LED PIO cuối cùng bằng \code{0x0c} (DONE|PASS). Các số này khác số trong Chương~\ref{ch:results} dưới 0,2\% do khác biệt nhỏ ở mã khởi động và hàm in. Đây là bằng chứng rằng lớp nền tảng DE10 đúng chức năng, \emph{không phải} số đo trên Nios~V.
+
+\section{Kết quả tổng hợp Quartus (\code{npu\_avmm} đứng riêng)}
+\label{sec:quartus}
+\subsection{Thiết lập}
+Tác vụ fit (\code{quartus\_fit/}) biên dịch riêng \code{npu\_avmm} trên \code{5CSEBA6U23I7} bằng Quartus Prime Lite 25.1std (Build 1129), mọi cổng trừ \code{clk} là chân ảo, chế độ tối ưu HIGH PERFORMANCE EFFORT, quét $N\in\{8,4\}$, DEPTH$=64$, ràng buộc đồng hồ 50 và 100\,MHz, cho hai phiên bản RTL:
+\begin{itemize}
+  \item \textbf{orig}: RTL gốc của đề tài. Quartus Lite chỉ chấp nhận cú pháp SystemVerilog-2005, nên các khối \code{for} sinh phần cứng phải được bọc bằng \code{generate}/\code{endgenerate} và khai báo \code{genvar} ở mức mô-đun (\code{scripts/make\_compat.py} $\to$ \code{rtl\_orig\_q/}); đây thuần túy là thay đổi cú pháp, không đổi chức năng.
+  \item \textbf{fpga}: biến thể hướng FPGA (\code{quartus\_fit/rtl\_fpga/}, khác biệt trong \code{rtl\_fpga.diff}), giữ nguyên \code{pe.sv}/\code{sa\_top.sv} (chỉ bọc cú pháp), bản đồ thanh ghi, ngữ nghĩa STATUS/done và kết quả số.
+\end{itemize}
+Fmax được lấy từ mô hình thời gian chậm nhất ``Slow 1100mV 100C'' mà Quartus báo cho cấp I7 (không có mô hình 85\,°C). Theo báo cáo fitter, thiết bị có \num{41910} ALM, 112 khối DSP, 553 khối RAM (M10K) với tổng \num{5662720} bit bộ nhớ khối, 6 PLL.
+
+\subsection{Những gì biến thể \code{rtl\_fpga} thay đổi}
+\begin{enumerate}
+  \item Thêm mô-đun \code{npu\_ram} (RAM hai cổng đơn giản, đọc đồng bộ, thuộc tính \code{ramstyle} M10K). ABUF thành $N/4$ bank 32 bit (đọc cả hàng trong một chu kỳ); CBUF thành $N$ bank theo cột, mỗi bank có 2 bản sao (một cổng đọc cho tích lũy, một cho Avalon đọc CBUF); QBUF thành $N/4$ bank.
+  \item Đường kết quả được đường ống hóa: c0 đọc CBUF, c1 cộng, c2 ghi CBUF (báo done nếu không QUANT) và cộng bias, c3 nhân $32\times16$ (DSP), c4 cộng làm tròn, c5 dịch và bão hòa, c6 hàm kích hoạt, c7 ghi QBUF (báo done). Đường đọc Avalon vẫn có latency 1.
+  \item Hệ quả: số chu kỳ busy mỗi lượt tăng thêm vài chu kỳ đường ống. Trên toàn bộ suy luận, LeNet-5 $N=8$ có tỉ lệ busy tăng từ 0,89\% lên 0,98\% và LSTM $N=8$ batch 1 có busy/ảnh từ \num{23142} lên \num{26742}, nhưng tổng chu kỳ \NPU{} gần như không đổi (LeNet-5 $N=8$: \num{1923665} $\to$ \num{1925071}; speedup 6,88$\times$).
+\end{enumerate}
+Biến thể đã được chạy lại hồi quy trong Verilator (\code{quartus\_fit/reports/regression/}): unit test mảng $N=4/8$ (26 test, ALL PASS) và selftest, LeNet-5, LSTM với $N=4$ và $N=8$ đều ALL PASS, logit khớp golden.
+
+\subsection{Kết quả}
+\begin{table}[H]
+  \centering
+  \caption{Fit Quartus của \code{npu\_avmm} đứng riêng trên 5CSEBA6U23I7 (DEPTH$=64$; nguồn \code{quartus\_fit/reports/summary\_table.md}, \code{*.fit.summary}, \code{*.sta.rpt})}
+  \label{tab:quartus-npu}
+  \small
+  \begin{tabular}{llrrrrrr}
+    \toprule
+    RTL & $N$ @ ràng buộc & ALM & Thanh ghi & DSP & M10K & Bit bộ nhớ & Fmax (MHz) \\
+    \midrule
+    orig & 8 @ 50\,MHz & \num{18521} (44\%) & \num{25909} & 48 & 4 & 720 & 52,2 \\
+    orig & 8 @ 100\,MHz & \num{18652} & \num{25899} & 48 & 4 & 720 & 51,3 \\
+    orig & 4 @ 50\,MHz & \num{8899} (21\%) & \num{12899} & 16 & 0 & 0 & 55,7 \\
+    orig & 4 @ 100\,MHz & \num{8928} & \num{12915} & 16 & 0 & 0 & 56,0 \\
+    \midrule
+    fpga & 8 @ 50\,MHz & \num{2187} (5\%) & \num{2628} & 48 & 24 & \num{41720} & 127,5 \\
+    fpga & 8 @ 100\,MHz & \num{2188} & \num{2631} & 48 & 24 & \num{41720} & 127,6 \\
+    fpga & 4 @ 50\,MHz & \num{1148} (3\%) & \num{1306} & 16 & 11 & \num{20515} & 133,9 \\
+    fpga & 4 @ 100\,MHz & \num{1141} & \num{1316} & 16 & 11 & \num{20515} & 139,3 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Nhận xét:
+\begin{enumerate}
+  \item \textbf{Cả 8 lần biên dịch đều fit.} RTL gốc chỉ vừa đạt 50\,MHz (Fmax 51--56\,MHz) và không đạt 100\,MHz; biến thể \code{rtl\_fpga} đạt trên 127\,MHz, dư nhiều so với 100\,MHz.
+  \item \textbf{Bộ đệm, không phải mảng systolic, chiếm phần lớn diện tích của RTL gốc.} Vì các lệnh ghi CBUF và QBUF nằm trong khối \code{always\_ff} có reset bất đồng bộ và CBUF được đọc tổ hợp (\code{cmem[recv]}), công cụ không suy ra RAM mà tạo ra mảng flip-flop với bộ dồn kênh 64:1. Với $N=8$, có \num{25909} thanh ghi, so với khoảng \num{3200} bit thanh ghi của chính mảng (Bảng~\ref{tab:sa-cost}). Khi chuyển ba bộ đệm sang M10K đọc đồng bộ, số ALM giảm khoảng 8,5 lần ($\num{18521}\to\num{2187}$) và số thanh ghi giảm khoảng 10 lần.
+  \item \textbf{DSP}: 48 khối với $N=8$ và 16 khối với $N=4$, như nhau ở cả hai phiên bản. Tức là bộ nhân $8\times8$ của PE và bộ nhân requant $32\times16$ được ánh xạ vào khối DSP. Với $N=8$, 48/112 DSP (43\%) đã được dùng, nên DSP là tài nguyên giới hạn $N$ lớn hơn trên thiết bị này.
+  \item Với biến thể \code{rtl\_fpga}, $N=8$ chỉ dùng 5\% ALM của thiết bị, để lại đủ chỗ cho Nios~V, RAM on-chip và interconnect.
+\end{enumerate}
+
+\begin{table}[H]
+  \centering
+  \caption{Tài nguyên toàn hệ thống trên DE10-Nano ($N=8$, DEPTH$=64$, Nios~V/g)}
+  \label{tab:quartus-sys}
+  \begin{tabular}{lcccc}
+    \toprule
+    Thực thể & ALM & Thanh ghi & DSP & Bit M10K \\
+    \midrule
+    \code{npu\_avmm} & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Nios~V (\code{cpu}) & \todo{} & \todo{} & \todo{} & \todo{} \\
+    RAM on-chip 256\,KiB & \todo{} & \todo{} & \todo{} & \todo{} \\
+    Interconnect + ngoại vi & \todo{} & \todo{} & \todo{} & \todo{} \\
+    \midrule
+    Tổng (\% thiết bị) & \todo{} & \todo{} & \todo{} & \todo{} \\
+    \bottomrule
+  \end{tabular}
+
+  \smallskip
+  \raggedright\footnotesize Kết quả do bản build hệ thống \code{de10/scripts/build.sh} sinh ra (\code{de10/reports/utilization\_by\_entity.txt}); \todo{điền khi bản build hệ thống hoàn tất, kèm biến thể RTL được dùng (\code{NPU\_RTL\_VARIANT}), Fmax từ \code{de10/reports/fmax.txt} và slack setup ở 50\,MHz từ \code{de10\_nano\_npu.sta.summary}}.
+\end{table}
+
+\section{Kết quả tổng hợp mã nguồn mở (Yosys/nextpnr)}
+\label{sec:yosys}
+Luồng mở (\code{synth/}) dùng Yosys \cite{yosys} 0.52 và \code{nextpnr-ecp5} (router2, seed 1, IO không ràng buộc) trên Lattice ECP5 LFE5U-85F (CABGA381; \num{83.6}\,k LUT4/FF, 156 MULT18X18D, 208 DP16KD), mục tiêu 50\,MHz, cho bốn cấu hình $(N,\text{DEPTH})$. Đây là \textbf{RTL gốc}; biến thể \code{rtl\_fpga} \textbf{không} được chạy qua nextpnr. Bảng~\ref{tab:yosys} lấy từ \code{synth/results.md}; ``(pl)'' là ước lượng sau đặt chỗ vì bộ định tuyến không hội tụ.
+
+\begin{table}[H]
+  \centering
+  \caption{Yosys + nextpnr-ecp5 trên LFE5U-85F, RTL gốc, mục tiêu 50\,MHz}
+  \label{tab:yosys}
+  \small
+  \begin{tabular}{lrrrr>{\raggedright\arraybackslash}p{4.0cm}}
+    \toprule
+    $(N,\text{DEPTH})$ & LUT4 & FF & MULT & Fmax (MHz) & Trạng thái \\
+    \midrule
+    (4, 32) & \num{13710} (16\%) & \num{6461} & 24 & 26,6 & định tuyến xong, không đạt 50\,MHz \\
+    (4, 64) & \num{20144} (24\%) & \num{11552} & 24 & 22,4 (pl) & router2 không hội tụ, dừng \\
+    (8, 32) & \num{28056} (33\%) & \num{14969} & 80 & 19,4 (pl) & router2 không hội tụ, dừng \\
+    (8, 64) & \num{42082} (50\%) & \num{25212} & 80 & 18,4 (pl) & router2 không hội tụ, dừng \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Phát hiện chính trùng với kết quả Quartus. Yosys cảnh báo ``Replacing memory cmem/qmem with list of registers'': vì lệnh ghi nằm trong khối \code{always\_ff} có reset bất đồng bộ, CBUF và QBUF trở thành flip-flop với bộ dồn kênh DEPTH:1. Theo phân tích diện tích theo mô-đun, khoảng 90\% diện tích là các bộ đệm và mảng systolic chỉ chiếm khoảng 4--5\% (mỗi PE gồm 1 MULT18X18D, 16 CCU2C và 40 FF). Ví dụ với (4,64), CBUF+QBUF chiếm \num{10240} trong \num{11552} FF. Đường găng của (4,64) đi từ thanh ghi \code{recv} qua bộ dồn kênh \code{cmem[recv]} và bộ cộng 32 bit, với 94\% trễ nằm ở định tuyến.
+
+Thí nghiệm ``what-if A'' trên một bản sao riêng của RTL chuyển lệnh ghi CBUF/QBUF ra một khối \code{always\_ff} không reset, chức năng giữ nguyên. Với (4,64) ta được \num{9386} LUT4 và \num{1312} FF, định tuyến xong ở 39,3\,MHz. Với (8,64) ta được \num{21043} LUT4 và \num{4732} FF, định tuyến xong ở 31,9\,MHz. Với (4,32) ta được \num{7940} LUT4 và \num{1341} FF, đạt 33,6\,MHz. (8,32) chưa định tuyến xong trước hạn chót (24,4\,MHz pl). \textbf{Không cấu hình nào trên ECP5 đạt 50\,MHz}, kể cả what-if A, vì CBUF/QBUF vẫn là RAM phân tán đọc bất đồng bộ. Các khuyến nghị trong \code{synth/RECOMMENDATIONS.md}, gồm đọc đồng bộ để suy ra DP16KD, đường ống hóa \code{post()} và dùng chung một khối requant, trùng với những gì biến thể \code{rtl\_fpga} đã làm cho Cyclone~V. Tuy vậy, việc biến thể này đạt bao nhiêu MHz trên ECP5 chưa được đo.
+
+\section{Chạy trên board}
+\label{sec:board}
+Quy trình chạy trên board (chi tiết lệnh ở Phụ lục~\ref{app:repro}):
+\begin{enumerate}
+  \item Xây dựng bằng \code{de10/scripts/build.sh} với biến \code{FW=cnn} (hoặc \code{lstm}, \code{selftest}); tệp \code{.sof} trong \code{output\_files/} chứa cả phần cứng và firmware (trong RAM on-chip).
+  \item Nối cáp USB-Blaster (cổng mini-USB của DE10-Nano) và nạp tệp \code{.sof} bằng \code{quartus\_pgm} vào thiết bị thứ 2 trên chuỗi JTAG (thiết bị thứ nhất là HPS):
+\begin{lstlisting}[style=codebash]
+quartus_pgm -m jtag -o "p;output_files/de10_nano_npu.sof@2"
+\end{lstlisting}
+  \item Mở \code{juart-terminal} để xem log; LED[0] nhấp nháy (heartbeat), LED báo RUN, rồi DONE kèm PASS hoặc FAIL.
+\end{enumerate}
+
+\begin{table}[H]
+  \centering
+  \caption{Số đo trên board DE10-Nano với Nios~V ($N=8$, 50\,MHz)}
+  \label{tab:board}
+  \begin{tabular}{lccc}
+    \toprule
+    Workload & CPU-only (chu kỳ/ảnh) & CPU+\NPU{} (chu kỳ/ảnh) & Speedup \\
+    \midrule
+    LeNet-5 & \todo{} & \todo{} & \todo{} \\
+    LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
+    LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
+    Selftest (24 phép thử) & \multicolumn{3}{c}{\todo{PASS/FAIL}} \\
+    \bottomrule
+  \end{tabular}
+
+  \smallskip
+  \raggedright\footnotesize \todo{chạy trên board và chép log JTAG UART vào \code{de10/reports/}; thêm ảnh chụp board/LED nếu có}.
+\end{table}
+
+Kỳ vọng định tính: Nios~V/g có pipeline nhiều tầng, bộ nhân nhanh và cache, nên bản CPU-only sẽ cần \emph{ít chu kỳ hơn đáng kể} so với PicoRV32 (PicoRV32 cần nhiều chu kỳ mỗi lệnh). Trong khi đó, các truy cập MMIO tới \NPU{} đi qua interconnect Avalon không cache và vẫn tốn nhiều chu kỳ. Vì vậy speedup trên board có thể \emph{thấp hơn} trong mô phỏng; đây là điều cần được đo chứ không suy đoán (Chương~\ref{ch:discussion}).

@@ -1,0 +1,13 @@
+# STAGE 5: LSTM INT8: batch=1 vs batch=16
+# command: make soc N=8 FW=lstm
+cd build_soc_N8 && cp lstm.hex fw.hex && ./Vtb_soc | tee lstm.log
+LSTM INT8, N=8 images=16
+cpu_only batch=1   cycles/img=3559094
+npu batch=1        cycles/img=1068230 npu_busy/img=23142 calls/img=1348 correct=16/16
+npu batch=16       cycles/img=217262 npu_busy/img=2710 calls total=1348 correct=16/16
+speedup_x100 vs cpu: batch1=333 batchN=1638
+mismatches vs golden: 0
+RESULT: ALL PASS
+[soc] exit code 0
+
+  >>> batch=1 : 3.33x vs CPU     batch=16 : 16.38x vs CPU  (NPU rows are filled only when images are batched)
