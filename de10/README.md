@@ -7,6 +7,8 @@ Toolchain: Quartus Prime Lite 25.1std + Platform Designer, Nios V toolchain
 > STATUS: see "Status / what was verified" at the end of this file. It lists exactly
 > what was run and what was not.
 
+> **Fresh clone note:** the Platform Designer output (`system_pico/`, `system/synthesis/`) is generated, not stored in git. Before opening a `.qpf` in the Quartus GUI run `bash scripts/generate_ip.sh pico` (or `niosv`), otherwise Quartus fails with `system_pico/synthesis/system_pico.qip not found` and `undefined entity "system_pico"`. Prebuilt `.sof` files are in the GitHub release, so compiling is optional.
+
 ## Files
 
 | Path | What |
