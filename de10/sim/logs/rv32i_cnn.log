@@ -1,0 +1,23 @@
+   text	   data	    bss	    dec	    hex	filename
+  66800	      0	  36016	 102816	  191a0	de10/sim/build_N8_rtl_fpga_rv32i/cnn.elf
+[tb] LED PIO = 0x02
+LeNet-5 INT8, N=8
+  profile(img0): weight_wr=475619 act_wr=262710 run+poll=148169 result_rd=43812 other(im2col,pool,...)=1237166
+img 0 label=7 pred=7 cpu_cyc=157985700 npu_cyc=2167476 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 1 label=2 pred=2 cpu_cyc=157869595 npu_cyc=2167590 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 2 label=1 pred=1 cpu_cyc=158142843 npu_cyc=2167366 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 3 label=0 pred=0 cpu_cyc=157714958 npu_cyc=2167685 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 4 label=4 pred=4 cpu_cyc=157880251 npu_cyc=2167593 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 5 label=1 pred=1 cpu_cyc=158130402 npu_cyc=2167357 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 6 label=4 pred=4 cpu_cyc=157900585 npu_cyc=2167572 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 7 label=9 pred=9 cpu_cyc=157882765 npu_cyc=2167533 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+avg cpu_cyc=157938387 avg npu_cyc=2167521 speedup_x100=7286 npu_busy_share_x100=87
+correct=8/8
+RESULT: ALL PASS
+[niosv] exit code 0
+[tb] LED PIO = 0x0c
+[tb] firmware finished: PASS
+- de10/sim/tb_de10_map.sv:83: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 26s; walltime 1359.570 s; speed 18.849 ms/s
+- Verilator: cpu 1359.546 s on 1 threads; alloced 57 MB

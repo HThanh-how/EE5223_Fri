@@ -1,0 +1,84 @@
+2026.10.22.15:43:35 Info: Saving generation log to /root/ee5223/de10/system/system_generation.rpt
+2026.10.22.15:43:35 Info: Starting: <b>Create HDL design files for synthesis</b>
+2026.10.22.15:43:35 Info: qsys-generate /root/ee5223/de10/system.qsys --synthesis=VERILOG --output-directory=/root/ee5223/de10/system/synthesis --family="Cyclone V" --part=5CSEBA6U23I7
+2026.10.22.15:43:35 Info: Loading de10/system.qsys
+2026.10.22.15:43:35 Info: Reading input file
+2026.10.22.15:43:35 Info: Adding clk_0 [clock_source 25.1]
+2026.10.22.15:43:35 Info: Parameterizing module clk_0
+2026.10.22.15:43:35 Info: Adding cpu [intel_niosv_g 4.0.0]
+2026.10.22.15:43:35 Info: Parameterizing module cpu
+2026.10.22.15:43:35 Info: Adding jtag_uart [altera_avalon_jtag_uart 25.1]
+2026.10.22.15:43:35 Info: Parameterizing module jtag_uart
+2026.10.22.15:43:35 Info: Adding led_pio [altera_avalon_pio 25.1]
+2026.10.22.15:43:35 Info: Parameterizing module led_pio
+2026.10.22.15:43:35 Info: Adding npu [npu_avmm 1.0]
+2026.10.22.15:43:35 Info: Parameterizing module npu
+2026.10.22.15:43:35 Info: Adding ram [altera_avalon_onchip_memory2 25.1]
+2026.10.22.15:43:35 Info: Parameterizing module ram
+2026.10.22.15:43:35 Info: Building connections
+2026.10.22.15:43:35 Info: Parameterizing connections
+2026.10.22.15:43:35 Info: Validating
+2026.10.22.15:43:35 Info: Done reading input file
+2026.10.22.15:43:36 Warning: system.cpu: Properties (associatedClock) have been set on interface <b>reset</b> - in composed mode these are ignored
+2026.10.22.15:43:36 Info: system.jtag_uart: JTAG UART IP input clock need to be at least double (2x) the operating frequency of JTAG TCK on board
+2026.10.22.15:43:36 Info: system: Generating "<b>system</b>" for QUARTUS_SYNTH
+2026.10.22.15:43:39 Info: cpu: "<b>system</b>" instantiated <b>intel_niosv_g</b> "<b>cpu</b>"
+2026.10.22.15:43:39 Info: jtag_uart: "<b>system</b>" instantiated <b>altera_avalon_jtag_uart</b> "<b>jtag_uart</b>"
+2026.10.22.15:43:39 Info: led_pio: Starting RTL generation for module 'system_led_pio'
+2026.10.22.15:43:39 Info: led_pio:   Generation command is [exec /home/guest/altera_lite/25.1std/quartus/linux64/perl/bin/perl -I /home/guest/altera_lite/25.1std/quartus/linux64/perl/lib -I /home/guest/altera_lite/25.1std/quartus/sopc_builder/bin/europa -I /home/guest/altera_lite/25.1std/quartus/sopc_builder/bin -I /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/common -I /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio -- /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/altera_avalon_pio/generate_rtl.pl --name=system_led_pio --dir=/tmp/alt0748_7817301841598413293.dir/0003_led_pio_gen/ --quartus_dir=/home/guest/altera_lite/25.1std/quartus --verilog --config=/tmp/alt0748_7817301841598413293.dir/0003_led_pio_gen//system_led_pio_component_configuration.pl  --do_build_sim=0  ]
+2026.10.22.15:43:39 Info: led_pio: Done RTL generation for module 'system_led_pio'
+2026.10.22.15:43:39 Info: led_pio: "<b>system</b>" instantiated <b>altera_avalon_pio</b> "<b>led_pio</b>"
+2026.10.22.15:43:39 Info: npu: "<b>system</b>" instantiated <b>npu_avmm</b> "<b>npu</b>"
+2026.10.22.15:43:39 Info: ram: Starting RTL generation for module 'system_ram'
+2026.10.22.15:43:39 Info: ram:   Generation command is [exec /home/guest/altera_lite/25.1std/quartus/linux64/perl/bin/perl -I /home/guest/altera_lite/25.1std/quartus/linux64/perl/lib -I /home/guest/altera_lite/25.1std/quartus/sopc_builder/bin/europa -I /home/guest/altera_lite/25.1std/quartus/sopc_builder/bin -I /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/common -I /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/altera_avalon_onchip_memory2 -- /home/guest/altera_lite/25.1std/quartus/../ip/altera/sopc_builder_ip/altera_avalon_onchip_memory2/generate_rtl.pl --name=system_ram --dir=/tmp/alt0748_7817301841598413293.dir/0005_ram_gen/ --quartus_dir=/home/guest/altera_lite/25.1std/quartus --verilog --config=/tmp/alt0748_7817301841598413293.dir/0005_ram_gen//system_ram_component_configuration.pl  --do_build_sim=0  ]
+2026.10.22.15:43:39 Info: ram: Done RTL generation for module 'system_ram'
+2026.10.22.15:43:39 Info: ram: "<b>system</b>" instantiated <b>altera_avalon_onchip_memory2</b> "<b>ram</b>"
+2026.10.22.15:43:40 Info: avalon_st_adapter: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: avalon_st_adapter_001: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: avalon_st_adapter_002: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: avalon_st_adapter_003: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: avalon_st_adapter_004: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: avalon_st_adapter_005: Inserting error_adapter: error_adapter_0
+2026.10.22.15:43:40 Info: mm_interconnect_0: "<b>system</b>" instantiated <b>altera_mm_interconnect</b> "<b>mm_interconnect_0</b>"
+2026.10.22.15:43:40 Info: irq_mapper: "<b>system</b>" instantiated <b>altera_irq_mapper</b> "<b>irq_mapper</b>"
+2026.10.22.15:43:40 Info: rst_controller: "<b>system</b>" instantiated <b>altera_reset_controller</b> "<b>rst_controller</b>"
+2026.10.22.15:43:40 Info: niosv_reset_controller: "Generating: niosv_reset_controller"
+2026.10.22.15:43:40 Info: hart: "<b>cpu</b>" instantiated <b>intel_niosv_g_unit</b> "<b>hart</b>"
+2026.10.22.15:43:40 Info: timer_module: "<b>cpu</b>" instantiated <b>intel_niosv_timer_msip</b> "<b>timer_module</b>"
+2026.10.22.15:43:40 Info: dbg_mod: "<b>cpu</b>" instantiated <b>intel_niosv_dbg_mod</b> "<b>dbg_mod</b>"
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/niosv_ram.sv</b>
+2026.10.22.15:43:40 Info: irq_mapper: "<b>cpu</b>" instantiated <b>altera_irq_mapper</b> "<b>irq_mapper</b>"
+2026.10.22.15:43:40 Info: cpu_data_manager_translator: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_axi_translator</b> "<b>cpu_data_manager_translator</b>"
+2026.10.22.15:43:40 Info: jtag_uart_avalon_jtag_slave_translator: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_slave_translator</b> "<b>jtag_uart_avalon_jtag_slave_translator</b>"
+2026.10.22.15:43:40 Info: cpu_data_manager_agent: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_axi_master_ni</b> "<b>cpu_data_manager_agent</b>"
+2026.10.22.15:43:40 Info: jtag_uart_avalon_jtag_slave_agent: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_slave_agent</b> "<b>jtag_uart_avalon_jtag_slave_agent</b>"
+2026.10.22.15:43:40 Info: jtag_uart_avalon_jtag_slave_agent_rsp_fifo: "<b>mm_interconnect_0</b>" instantiated <b>altera_avalon_sc_fifo</b> "<b>jtag_uart_avalon_jtag_slave_agent_rsp_fifo</b>"
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_avalon_sc_fifo.v</b>
+2026.10.22.15:43:40 Info: router: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_router</b> "<b>router</b>"
+2026.10.22.15:43:40 Info: router_002: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_router</b> "<b>router_002</b>"
+2026.10.22.15:43:40 Info: router_004: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_router</b> "<b>router_004</b>"
+2026.10.22.15:43:40 Info: router_006: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_router</b> "<b>router_006</b>"
+2026.10.22.15:43:40 Info: cpu_instruction_manager_wr_limiter: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_traffic_limiter</b> "<b>cpu_instruction_manager_wr_limiter</b>"
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_avalon_sc_fifo.v</b>
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_avalon_st_pipeline_base.v</b>
+2026.10.22.15:43:40 Info: jtag_uart_avalon_jtag_slave_burst_adapter: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_burst_adapter</b> "<b>jtag_uart_avalon_jtag_slave_burst_adapter</b>"
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_merlin_address_alignment.sv</b>
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_avalon_st_pipeline_stage.sv</b>
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_avalon_st_pipeline_base.v</b>
+2026.10.22.15:43:40 Info: cmd_demux: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_demultiplexer</b> "<b>cmd_demux</b>"
+2026.10.22.15:43:40 Info: cmd_demux_002: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_demultiplexer</b> "<b>cmd_demux_002</b>"
+2026.10.22.15:43:40 Info: cmd_mux: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_multiplexer</b> "<b>cmd_mux</b>"
+2026.10.22.15:43:40 Info: cmd_mux_002: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_multiplexer</b> "<b>cmd_mux_002</b>"
+2026.10.22.15:43:40 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_merlin_arbitrator.sv</b>
+2026.10.22.15:43:40 Info: rsp_demux: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_demultiplexer</b> "<b>rsp_demux</b>"
+2026.10.22.15:43:40 Info: rsp_demux_002: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_demultiplexer</b> "<b>rsp_demux_002</b>"
+2026.10.22.15:43:41 Info: rsp_mux: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_multiplexer</b> "<b>rsp_mux</b>"
+2026.10.22.15:43:41 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_merlin_arbitrator.sv</b>
+2026.10.22.15:43:41 Info: rsp_mux_002: "<b>mm_interconnect_0</b>" instantiated <b>altera_merlin_multiplexer</b> "<b>rsp_mux_002</b>"
+2026.10.22.15:43:41 Info: Reusing file <b>/root/ee5223/de10/system/synthesis/submodules/altera_merlin_arbitrator.sv</b>
+2026.10.22.15:43:41 Info: avalon_st_adapter: "<b>mm_interconnect_0</b>" instantiated <b>altera_avalon_st_adapter</b> "<b>avalon_st_adapter</b>"
+2026.10.22.15:43:41 Info: niosv_reset_controller: "<b>hart</b>" instantiated <b>intel_niosv_g_unit</b> "<b>niosv_reset_controller</b>"
+2026.10.22.15:43:41 Info: error_adapter_0: "<b>avalon_st_adapter</b>" instantiated <b>error_adapter</b> "<b>error_adapter_0</b>"
+2026.10.22.15:43:41 Info: system: Done "<b>system</b>" with 35 modules, 151 files
+2026.10.22.15:43:41 Info: qsys-generate succeeded.
+2026.10.22.15:43:41 Info: Finished: <b>Create HDL design files for synthesis</b>

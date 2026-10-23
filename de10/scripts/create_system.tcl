@@ -12,10 +12,12 @@
 # Nios V/g peripheral (uncached) region A = 0x2000_0000 .. 0x2003_FFFF
 package require -exact qsys 24.1
 
+# qsys-script (Jacl) does not see shell environment variables; build.sh passes the knobs
+# as Tcl variables with --cmd="set NIOSV_CORE ...; set NPU_N ...; ..."
 proc envor {name def} {
-    global env
-    if {[info exists env($name)]} {
-        if {[string length $env($name)] > 0} { return $env($name) }
+    upvar #0 $name v
+    if {[info exists v]} {
+        if {[string length $v] > 0} { return $v }
     }
     return $def
 }
@@ -39,7 +41,9 @@ set_instance_parameter_value clk_0 resetSynchronousEdges DEASSERT
 add_instance cpu $CORE
 set_instance_parameter_value cpu resetSlave Absolute
 set_instance_parameter_value cpu resetOffset 0
-set_instance_parameter_value cpu enableDebug true
+# Nios V/c has no debug module and no mtime timer (no niosv-download, no rdcycle): selftest only
+set HAS_DM [expr {![string equal $CORE intel_niosv_c]}]
+if {$HAS_DM} { set_instance_parameter_value cpu enableDebug true }
 if {[string equal $CORE intel_niosv_g]} {
     set_instance_parameter_value cpu enableMulDiv true
     set_instance_parameter_value cpu enableFPU false
@@ -90,16 +94,20 @@ proc amap {m s base} {
     set_connection_parameter_value $m/$s baseAddress $base
 }
 amap cpu.instruction_manager ram.s1                       0x00000000
-amap cpu.instruction_manager cpu.dm_agent                 0x20010000
+if {$HAS_DM} { amap cpu.instruction_manager cpu.dm_agent  0x20010000 }
 amap cpu.data_manager        ram.s1                       0x00000000
 amap cpu.data_manager        npu.avs                      0x20000000
-amap cpu.data_manager        cpu.dm_agent                 0x20010000
-amap cpu.data_manager        cpu.timer_sw_agent           0x20020000
+if {$HAS_DM} {
+    amap cpu.data_manager    cpu.dm_agent                 0x20010000
+    amap cpu.data_manager    cpu.timer_sw_agent           0x20020000
+}
 amap cpu.data_manager        jtag_uart.avalon_jtag_slave  0x20020040
 amap cpu.data_manager        led_pio.s1                   0x20020050
 
-add_connection cpu.platform_irq_rx jtag_uart.irq
-set_connection_parameter_value cpu.platform_irq_rx/jtag_uart.irq irqNumber 0
+if {$HAS_DM} {
+    add_connection cpu.platform_irq_rx jtag_uart.irq
+    set_connection_parameter_value cpu.platform_irq_rx/jtag_uart.irq irqNumber 0
+}
 
 # ---------------- exports ----------------
 set_interface_property clk         EXPORT_OF clk_0.clk_in

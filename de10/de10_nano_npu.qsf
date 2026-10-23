@@ -14,6 +14,8 @@ set_global_assignment -name NUM_PARALLEL_PROCESSORS ALL
 set_global_assignment -name OPTIMIZATION_MODE "HIGH PERFORMANCE EFFORT"
 set_global_assignment -name OPTIMIZE_HOLD_TIMING "ALL PATHS"
 set_global_assignment -name FITTER_EFFORT "STANDARD FIT"
+# seed 3: clean setup+hold in all 4 corners (default seed 1 had -0.059 ns hold inside the Nios V debug-ROM MLAB)
+set_global_assignment -name SEED 3
 
 set_global_assignment -name SYSTEMVERILOG_FILE rtl/de10_nano_top.sv
 set_global_assignment -name QIP_FILE system/synthesis/system.qip

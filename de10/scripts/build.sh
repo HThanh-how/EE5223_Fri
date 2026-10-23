@@ -14,14 +14,18 @@ mkdir -p reports out
 
 if [ -z "$SKIP_FW" ]; then
   echo "== firmware (N=$NPU_N, RAM init = $FW)"
-  make -C fw N=$NPU_N all
-  cp fw/build/$FW.hex onchip_init.hex
+  case "${NIOSV_CORE:-intel_niosv_g}" in
+    intel_niosv_m|intel_niosv_c)   # RV32I only (no M extension)
+      make -C fw N=$NPU_N rv32i; cp fw/build_rv32i/$FW.hex onchip_init.hex ;;
+    *)
+      make -C fw N=$NPU_N all;   cp fw/build/$FW.hex onchip_init.hex ;;
+  esac
 fi
 
 if [ -z "$SKIP_QSYS" ]; then
   echo "== Platform Designer (NPU RTL variant: ${NPU_RTL_VARIANT:-fpga, default set in ip/npu_avmm_hw.tcl})"
   python3 scripts/make_compat.py ../rtl rtl_compat
-  qsys-script --search-path="ip,\$" --script=scripts/create_system.tcl | tee reports/create_system.log | grep -E "Error|create_system:" || true
+  qsys-script --search-path="ip,\$" --cmd="set NIOSV_CORE ${NIOSV_CORE:-intel_niosv_g}; set NPU_N $NPU_N; set NPU_DEPTH $NPU_DEPTH" --script=scripts/create_system.tcl 2>&1 | tee reports/create_system.log | grep -E "Error|create_system:" || true
   grep -q "Error" reports/create_system.log && { echo "create_system failed"; exit 1; }
   qsys-generate system.qsys --synthesis=VERILOG --output-directory=system \
       --family="Cyclone V" --part=5CSEBA6U23I7 --search-path="ip,\$" > reports/qsys_generate.log 2>&1
@@ -42,6 +46,5 @@ grep -E "Worst-case|Slack|slack" $O/de10_nano_npu.sta.summary > reports/timing_s
 
 cp $O/de10_nano_npu.sof out/ 2>/dev/null || true
 ls $O/*.sof
-cp fw/build/*.elf fw/build/*.hex out/
 echo "== done"
 cat $O/de10_nano_npu.fit.summary

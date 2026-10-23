@@ -2,44 +2,112 @@
 \label{ch:fpga}
 
 \section{Nền tảng}
-Board Terasic DE10-Nano \cite{de10nano} dùng FPGA SoC Intel Cyclone~V SE \code{5CSEBA6U23I7} (gói UFBGA 672 chân, cấp tốc độ 7, dải nhiệt công nghiệp), có cụm ARM Cortex-A9 cứng (HPS) nhưng đề tài \emph{không} dùng HPS: toàn bộ hệ thống nằm trong phần logic FPGA với CPU mềm Nios~V \cite{niosv} (lõi RISC-V RV32 của Intel), đồng hồ 50\,MHz từ chân \code{FPGA\_CLK1\_50}. Theo báo cáo fitter của Quartus, thiết bị có \num{41910} ALM, 112 khối DSP và 553 khối M10K (\num{5662720} bit). Công cụ là Quartus Prime Lite \cite{quartuslite} (phiên bản ghi trong tệp dự án: 25.1std) và Platform Designer.
+Board Terasic DE10-Nano \cite{de10nano} dùng FPGA SoC Intel Cyclone~V SE \code{5CSEBA6U23I7} (gói UFBGA 672 chân, cấp tốc độ 7, dải nhiệt công nghiệp), có cụm ARM Cortex-A9 cứng (HPS) nhưng đề tài \emph{không} dùng HPS: toàn bộ hệ thống nằm trong phần logic FPGA với CPU mềm Nios~V \cite{niosv} (lõi RISC-V RV32 của Intel), đồng hồ 50\,MHz từ chân \code{FPGA\_CLK1\_50}. Theo báo cáo fitter của Quartus, thiết bị có \num{41910} ALM, 112 khối DSP và 553 khối M10K (\num{5662720} bit). Công cụ là Quartus Prime Lite \cite{quartuslite} 25.1std cùng Platform Designer, và bộ công cụ Nios~V (\code{riscv32-unknown-elf-gcc} 13.2, \code{elf2hex}, \code{niosv-download}).
+
+\paragraph{Trạng thái (quan trọng).} Đến thời điểm viết báo cáo, hệ thống trên DE10-Nano \textbf{đã được xây dựng, đã đạt ràng buộc thời gian} ở 50\,MHz trong mọi góc PVT cho cả năm biến thể (Mục~\ref{sec:system-fit}), và firmware cuối cùng \textbf{đã được mô phỏng ở mức firmware} trên đúng bản đồ bộ nhớ của board (Mục~\ref{sec:de10-fwsim}). Tuy nhiên hệ thống \textbf{chưa được chạy trên board vật lý}: mọi số đo trên board ở Mục~\ref{sec:board} vẫn còn để trống.
 
 \section{Hệ thống Platform Designer}
-Script \code{de10/scripts/create\_system.tcl} sinh hệ thống \code{system.qsys} gồm các thành phần trong Bảng~\ref{tab:de10map}. \code{npu\_avmm} được đóng gói thành thành phần Platform Designer bằng \code{de10/ip/npu\_avmm\_hw.tcl}, khai báo đúng các thuộc tính giao diện đã dùng trong mô phỏng: địa chỉ từ 14 bit, \code{readLatency}$=1$, không \code{waitrequest}. Mặc định dùng lõi \code{intel\_niosv\_g} (có bộ nhân/chia, dự đoán nhánh, cache lệnh và dữ liệu 16\,KiB); vùng \code{0x2000\_0000}--\code{0x2003\_FFFF} được khai báo là vùng ngoại vi không cache để mọi truy cập MMIO tới \NPU{} đi thẳng ra bus. Có thể chọn \code{intel\_niosv\_m} (lõi vi điều khiển, không cache) bằng biến môi trường \code{NIOSV\_CORE}.
+Script \code{de10/scripts/create\_system.tcl} sinh hệ thống \code{system.qsys} gồm các thành phần trong Bảng~\ref{tab:de10map}. \code{npu\_avmm} được đóng gói thành thành phần Platform Designer bằng \code{de10/ip/npu\_avmm\_hw.tcl}, với tham số $N$ và DEPTH, giao diện tớ Avalon-MM địa chỉ từ 14 bit. Biến thể RTL được chọn ở một chỗ duy nhất trong tệp này: mặc định là \code{fpga}, tức \code{quartus\_fit/rtl\_fpga} (Mục~\ref{sec:quartus}), hoặc \code{ref}, tức \code{rtl/} gốc đã bọc cú pháp SV-2005 bằng \code{make\_compat.py}. Trên board, \NPU{} luôn được cấu hình $N=8$, DEPTH$=64$.
+
+Có bốn lựa chọn CPU:
+\begin{itemize}
+  \item \textbf{Nios~V/g} (\code{intel\_niosv\_g}, mặc định): RV32IM, cache lệnh và dữ liệu 16\,KiB. Vùng \code{0x2000\_0000}--\code{0x2003\_FFFF} được khai báo là vùng ngoại vi A không cache, nên \NPU{} không bao giờ bị truy cập qua D-cache.
+  \item \textbf{Nios~V/m} và \textbf{Nios~V/c}: chỉ hỗ trợ RV32I (theo \code{intel\_niosv\_m\_callbacks.tcl} của Intel), nên firmware được biên dịch với \code{-march=rv32i\_zicsr} và phép nhân/chia đi qua libgcc. Nios~V/c không có debug module và không có timer \code{mtime}, nên chỉ chạy được selftest.
+  \item \textbf{PicoRV32} (hệ thống dự phòng không cần licence): PicoRV32 với đúng tham số như SoC mô phỏng, nằm sau một cầu native$\to$Avalon-MM (\code{de10/ip/picorv32\_avmm.sv}) có một giao dịch đang chờ, chờ \code{waitrequest} và \code{readdatavalid}. Bộ đếm chu kỳ 64 bit được giải mã cục bộ tại \code{0x2002\_0000}. Bản đồ bộ nhớ, JTAG UART và LED giống các hệ thống Nios~V.
+\end{itemize}
 
 \begin{table}[H]
   \centering
-  \caption{Bản đồ bộ nhớ của hệ thống Nios~V trên DE10-Nano (\code{create\_system.tcl}, \code{de10/fw/platform.h})}
+  \caption{Bản đồ bộ nhớ (data manager) của hệ thống trên DE10-Nano (\code{de10/README.md})}
   \label{tab:de10map}
   \small
-  \begin{tabularx}{\linewidth}{llX}
+  \begin{tabularx}{\linewidth}{lllX}
     \toprule
-    Địa chỉ & Thành phần & Ghi chú \\
+    Địa chỉ & Kích thước & Thành phần & Ghi chú \\
     \midrule
-    \code{0x0000\_0000} & RAM on-chip 256\,KiB & mã + dữ liệu, khởi tạo từ \code{onchip\_init.hex}; vector reset \\
-    \code{0x2000\_0000} & \code{npu\_avmm} (64\,KiB) & cùng \code{NPU\_BASE} với mô phỏng \\
-    \code{0x2001\_0000} & Nios~V debug module & JTAG debug \\
-    \code{0x2002\_0000} & timer (\code{mtime}) & đếm theo chu kỳ đồng hồ, dùng thay \code{rdcycle} \\
-    \code{0x2002\_0040} & JTAG UART & in kết quả ra máy tính (\code{juart-terminal}) \\
-    \code{0x2002\_0050} & LED PIO 8 bit & trạng thái RUN/DONE/PASS/FAIL \\
+    \code{0x0000\_0000} & 256\,KiB & RAM on-chip & vector reset 0x0, khởi tạo từ \code{onchip\_init.hex} \\
+    \code{0x2000\_0000} & 64\,KiB & \code{npu\_avmm} & cùng \code{NPU\_BASE} với mô phỏng; \code{fw/npu.h} không đổi \\
+    \code{0x2001\_0000} & 64\,KiB & Nios~V debug module & \code{dm\_agent} \\
+    \code{0x2002\_0000} & 64\,B & timer \code{mtime}/\code{mtimecmp} & tăng 1 mỗi chu kỳ đồng hồ \\
+    \code{0x2002\_0040} & 8\,B & JTAG UART & FIFO ghi 1024\,B \\
+    \code{0x2002\_0050} & 16\,B & LED PIO 8 bit & trạng thái (Bảng~\ref{tab:led}) \\
     \bottomrule
   \end{tabularx}
 \end{table}
 
-Vì NPU nằm ở cùng địa chỉ cơ sở như trong SoC mô phỏng, các tệp \code{fw/npu.h}, \code{fw/nn.h}, \code{fw/cnn.c}, \code{fw/lstm.c} và \code{fw/selftest.c} được biên dịch lại \emph{không sửa đổi}. Phần khác biệt nằm trong lớp nền tảng \code{de10/fw/platform.h} (được \code{-include} trước mọi tệp nguồn): \code{putc\_} ghi ra JTAG UART, \code{rdcycle} đọc từ thấp của \code{mtime} (tăng một mỗi chu kỳ đồng hồ CPU), và LED báo trạng thái.
+Instruction manager chỉ truy cập được RAM và debug module. Chân I/O (Bảng~\ref{tab:pins}) được đối chiếu với tệp \code{DE10\_Nano\_golden\_top.qsf} trong System CD của Terasic, và chân KEY trùng với \code{sys.tcl} của MiSTer. Mọi chân dùng chuẩn 3.3-V LVTTL. Mô-đun đỉnh \code{de10/rtl/de10\_nano\_top.sv} đồng bộ hóa KEY0 thành reset (kèm power-on reset) và nối LED.
+
+\begin{table}[H]
+  \centering
+  \begin{minipage}[t]{0.42\linewidth}
+    \centering
+    \caption{Gán chân}
+    \label{tab:pins}
+    \small
+    \begin{tabular}{ll}
+      \toprule
+      Tín hiệu & Chân \\
+      \midrule
+      \code{FPGA\_CLK1\_50} & V11 \\
+      KEY[0] (reset) & AH17 \\
+      KEY[1] (không dùng) & AH16 \\
+      LED[0..3] & W15, AA24, \\
+       & V16, V15 \\
+      LED[4..7] & AF26, AE26, \\
+       & Y16, AA23 \\
+      \bottomrule
+    \end{tabular}
+  \end{minipage}\hfill
+  \begin{minipage}[t]{0.52\linewidth}
+    \centering
+    \caption{Ý nghĩa LED}
+    \label{tab:led}
+    \small
+    \begin{tabular}{ll}
+      \toprule
+      LED & Ý nghĩa \\
+      \midrule
+      LED0 & nhấp nháy: FPGA đã nạp \\
+      LED1 & firmware đang chạy \\
+      LED2 & firmware đã chạy xong \\
+      LED3 & PASS \\
+      LED4 & FAIL \\
+      LED5 & trap bất thường của CPU \\
+      \bottomrule
+    \end{tabular}
+  \end{minipage}
+\end{table}
+
+Vì NPU nằm ở cùng địa chỉ cơ sở như trong SoC mô phỏng, các tệp \code{fw/npu.h}, \code{fw/nn.h}, \code{fw/cnn.c}, \code{fw/lstm.c} và \code{fw/selftest.c} được biên dịch lại \emph{không sửa đổi}. Phần khác biệt nằm trong lớp nền tảng \code{de10/fw/platform.h}, được \code{-include} trước mọi tệp nguồn và dùng chung include guard với \code{fw/common.h} nên thay thế được tệp đó:
+\begin{itemize}
+  \item \code{putc\_} ghi ra JTAG UART; nếu sau khoảng 1\,s không có máy tính đọc thì ký tự bị bỏ qua.
+  \item \code{rdcycle} được thay bằng việc đọc từ thấp của \code{mtime} tại \code{0x2002\_0000}, vốn tăng một mỗi chu kỳ đồng hồ. Một macro GNU-as định nghĩa lại lệnh \code{rdcycle} trong \code{nn.h} thành \code{lui}+\code{lw}. Disassembly đã được kiểm tra: firmware không còn lệnh CSR bộ đếm nào.
+  \item Giá trị trả về của \code{main()} được in thành \code{[niosv] exit code N} và điều khiển LED. \code{.data} được chép lại sau mỗi reset, nên bấm KEY0 sẽ chạy lại chương trình từ đầu.
+\end{itemize}
 
 \section{Luồng xây dựng}
 Script \code{de10/scripts/build.sh} thực hiện toàn bộ chuỗi:
 \begin{enumerate}
   \item biên dịch firmware (\code{FW=selftest|cnn|lstm}) với \code{-DNN=8} và nạp vào ảnh khởi tạo RAM;
-  \item chuyển RTL sang dạng tương thích với bộ phân tích SystemVerilog của Quartus (\code{make\_compat.py}) -- RTL gốc trong \code{rtl/} không bị sửa;
+  \item chỉ với biến thể \code{ref}: chuyển RTL sang cú pháp SV-2005 mà Quartus Lite chấp nhận (\code{make\_compat.py}), RTL gốc trong \code{rtl/} không bị sửa; biến thể \code{fpga} vốn đã tương thích;
   \item sinh hệ thống bằng \code{qsys-script} và \code{qsys-generate};
   \item biên dịch Quartus (\code{quartus\_sh --flow compile}), thu các báo cáo \code{fit.summary}, \code{sta.summary}, tài nguyên theo thực thể (\code{utilization\_by\_entity.txt}) và Fmax (\code{fmax.txt}) vào \code{de10/reports/}.
 \end{enumerate}
-Ràng buộc thời gian (\code{de10\_nano\_npu.sdc}) khai báo đồng hồ 50\,MHz (chu kỳ 20\,ns), đồng hồ JTAG 25\,MHz bất đồng bộ, và false path cho nút bấm và LED.
+Ràng buộc thời gian (\code{de10\_nano\_npu.sdc}) khai báo đồng hồ 50\,MHz (chu kỳ 20\,ns), đồng hồ JTAG 25\,MHz bất đồng bộ, và false path cho nút bấm và LED. Hệ thống PicoRV32 được xây dựng bằng \code{de10/scripts/build\_pico.sh}. Mỗi tệp \code{.sof} chứa sẵn một chương trình trong RAM. Có thể đổi chương trình mà không phải fit lại, bằng \code{quartus\_cdb --update\_mif} rồi \code{quartus\_asm}. Ảnh hex dùng định dạng Intel HEX một từ 32 bit mỗi bản ghi (\code{elf2hex --record=4}), vì bản ghi mặc định 32 byte làm Quartus báo cảnh báo ``wrapping data''.
+
+\paragraph{Chọn seed.} Với các hệ thống Nios~V, seed mặc định 1 cho hold slack $-0{,}059$\,ns bên trong MLAB của debug-ROM Nios~V. Seed 3 cho setup và hold sạch ở cả bốn góc, nên được ghi trong \code{de10\_nano\_npu.qsf}. Hệ thống PicoRV32 và bản Nios~V/g dùng RTL gốc giữ seed 1 (Bảng~\ref{tab:quartus-sys}).
 
 \section{Kiểm tra firmware trên bản đồ bộ nhớ DE10 (trước khi lên board)}
-Mô hình Nios~V của Intel được mã hóa và chỉ mô phỏng được trong Questa, nên để kiểm tra lớp nền tảng bằng công cụ mở, testbench \code{de10/sim/tb\_de10\_map.sv} dùng PicoRV32 thay cho Nios~V nhưng giữ \emph{đúng} bản đồ bộ nhớ Platform Designer và mô hình thanh ghi của JTAG UART, \code{mtime} và LED PIO, rồi chạy chính các ELF của \code{de10/fw}. Kết quả (\code{de10/sim/logs/}) cho LeNet-5 $N=8$: trung bình \num{13254287} chu kỳ CPU-only và \num{1923654} chu kỳ với \NPU{} (6,89$\times$), 8/8 đúng nhãn, 0 sai khác; LSTM $N=8$: \num{3558958} / \num{1066615} / \num{217162} chu kỳ mỗi ảnh (CPU-only / batch 1 / batch 16), 0 sai khác; LED PIO cuối cùng bằng \code{0x0c} (DONE|PASS). Các số này khác số trong Chương~\ref{ch:results} dưới 0,2\% do khác biệt nhỏ ở mã khởi động và hàm in. Đây là bằng chứng rằng lớp nền tảng DE10 đúng chức năng, \emph{không phải} số đo trên Nios~V.
+\label{sec:de10-fwsim}
+RTL của Nios~V được mã hóa nên Verilator không mô phỏng được, còn Questa FSE (\code{vsim}) không khởi động được vì thiếu máy chủ licence (``SALT\_LICENSE\_SERVER not set''). Vì vậy \textbf{không có mô phỏng mức CPU của Nios~V}. Để kiểm tra lớp nền tảng bằng công cụ mở, testbench \code{de10/sim/tb\_de10\_map.sv} dùng PicoRV32 thay cho Nios~V nhưng giữ \emph{đúng} bản đồ bộ nhớ Platform Designer và mô hình thanh ghi của JTAG UART, \code{mtime} và LED PIO, rồi chạy chính các ELF của \code{de10/fw}. Kết quả (\code{de10/sim/logs/}) cho LeNet-5 $N=8$: trung bình \num{13254287} chu kỳ CPU-only và \num{1923654} chu kỳ với \NPU{} (6,89$\times$), 8/8 đúng nhãn, 0 sai khác; LSTM $N=8$: \num{3558958} / \num{1066615} / \num{217162} chu kỳ mỗi ảnh (CPU-only / batch 1 / batch 16), 0 sai khác; LED PIO cuối cùng bằng \code{0x0c} (DONE|PASS). Các số này khác số trong Chương~\ref{ch:results} dưới 0,2\% do khác biệt nhỏ ở mã khởi động và hàm in.
+
+Sau đó, \textbf{chính các tệp ELF cuối cùng trong \code{de10/out/}} (biên dịch bằng bộ công cụ Nios~V gcc 13.2) được chạy trên PicoRV32 với bản đồ bộ nhớ DE10 và \NPU{} \code{rtl\_fpga} (log trong \code{de10/sim/logs/build\_elf\_*}):
+\begin{itemize}
+  \item ELF cho Nios~V/g (selftest, cnn, lstm), chỉ vá lệnh \code{csrw mtvec} thành NOP vì PicoRV32 không có lệnh này: ALL PASS, cnn 8/8, lstm 16/16.
+  \item ELF RV32I cho Nios~V/m, cùng cách vá: ALL PASS, cnn 8/8 (26\,s thời gian mô phỏng ở 50\,MHz, vì nhân/chia bằng phần mềm).
+  \item ELF cho PicoRV32, không sửa gì, chạy trên testbench \code{tb\_pico\_avmm}: ALL PASS. Testbench này dùng đúng cầu \code{picorv32\_avmm.sv}, với \code{waitrequest} ngẫu nhiên và độ trễ đọc 1--3 chu kỳ.
+\end{itemize}
+Những kiểm tra này cho thấy firmware và lớp nền tảng DE10 đúng chức năng. Chúng \emph{không phải} số đo trên Nios~V. Các phần riêng của Nios~V (chuyển đổi AXI4-Lite sang Avalon, cache với vùng ngoại vi không cache, \code{mtvec}, driver JTAG UART trên phần cứng thật) và interconnect Platform Designer, RAM on-chip, JTAG UART của Intel trong hệ thống PicoRV32 \textbf{chưa được mô phỏng}.
 
 \section{Kết quả tổng hợp Quartus (\code{npu\_avmm} đứng riêng)}
 \label{sec:quartus}
@@ -90,26 +158,47 @@ Nhận xét:
   \item Với biến thể \code{rtl\_fpga}, $N=8$ chỉ dùng 5\% ALM của thiết bị, để lại đủ chỗ cho Nios~V, RAM on-chip và interconnect.
 \end{enumerate}
 
+\section{Kết quả toàn hệ thống trên DE10-Nano}
+\label{sec:system-fit}
+Năm hệ thống hoàn chỉnh đã được biên dịch, mỗi hệ thống gồm CPU, RAM on-chip 256\,KiB, \NPU{} $N=8$/DEPTH$=64$, JTAG UART, LED PIO và interconnect. Bảng~\ref{tab:quartus-sys} lấy từ \code{de10/reports/<biến thể>/} (\code{*.fit.summary}, \code{fmax.txt}, \code{timing\_summary.txt}). Mọi lần fit đều thành công, mọi lần chạy assembler đều sinh \code{.sof} bình thường với 0 lỗi. Không biến thể nào có slack âm ở bất kỳ góc nào.
+
 \begin{table}[H]
   \centering
-  \caption{Tài nguyên toàn hệ thống trên DE10-Nano ($N=8$, DEPTH$=64$, Nios~V/g)}
+  \caption{Tài nguyên và thời gian của toàn hệ thống trên 5CSEBA6U23I7 (\NPU{} $N=8$, DEPTH$=64$, đồng hồ 50\,MHz). Fmax là của đồng hồ \code{CLOCK\_50} ở hai mô hình chậm; slack là giá trị xấu nhất trên mọi góc.}
   \label{tab:quartus-sys}
-  \begin{tabular}{lcccc}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lccccc}
     \toprule
-    Thực thể & ALM & Thanh ghi & DSP & Bit M10K \\
+     & \textbf{picorv32} & \textbf{niosv\_g} & \textbf{niosv\_m} & \textbf{niosv\_c} & \textbf{niosv\_g\_refrtl} \\
     \midrule
-    \code{npu\_avmm} & \todo{} & \todo{} & \todo{} & \todo{} \\
-    Nios~V (\code{cpu}) & \todo{} & \todo{} & \todo{} & \todo{} \\
-    RAM on-chip 256\,KiB & \todo{} & \todo{} & \todo{} & \todo{} \\
-    Interconnect + ngoại vi & \todo{} & \todo{} & \todo{} & \todo{} \\
+    CPU & PicoRV32 & Nios~V/g & Nios~V/m & Nios~V/c & Nios~V/g \\
+    ISA & RV32IM & RV32IM & RV32I & RV32I & RV32IM \\
+    RTL \NPU{} & \code{rtl\_fpga} & \code{rtl\_fpga} & \code{rtl\_fpga} & \code{rtl\_fpga} & \code{rtl/} gốc \\
+    Seed & 1 & 3 & 3 & 3 & 1 \\
     \midrule
-    Tổng (\% thiết bị) & \todo{} & \todo{} & \todo{} & \todo{} \\
+    ALM & \num{3686} (9\%) & \num{6758} (16\%) & \num{4915} (12\%) & \num{3043} (7\%) & \num{21322} (51\%) \\
+    Thanh ghi & \num{4360} & \num{8603} & \num{6275} & \num{3667} & \num{30789} \\
+    Khối M10K & 284 & 319 & 284 & 284 & 301 \\
+    Khối DSP & 51 & 51 & 48 & 48 & 51 \\
+    \midrule
+    Fmax 100\,°C (MHz) & 81,6 & 72,6 & 74,7 & 79,5 & 52,0 \\
+    Fmax $-40$\,°C (MHz) & 86,5 & 73,9 & 77,8 & 82,5 & 50,9 \\
+    Setup xấu nhất (ns) & $+7{,}742$ & $+6{,}219$ & $+6{,}605$ & $+7{,}416$ & $+0{,}358$ \\
+    Hold xấu nhất (ns) & $+0{,}014$ & $+0{,}013$ & $+0{,}013$ & $+0{,}015$ & $+0{,}054$ \\
+    Cảnh báo licence 24850 & không & IP-NIOSVG & IP-NIOSVM & IP-NIOSVC & IP-NIOSVG \\
     \bottomrule
   \end{tabular}
-
-  \smallskip
-  \raggedright\footnotesize Kết quả do bản build hệ thống \code{de10/scripts/build.sh} sinh ra (\code{de10/reports/utilization\_by\_entity.txt}); \todo{điền khi bản build hệ thống hoàn tất, kèm biến thể RTL được dùng (\code{NPU\_RTL\_VARIANT}), Fmax từ \code{de10/reports/fmax.txt} và slack setup ở 50\,MHz từ \code{de10\_nano\_npu.sta.summary}}.
 \end{table}
+
+Nhận xét:
+\begin{enumerate}
+  \item \textbf{Mọi biến thể đều đạt 50\,MHz.} Với \NPU{} \code{rtl\_fpga}, Fmax của hệ thống nằm trong khoảng 72--87\,MHz và đường găng nằm ở phía CPU/interconnect. Với RTL gốc, hệ thống Nios~V/g chỉ dư $+0{,}358$\,ns setup (Fmax 50,9--52,0\,MHz), khớp với kết quả \NPU{} đứng riêng ở Mục~\ref{sec:quartus}.
+  \item \textbf{Diện tích}: riêng \NPU{} \code{rtl\_fpga} chiếm khoảng 2,1\,k ALM, 24 M10K và 48 DSP. Phần lớn trong số 284--319 khối M10K là RAM on-chip 256\,KiB. RTL gốc làm hệ thống Nios~V/g tăng từ \num{6758} lên \num{21322} ALM (51\% thiết bị).
+  \item \textbf{Hold slack} rất nhỏ ($+0{,}013$ đến $+0{,}015$\,ns với \code{rtl\_fpga}) nhưng dương ở mọi góc. Đây là lý do phải chọn seed như đã nêu ở trên.
+\end{enumerate}
+
+\paragraph{Tình trạng licence của Nios~V.} Khi biên dịch, mọi biến thể Nios~V đều in cảnh báo 24850 ``Failed to acquire license \ldots{} IP-NIOSV\{G,M,C\}: Client token expired (401)'', và báo cáo map ghi lõi CPU là ``OpenCore''. Các tệp \code{.sof} sinh ra là bình thường (không phải \code{\_time\_limited}). Tuy vậy, \textbf{chưa biết} lõi Nios~V không có licence có chạy được trên phần cứng hay không. Chỉ hệ thống PicoRV32 không có cảnh báo này vì không chứa IP OpenCore. Có thể khắc phục bằng cách đăng nhập lại licence Quartus, hoặc cài licence Nios~V miễn phí từ Intel Self-Service Licensing Center rồi biên dịch lại. Vì rủi ro này, kế hoạch chạy board ưu tiên PicoRV32 (Mục~\ref{sec:board}).
 
 \section{Kết quả tổng hợp mã nguồn mở (Yosys/nextpnr)}
 \label{sec:yosys}
@@ -138,33 +227,44 @@ Thí nghiệm ``what-if A'' trên một bản sao riêng của RTL chuyển lệ
 
 \section{Chạy trên board}
 \label{sec:board}
-Quy trình chạy trên board (chi tiết lệnh ở Phụ lục~\ref{app:repro}):
+Thư mục \code{de10/out/} chứa các tệp \code{.sof} đã sẵn sàng để nạp; checksum SHA256 nằm trong \code{de10/out/SHA256SUMS.txt}. Với mỗi CPU có ba bản \code{\_selftest}, \code{\_cnn} và \code{\_lstm}: cùng một lần fit, chỉ khác chương trình nạp sẵn trong RAM. Riêng Nios~V/c chỉ có \code{selftest\_only}, và có thêm \code{niosvg\_refrtl\_selftest}. Kế hoạch 5 phút trên board (\code{de10/BOARD\_RUNBOOK.md}):
 \begin{enumerate}
-  \item Xây dựng bằng \code{de10/scripts/build.sh} với biến \code{FW=cnn} (hoặc \code{lstm}, \code{selftest}); tệp \code{.sof} trong \code{output\_files/} chứa cả phần cứng và firmware (trong RAM on-chip).
-  \item Nối cáp USB-Blaster (cổng mini-USB của DE10-Nano) và nạp tệp \code{.sof} bằng \code{quartus\_pgm} vào thiết bị thứ 2 trên chuỗi JTAG (thiết bị thứ nhất là HPS):
+  \item \textbf{Chuẩn bị trên PC Windows}: chép \code{de10\textbackslash out} vào máy và kiểm tra checksum bằng \code{certutil -hashfile <file>.sof SHA256}. Cài Quartus Programmer 25.1 và driver USB-Blaster II. Lệnh \code{jtagconfig} phải thấy cáp \code{DE-SoC [USB-1]} với \code{SOCVHPS} (@1) và \code{5CSEBA6} (@2).
+  \item \textbf{Thứ tự ưu tiên}: (1) PicoRV32, vì không có cảnh báo licence và CPU giống hệt CPU đã kiểm chứng trong mô phỏng; (2) Nios~V/g, kết quả chính cho báo cáo; (3) Nios~V/m.
+  \item \textbf{Nạp và quan sát} (hai cửa sổ lệnh chạy song song). Sau khi nạp, bấm KEY0 để chạy lại chương trình khi terminal đã kết nối:
 \begin{lstlisting}[style=codebash]
-quartus_pgm -m jtag -o "p;output_files/de10_nano_npu.sof@2"
+quartus_pgm -c "DE-SoC [USB-1]" -m JTAG -o "p;C:\npu\de10_nano_npu_picorv32_selftest.sof@2"
+juart-terminal -c "DE-SoC [USB-1]" -d 2 -i 0
+niosv-download -g -c "DE-SoC [USB-1]" -d 2 C:\npu\cnn_niosvg.elf   # Nios V/g, /m only
 \end{lstlisting}
-  \item Mở \code{juart-terminal} để xem log; LED[0] nhấp nháy (heartbeat), LED báo RUN, rồi DONE kèm PASS hoặc FAIL.
+  \item \textbf{Đánh giá}: trạng thái PASS là LED0 nhấp nháy, LED2 và LED3 sáng, LED1 và LED4 tắt (Bảng~\ref{tab:led}). Terminal in \code{RESULT: ALL PASS} và \code{[niosv] exit code 0}. Số chu kỳ busy bên trong \NPU{} không phụ thuộc CPU, nên trên board phải giữ đúng các giá trị đã mô phỏng với \code{rtl\_fpga}: \code{npu\_busy} \num{18936} (cnn), \num{26742} (lstm batch 1, mỗi ảnh) và \num{2935} (lstm batch 16, mỗi ảnh).
+  \item \textbf{Xử lý sự cố} (theo runbook): nếu LED0 không nháy thì FPGA chưa được nạp. Nếu LED0 nháy mà LED1 không sáng với Nios~V, có thể do licence; khi đó chuyển sang PicoRV32. Nếu LED5 sáng (trap), terminal in \code{mcause}/\code{mepc}.
 \end{enumerate}
 
 \begin{table}[H]
   \centering
-  \caption{Số đo trên board DE10-Nano với Nios~V ($N=8$, 50\,MHz)}
+  \caption{Số đo trên board DE10-Nano ($N=8$, 50\,MHz) -- \textbf{chưa thực hiện}}
   \label{tab:board}
-  \begin{tabular}{lccc}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llccc}
     \toprule
-    Workload & CPU-only (chu kỳ/ảnh) & CPU+\NPU{} (chu kỳ/ảnh) & Speedup \\
+    CPU & Workload & CPU-only (chu kỳ/ảnh) & CPU+\NPU{} (chu kỳ/ảnh) & Speedup \\
     \midrule
-    LeNet-5 & \todo{} & \todo{} & \todo{} \\
-    LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
-    LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
-    Selftest (24 phép thử) & \multicolumn{3}{c}{\todo{PASS/FAIL}} \\
+    \multirow{4}{*}{PicoRV32} & Selftest & \multicolumn{3}{c}{\todo{PASS/FAIL trên board}} \\
+     & LeNet-5 & \todo{} & \todo{} & \todo{} \\
+     & LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
+     & LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
+    \midrule
+    \multirow{4}{*}{Nios~V/g} & Selftest & \multicolumn{3}{c}{\todo{PASS/FAIL trên board}} \\
+     & LeNet-5 & \todo{} & \todo{} & \todo{} \\
+     & LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
+     & LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
     \bottomrule
   \end{tabular}
 
   \smallskip
-  \raggedright\footnotesize \todo{chạy trên board và chép log JTAG UART vào \code{de10/reports/}; thêm ảnh chụp board/LED nếu có}.
+  \raggedright\footnotesize \todo{chạy trên board theo \code{de10/BOARD\_RUNBOOK.md}: chụp output JTAG UART của từng lần chạy (selftest, cnn, lstm, ghi rõ CPU), ảnh LED PASS, ảnh \code{quartus\_pgm} báo ``successful'' và output \code{jtagconfig}; lưu vào \code{de10/reports/board/}}.
 \end{table}
 
-Kỳ vọng định tính: Nios~V/g có pipeline nhiều tầng, bộ nhân nhanh và cache, nên bản CPU-only sẽ cần \emph{ít chu kỳ hơn đáng kể} so với PicoRV32 (PicoRV32 cần nhiều chu kỳ mỗi lệnh). Trong khi đó, các truy cập MMIO tới \NPU{} đi qua interconnect Avalon không cache và vẫn tốn nhiều chu kỳ. Vì vậy speedup trên board có thể \emph{thấp hơn} trong mô phỏng; đây là điều cần được đo chứ không suy đoán (Chương~\ref{ch:discussion}).
+Kỳ vọng định tính: Nios~V/g có pipeline nhiều tầng, bộ nhân nhanh và cache, nên bản CPU-only sẽ cần \emph{ít chu kỳ hơn đáng kể} so với PicoRV32. Trong khi đó, các truy cập MMIO tới \NPU{} đi qua interconnect Avalon không cache và vẫn tốn nhiều chu kỳ. Vì vậy speedup trên board có thể \emph{thấp hơn} trong mô phỏng. Với PicoRV32 trên board, chu kỳ cũng có thể khác mô phỏng vì cầu Avalon và interconnect Platform Designer thêm độ trễ so với SoC mô phỏng. Đây là điều cần được đo chứ không suy đoán (Chương~\ref{ch:discussion}).

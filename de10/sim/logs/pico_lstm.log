@@ -1,0 +1,15 @@
+[tb] LED PIO = 0x02
+LSTM INT8, N=8 images=16
+cpu_only batch=1   cycles/img=7368874
+npu batch=1        cycles/img=2256778 npu_busy/img=26742 calls/img=1348 correct=16/16
+npu batch=16       cycles/img=447922 npu_busy/img=2935 calls total=1348 correct=16/16
+speedup_x100 vs cpu: batch1=326 batchN=1645
+mismatches vs golden: 0
+RESULT: ALL PASS
+[niosv] exit code 0
+[tb] LED PIO = 0x0c
+[tb] firmware finished: PASS
+- de10/sim/tb_pico_avmm.sv:57: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 1s; walltime 64.385 s; speed 18.049 ms/s
+- Verilator: cpu 64.382 s on 1 threads; alloced 57 MB

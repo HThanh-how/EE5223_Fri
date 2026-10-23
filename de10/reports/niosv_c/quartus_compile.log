@@ -1,0 +1,1369 @@
+Info: *******************************************************************
+Info: Running Quartus Prime Shell
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+    Info: Copyright (C) 2025  Altera Corporation. All rights reserved.
+    Info: Your use of Altera Corporation's design tools, logic functions 
+    Info: and other software and tools, and any partner logic 
+    Info: functions, and any output files from any of the foregoing 
+    Info: (including device programming or simulation files), and any 
+    Info: associated documentation or information are expressly subject 
+    Info: to the terms and conditions of the Altera Program License 
+    Info: Subscription Agreement, the Altera Quartus Prime License Agreement,
+    Info: the Altera IP License Agreement, or other applicable license
+    Info: agreement, including, without limitation, that your use is for
+    Info: the sole purpose of programming logic devices manufactured by
+    Info: Altera and sold by Altera or its authorized distributors.  Please
+    Info: refer to the Altera Software License Subscription Agreements 
+    Info: on the Quartus Prime software download page.
+    Info: Processing started: Thu Oct 22 17:05:14 2026
+Info: Command: quartus_sh --flow compile de10_nano_npu
+Info: Quartus(args): compile de10_nano_npu
+Info: Project Name = /root/ee5223/de10_c/de10_nano_npu
+Info: Revision Name = de10_nano_npu
+Info: *******************************************************************
+Info: Running Quartus Prime Analysis & Synthesis
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+    Info: Processing started: Thu Oct 22 17:05:15 2026
+Info: Command: quartus_map --read_settings_files=on --write_settings_files=off de10_nano_npu -c de10_nano_npu
+Info (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
+Info (20030): Parallel compilation is enabled and will use 11 of the 11 processors detected
+Info (12021): Found 1 design units, including 1 entities, in source file rtl/de10_nano_top.sv
+    Info (12023): Found entity 1: de10_nano_top File: /root/ee5223/de10_c/rtl/de10_nano_top.sv Line: 13
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/system.v
+    Info (12023): Found entity 1: system File: /root/ee5223/de10_c/system/synthesis/system.v Line: 6
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_reset_controller.v
+    Info (12023): Found entity 1: altera_reset_controller File: /root/ee5223/de10_c/system/synthesis/submodules/altera_reset_controller.v Line: 42
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_reset_synchronizer.v
+    Info (12023): Found entity 1: altera_reset_synchronizer File: /root/ee5223/de10_c/system/synthesis/submodules/altera_reset_synchronizer.v Line: 24
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0.v
+    Info (12023): Found entity 1: system_mm_interconnect_0 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 9
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v
+    Info (12023): Found entity 1: system_mm_interconnect_0_avalon_st_adapter File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v Line: 9
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter_error_adapter_0.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_avalon_st_adapter_error_adapter_0 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter_error_adapter_0.sv Line: 66
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_rsp_mux_002.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_rsp_mux_002 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_rsp_mux_002.sv Line: 51
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/altera_merlin_arbitrator.sv
+    Info (12023): Found entity 1: altera_merlin_arbitrator File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 103
+    Info (12023): Found entity 2: altera_merlin_arb_adder File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 228
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_rsp_mux.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_rsp_mux File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_rsp_mux.sv Line: 51
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_rsp_demux.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_rsp_demux File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_rsp_demux.sv Line: 43
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_cmd_mux_002.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_cmd_mux_002 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux_002.sv Line: 51
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_cmd_mux.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_cmd_mux File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux.sv Line: 51
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_cmd_demux_002.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_cmd_demux_002 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_demux_002.sv Line: 43
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_cmd_demux.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_cmd_demux File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_demux.sv Line: 43
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_router_006.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_router_006_default_decode File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_006.sv Line: 45
+    Info (12023): Found entity 2: system_mm_interconnect_0_router_006 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_006.sv Line: 84
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_router_004.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_router_004_default_decode File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_004.sv Line: 45
+    Info (12023): Found entity 2: system_mm_interconnect_0_router_004 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_004.sv Line: 84
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_router_002.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_router_002_default_decode File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_002.sv Line: 45
+    Info (12023): Found entity 2: system_mm_interconnect_0_router_002 File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_002.sv Line: 84
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/system_mm_interconnect_0_router.sv
+    Info (12023): Found entity 1: system_mm_interconnect_0_router_default_decode File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router.sv Line: 45
+    Info (12023): Found entity 2: system_mm_interconnect_0_router File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router.sv Line: 84
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_sc_fifo.v
+    Info (12023): Found entity 1: altera_avalon_sc_fifo File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_sc_fifo.v Line: 21
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_merlin_slave_agent.sv
+    Info (12023): Found entity 1: altera_merlin_slave_agent File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_agent.sv Line: 34
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_merlin_burst_uncompressor.sv
+    Info (12023): Found entity 1: altera_merlin_burst_uncompressor File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_burst_uncompressor.sv Line: 40
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_merlin_axi_master_ni.sv
+    Info (12023): Found entity 1: altera_merlin_axi_master_ni File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_axi_master_ni.sv Line: 27
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_merlin_address_alignment.sv
+    Info (12023): Found entity 1: altera_merlin_address_alignment File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_address_alignment.sv Line: 26
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_merlin_slave_translator.sv
+    Info (12023): Found entity 1: altera_merlin_slave_translator File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_translator.sv Line: 35
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_ram.v
+    Info (12023): Found entity 1: system_ram File: /root/ee5223/de10_c/system/synthesis/submodules/system_ram.v Line: 21
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/delay.sv
+    Info (12023): Found entity 1: delay File: /root/ee5223/de10_c/system/synthesis/submodules/delay.sv Line: 2
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/pe.sv
+    Info (12023): Found entity 1: pe File: /root/ee5223/de10_c/system/synthesis/submodules/pe.sv Line: 3
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/sa_top.sv
+    Info (12023): Found entity 1: sa_top File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 5
+Warning (10259): Verilog HDL error at npu_avmm.sv(180): constant value overflow File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 180
+Info (12021): Found 2 design units, including 2 entities, in source file system/synthesis/submodules/npu_avmm.sv
+    Info (12023): Found entity 1: npu_ram File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 27
+    Info (12023): Found entity 2: npu_avmm File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 47
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/system_led_pio.v
+    Info (12023): Found entity 1: system_led_pio File: /root/ee5223/de10_c/system/synthesis/submodules/system_led_pio.v Line: 21
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart_log_module.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart_log_module File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_log_module.sv Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_r.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart_scfifo_r File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_r.sv Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_w.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart_scfifo_w File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_w.sv Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart_sim_scfifo_r.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart_sim_scfifo_r File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_sim_scfifo_r.sv Line: 22
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/altera_avalon_jtag_uart_sim_scfifo_w.sv
+    Info (12023): Found entity 1: altera_avalon_jtag_uart_sim_scfifo_w File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_sim_scfifo_w.sv Line: 22
+Warning (24850): Failed to acquire license for  (6AF7_0171). Error when acquiring Intel® FPGA IP IP-NIOSVC: Client token expired.Server returned http code [401].
+You can either acquire the license manually from the Intel FPGA Self-Service Licensing Center at <a href="https://licensing.intel.com/psg/s/">https://licensing.intel.com/psg/s/</a> for this Intel Quartus Prime software version or install the latest software.
+Info (12021): Found 1 design units, including 1 entities, in source file system/synthesis/submodules/niosv_reset_controller.v
+    Info (12023): Found entity 1: niosv_reset_controller File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_reset_controller.v Line: 6
+Info (12127): Elaborating entity "de10_nano_top" for the top level hierarchy
+Info (12128): Elaborating entity "system" for hierarchy "system:u_sys" File: /root/ee5223/de10_c/rtl/de10_nano_top.sv Line: 43
+Info (12128): Elaborating entity "system_cpu" for hierarchy "system:u_sys|system_cpu:cpu" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 120
+Warning (21426): Verilog HDL warning at niosv_cpp_fsm.sv(254): 'extif_rddata_shifted_reg' might have mixed concurrent and procedural assignment File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_fsm.sv Line: 254
+Info (12128): Elaborating entity "system_cpu_core" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core" File: /root/ee5223/de10_c/system/synthesis/submodules/system_cpu.v Line: 61
+Warning (14284): Synthesized away the following node(s):
+    Warning (14285): Synthesized away the following LCELL buffer node(s):
+        Warning (14320): Synthesized away node "rvfi_valid"
+        Warning (14320): Synthesized away node "rvfi_insn[31]"
+        Warning (14320): Synthesized away node "rvfi_insn[30]"
+        Warning (14320): Synthesized away node "rvfi_insn[29]"
+        Warning (14320): Synthesized away node "rvfi_insn[28]"
+        Warning (14320): Synthesized away node "rvfi_insn[27]"
+        Warning (14320): Synthesized away node "rvfi_insn[26]"
+        Warning (14320): Synthesized away node "rvfi_insn[25]"
+        Warning (14320): Synthesized away node "rvfi_insn[24]"
+        Warning (14320): Synthesized away node "rvfi_insn[23]"
+        Warning (14320): Synthesized away node "rvfi_insn[22]"
+        Warning (14320): Synthesized away node "rvfi_insn[21]"
+        Warning (14320): Synthesized away node "rvfi_insn[20]"
+        Warning (14320): Synthesized away node "rvfi_insn[19]"
+        Warning (14320): Synthesized away node "rvfi_insn[18]"
+        Warning (14320): Synthesized away node "rvfi_insn[17]"
+        Warning (14320): Synthesized away node "rvfi_insn[16]"
+        Warning (14320): Synthesized away node "rvfi_insn[15]"
+        Warning (14320): Synthesized away node "rvfi_insn[14]"
+        Warning (14320): Synthesized away node "rvfi_insn[13]"
+        Warning (14320): Synthesized away node "rvfi_insn[12]"
+        Warning (14320): Synthesized away node "rvfi_insn[11]"
+        Warning (14320): Synthesized away node "rvfi_insn[10]"
+        Warning (14320): Synthesized away node "rvfi_insn[9]"
+        Warning (14320): Synthesized away node "rvfi_insn[8]"
+        Warning (14320): Synthesized away node "rvfi_insn[7]"
+        Warning (14320): Synthesized away node "rvfi_insn[6]"
+        Warning (14320): Synthesized away node "rvfi_insn[5]"
+        Warning (14320): Synthesized away node "rvfi_insn[4]"
+        Warning (14320): Synthesized away node "rvfi_insn[3]"
+        Warning (14320): Synthesized away node "rvfi_insn[2]"
+        Warning (14320): Synthesized away node "rvfi_insn[1]"
+        Warning (14320): Synthesized away node "rvfi_insn[0]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[31]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[30]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[29]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[28]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[27]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[26]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[25]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[24]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[23]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[22]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[21]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[20]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[19]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[18]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[17]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[16]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[15]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[14]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[13]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[12]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[11]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[10]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[9]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[8]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[7]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[6]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[5]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[4]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[3]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[2]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[1]"
+        Warning (14320): Synthesized away node "rvfi_pc_rdata[0]"
+Info (12128): Elaborating entity "niosv_cpp_core" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/system_cpu_core.sv Line: 233
+Info (12128): Elaborating entity "niosv_cpp_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_core.sv Line: 265
+Info (12128): Elaborating entity "niosv_cpp_rf" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_fsm.sv Line: 1527
+Info (12128): Elaborating entity "niosv_ram" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf1_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_rf.sv Line: 125
+Info (12128): Elaborating entity "altsyncram" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf1_inst|altsyncram:ram_no_ecc.data_ram_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+Info (12130): Elaborated megafunction instantiation "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf1_inst|altsyncram:ram_no_ecc.data_ram_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+Info (12133): Instantiated megafunction "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf1_inst|altsyncram:ram_no_ecc.data_ram_inst" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+    Info (12134): Parameter "indata_reg_b" = "CLOCK0"
+    Info (12134): Parameter "init_file" = "UNUSED"
+    Info (12134): Parameter "wrcontrol_wraddress_reg_b" = "CLOCK0"
+    Info (12134): Parameter "outdata_reg_a" = "UNREGISTERED"
+    Info (12134): Parameter "address_reg_b" = "CLOCK0"
+    Info (12134): Parameter "lpm_type" = "altsyncram"
+    Info (12134): Parameter "numwords_a" = "32"
+    Info (12134): Parameter "numwords_b" = "32"
+    Info (12134): Parameter "operation_mode" = "DUAL_PORT"
+    Info (12134): Parameter "outdata_reg_b" = "UNREGISTERED"
+    Info (12134): Parameter "power_up_uninitialized" = "FALSE"
+    Info (12134): Parameter "ram_block_type" = "AUTO"
+    Info (12134): Parameter "read_during_write_mode_mixed_ports" = "OLD_DATA"
+    Info (12134): Parameter "widthad_a" = "5"
+    Info (12134): Parameter "widthad_b" = "5"
+    Info (12134): Parameter "width_a" = "32"
+    Info (12134): Parameter "width_b" = "32"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_ens1.tdf
+    Info (12023): Found entity 1: altsyncram_ens1 File: /root/ee5223/de10_c/db/altsyncram_ens1.tdf Line: 28
+Info (12128): Elaborating entity "altsyncram_ens1" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf1_inst|altsyncram:ram_no_ecc.data_ram_inst|altsyncram_ens1:auto_generated" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/altsyncram.tdf Line: 792
+Warning (287013): Variable or input pin "data_b" is defined but never used. File: /root/ee5223/de10_c/db/altsyncram_ens1.tdf Line: 35
+Warning (287013): Variable or input pin "rden_a" is defined but never used. File: /root/ee5223/de10_c/db/altsyncram_ens1.tdf Line: 37
+Info (12128): Elaborating entity "niosv_ram" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf2_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_rf.sv Line: 137
+Info (12128): Elaborating entity "altsyncram" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf2_inst|altsyncram:ram_no_ecc.data_ram_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+Info (12130): Elaborated megafunction instantiation "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf2_inst|altsyncram:ram_no_ecc.data_ram_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+Info (12133): Instantiated megafunction "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf2_inst|altsyncram:ram_no_ecc.data_ram_inst" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_ram.sv Line: 345
+    Info (12134): Parameter "indata_reg_b" = "CLOCK0"
+    Info (12134): Parameter "init_file" = "UNUSED"
+    Info (12134): Parameter "wrcontrol_wraddress_reg_b" = "CLOCK0"
+    Info (12134): Parameter "outdata_reg_a" = "UNREGISTERED"
+    Info (12134): Parameter "address_reg_b" = "CLOCK0"
+    Info (12134): Parameter "lpm_type" = "altsyncram"
+    Info (12134): Parameter "numwords_a" = "32"
+    Info (12134): Parameter "numwords_b" = "32"
+    Info (12134): Parameter "operation_mode" = "DUAL_PORT"
+    Info (12134): Parameter "outdata_reg_b" = "UNREGISTERED"
+    Info (12134): Parameter "power_up_uninitialized" = "FALSE"
+    Info (12134): Parameter "ram_block_type" = "AUTO"
+    Info (12134): Parameter "read_during_write_mode_mixed_ports" = "OLD_DATA"
+    Info (12134): Parameter "widthad_a" = "5"
+    Info (12134): Parameter "widthad_b" = "5"
+    Info (12134): Parameter "width_a" = "32"
+    Info (12134): Parameter "width_b" = "32"
+Info (12128): Elaborating entity "altsyncram_ens1" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_fsm:niosv_cpp_fsm_inst|niosv_cpp_rf:rf_inst|niosv_ram:rf2_inst|altsyncram:ram_no_ecc.data_ram_inst|altsyncram_ens1:auto_generated" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/altsyncram.tdf Line: 792
+Warning (287013): Variable or input pin "data_b" is defined but never used. File: /root/ee5223/de10_c/db/altsyncram_ens1.tdf Line: 35
+Warning (287013): Variable or input pin "rden_a" is defined but never used. File: /root/ee5223/de10_c/db/altsyncram_ens1.tdf Line: 37
+Info (12128): Elaborating entity "niosv_cpp_alu" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_alu:niosv_cpp_alu_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_core.sv Line: 377
+Info (12128): Elaborating entity "niosv_cpp_shift" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_core:core_inst|niosv_cpp_shift:gen_shift.niosv_cpp_shift_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_core.sv Line: 439
+Info (12128): Elaborating entity "niosv_cpp_axi4lite_if" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:instr_axi_if_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/system_cpu_core.sv Line: 300
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:instr_axi_if_inst|niosv_axi_channel_fsm:awaddr_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 94
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:instr_axi_if_inst|niosv_axi_channel_fsm:wdata_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 110
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:instr_axi_if_inst|niosv_axi_channel_fsm:araddr_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 130
+Info (12128): Elaborating entity "niosv_cpp_axi4lite_if" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:data_axi_if_inst" File: /root/ee5223/de10_c/system/synthesis/submodules/system_cpu_core.sv Line: 347
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:data_axi_if_inst|niosv_axi_channel_fsm:awaddr_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 94
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:data_axi_if_inst|niosv_axi_channel_fsm:wdata_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 110
+Info (12128): Elaborating entity "niosv_axi_channel_fsm" for hierarchy "system:u_sys|system_cpu:cpu|system_cpu_core:core|niosv_cpp_axi4lite_if:data_axi_if_inst|niosv_axi_channel_fsm:araddr_channel" File: /root/ee5223/de10_c/system/synthesis/submodules/niosv_cpp_axi4lite_if.sv Line: 130
+Info (12128): Elaborating entity "altera_avalon_jtag_uart" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 149
+Info (12128): Elaborating entity "altera_avalon_jtag_uart_scfifo_w" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 133
+Info (12128): Elaborating entity "scfifo" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_w.sv Line: 97
+Info (12130): Elaborated megafunction instantiation "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_w.sv Line: 97
+Info (12133): Instantiated megafunction "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_w.sv Line: 97
+    Info (12134): Parameter "lpm_hint" = "RAM_BLOCK_TYPE=AUTO"
+    Info (12134): Parameter "lpm_numwords" = "1024"
+    Info (12134): Parameter "lpm_showahead" = "OFF"
+    Info (12134): Parameter "lpm_type" = "scfifo"
+    Info (12134): Parameter "lpm_width" = "8"
+    Info (12134): Parameter "lpm_widthu" = "10"
+    Info (12134): Parameter "overflow_checking" = "OFF"
+    Info (12134): Parameter "underflow_checking" = "OFF"
+    Info (12134): Parameter "use_eab" = "ON"
+Info (12021): Found 1 design units, including 1 entities, in source file db/scfifo_91a1.tdf
+    Info (12023): Found entity 1: scfifo_91a1 File: /root/ee5223/de10_c/db/scfifo_91a1.tdf Line: 25
+Info (12128): Elaborating entity "scfifo_91a1" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/scfifo.tdf Line: 300
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_dpfifo_db71.tdf
+    Info (12023): Found entity 1: a_dpfifo_db71 File: /root/ee5223/de10_c/db/a_dpfifo_db71.tdf Line: 29
+Info (12128): Elaborating entity "a_dpfifo_db71" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo" File: /root/ee5223/de10_c/db/scfifo_91a1.tdf Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_fefifo_fgf.tdf
+    Info (12023): Found entity 1: a_fefifo_fgf File: /root/ee5223/de10_c/db/a_fefifo_fgf.tdf Line: 25
+Info (12128): Elaborating entity "a_fefifo_fgf" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo|a_fefifo_fgf:fifo_state" File: /root/ee5223/de10_c/db/a_dpfifo_db71.tdf Line: 43
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_ai7.tdf
+    Info (12023): Found entity 1: cntr_ai7 File: /root/ee5223/de10_c/db/cntr_ai7.tdf Line: 26
+Info (12128): Elaborating entity "cntr_ai7" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo|a_fefifo_fgf:fifo_state|cntr_ai7:count_usedw" File: /root/ee5223/de10_c/db/a_fefifo_fgf.tdf Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_n1v1.tdf
+    Info (12023): Found entity 1: altsyncram_n1v1 File: /root/ee5223/de10_c/db/altsyncram_n1v1.tdf Line: 28
+Info (12128): Elaborating entity "altsyncram_n1v1" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo|altsyncram_n1v1:FIFOram" File: /root/ee5223/de10_c/db/a_dpfifo_db71.tdf Line: 44
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_uhb.tdf
+    Info (12023): Found entity 1: cntr_uhb File: /root/ee5223/de10_c/db/cntr_uhb.tdf Line: 26
+Info (12128): Elaborating entity "cntr_uhb" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo|cntr_uhb:rd_ptr_count" File: /root/ee5223/de10_c/db/a_dpfifo_db71.tdf Line: 45
+Info (12128): Elaborating entity "cntr_uhb" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_w:altera_avalon_jtag_uart_scfifo_w|scfifo:wfifo|scfifo_91a1:auto_generated|a_dpfifo_db71:dpfifo|cntr_uhb:wr_ptr" File: /root/ee5223/de10_c/db/a_dpfifo_db71.tdf Line: 46
+Info (12128): Elaborating entity "altera_avalon_jtag_uart_scfifo_r" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 155
+Info (12128): Elaborating entity "scfifo" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_r.sv Line: 98
+Info (12130): Elaborated megafunction instantiation "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_r.sv Line: 98
+Info (12133): Instantiated megafunction "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart_scfifo_r.sv Line: 98
+    Info (12134): Parameter "lpm_hint" = "RAM_BLOCK_TYPE=AUTO"
+    Info (12134): Parameter "lpm_numwords" = "64"
+    Info (12134): Parameter "lpm_showahead" = "OFF"
+    Info (12134): Parameter "lpm_type" = "scfifo"
+    Info (12134): Parameter "lpm_width" = "8"
+    Info (12134): Parameter "lpm_widthu" = "6"
+    Info (12134): Parameter "overflow_checking" = "OFF"
+    Info (12134): Parameter "underflow_checking" = "OFF"
+    Info (12134): Parameter "use_eab" = "ON"
+Info (12021): Found 1 design units, including 1 entities, in source file db/scfifo_1t91.tdf
+    Info (12023): Found entity 1: scfifo_1t91 File: /root/ee5223/de10_c/db/scfifo_1t91.tdf Line: 25
+Info (12128): Elaborating entity "scfifo_1t91" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/scfifo.tdf Line: 300
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_dpfifo_5771.tdf
+    Info (12023): Found entity 1: a_dpfifo_5771 File: /root/ee5223/de10_c/db/a_dpfifo_5771.tdf Line: 29
+Info (12128): Elaborating entity "a_dpfifo_5771" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo" File: /root/ee5223/de10_c/db/scfifo_1t91.tdf Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file db/a_fefifo_7cf.tdf
+    Info (12023): Found entity 1: a_fefifo_7cf File: /root/ee5223/de10_c/db/a_fefifo_7cf.tdf Line: 25
+Info (12128): Elaborating entity "a_fefifo_7cf" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo|a_fefifo_7cf:fifo_state" File: /root/ee5223/de10_c/db/a_dpfifo_5771.tdf Line: 43
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_vg7.tdf
+    Info (12023): Found entity 1: cntr_vg7 File: /root/ee5223/de10_c/db/cntr_vg7.tdf Line: 26
+Info (12128): Elaborating entity "cntr_vg7" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo|a_fefifo_7cf:fifo_state|cntr_vg7:count_usedw" File: /root/ee5223/de10_c/db/a_fefifo_7cf.tdf Line: 39
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_7pu1.tdf
+    Info (12023): Found entity 1: altsyncram_7pu1 File: /root/ee5223/de10_c/db/altsyncram_7pu1.tdf Line: 28
+Info (12128): Elaborating entity "altsyncram_7pu1" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo|altsyncram_7pu1:FIFOram" File: /root/ee5223/de10_c/db/a_dpfifo_5771.tdf Line: 44
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_jgb.tdf
+    Info (12023): Found entity 1: cntr_jgb File: /root/ee5223/de10_c/db/cntr_jgb.tdf Line: 26
+Info (12128): Elaborating entity "cntr_jgb" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo|cntr_jgb:rd_ptr_count" File: /root/ee5223/de10_c/db/a_dpfifo_5771.tdf Line: 45
+Info (12128): Elaborating entity "cntr_jgb" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|altera_avalon_jtag_uart_scfifo_r:altera_avalon_jtag_uart_scfifo_r|scfifo:rfifo|scfifo_1t91:auto_generated|a_dpfifo_5771:dpfifo|cntr_jgb:wr_ptr" File: /root/ee5223/de10_c/db/a_dpfifo_5771.tdf Line: 46
+Info (12128): Elaborating entity "alt_jtag_atlantic" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|alt_jtag_atlantic:altera_avalon_jtag_uart_alt_jtag_atlantic" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 281
+Info (12130): Elaborated megafunction instantiation "system:u_sys|altera_avalon_jtag_uart:jtag_uart|alt_jtag_atlantic:altera_avalon_jtag_uart_alt_jtag_atlantic" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 281
+Info (12133): Instantiated megafunction "system:u_sys|altera_avalon_jtag_uart:jtag_uart|alt_jtag_atlantic:altera_avalon_jtag_uart_alt_jtag_atlantic" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/altera_avalon_jtag_uart.sv Line: 281
+    Info (12134): Parameter "INSTANCE_ID" = "0"
+    Info (12134): Parameter "LOG2_RXFIFO_DEPTH" = "10"
+    Info (12134): Parameter "LOG2_TXFIFO_DEPTH" = "6"
+    Info (12134): Parameter "SLD_AUTO_INSTANCE_INDEX" = "YES"
+Info (12128): Elaborating entity "sld_jtag_endpoint_adapter" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|alt_jtag_atlantic:altera_avalon_jtag_uart_alt_jtag_atlantic|sld_jtag_endpoint_adapter:inst" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/alt_jtag_atlantic.v Line: 276
+Info (12128): Elaborating entity "sld_jtag_endpoint_adapter_impl" for hierarchy "system:u_sys|altera_avalon_jtag_uart:jtag_uart|alt_jtag_atlantic:altera_avalon_jtag_uart_alt_jtag_atlantic|sld_jtag_endpoint_adapter:inst|sld_jtag_endpoint_adapter_impl:sld_jtag_endpoint_adapter_impl_inst" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/sld_jtag_endpoint_adapter.vhd Line: 232
+Info (12128): Elaborating entity "system_led_pio" for hierarchy "system:u_sys|system_led_pio:led_pio" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 160
+Info (12128): Elaborating entity "npu_avmm" for hierarchy "system:u_sys|npu_avmm:npu" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 175
+Info (12128): Elaborating entity "sa_top" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 97
+Info (10008): Verilog HDL or VHDL information: EDA Netlist Writer cannot regroup multidimensional array "w" into its bus
+Info (10008): Verilog HDL or VHDL information: EDA Netlist Writer cannot regroup multidimensional array "a_bus" into its bus
+Info (10008): Verilog HDL or VHDL information: EDA Netlist Writer cannot regroup multidimensional array "ps_bus" into its bus
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[0].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[1].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[2].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[3].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[4].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[5].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[6].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_skew[7].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 42
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[0].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[1].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[2].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[3].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[4].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[5].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[6].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[0].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[1].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[2].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[3].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[4].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[5].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[6].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "pe" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|pe:g_row[7].g_col[7].u_pe" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 59
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[0].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[1].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[2].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[3].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[4].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[5].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[6].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[7].u_d" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 66
+Info (12128): Elaborating entity "delay" for hierarchy "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:u_v" File: /root/ee5223/de10_c/system/synthesis/submodules/sa_top.sv Line: 70
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_amem[0].u_ram" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 127
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_amem[1].u_ram" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 127
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[0].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[0].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[1].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[1].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[2].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[2].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[3].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[3].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[4].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[4].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[5].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[5].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[6].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[6].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[7].u_a" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 155
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[7].u_b" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 158
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[0].u_ram" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 168
+Info (12128): Elaborating entity "npu_ram" for hierarchy "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[1].u_ram" File: /root/ee5223/de10_c/system/synthesis/submodules/npu_avmm.sv Line: 168
+Info (12128): Elaborating entity "system_ram" for hierarchy "system:u_sys|system_ram:ram" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 189
+Info (12128): Elaborating entity "altsyncram" for hierarchy "system:u_sys|system_ram:ram|altsyncram:the_altsyncram" File: /root/ee5223/de10_c/system/synthesis/submodules/system_ram.v Line: 69
+Info (12130): Elaborated megafunction instantiation "system:u_sys|system_ram:ram|altsyncram:the_altsyncram" File: /root/ee5223/de10_c/system/synthesis/submodules/system_ram.v Line: 69
+Info (12133): Instantiated megafunction "system:u_sys|system_ram:ram|altsyncram:the_altsyncram" with the following parameter: File: /root/ee5223/de10_c/system/synthesis/submodules/system_ram.v Line: 69
+    Info (12134): Parameter "byte_size" = "8"
+    Info (12134): Parameter "init_file" = "onchip_init.hex"
+    Info (12134): Parameter "lpm_type" = "altsyncram"
+    Info (12134): Parameter "maximum_depth" = "65536"
+    Info (12134): Parameter "numwords_a" = "65536"
+    Info (12134): Parameter "operation_mode" = "SINGLE_PORT"
+    Info (12134): Parameter "outdata_reg_a" = "UNREGISTERED"
+    Info (12134): Parameter "ram_block_type" = "AUTO"
+    Info (12134): Parameter "read_during_write_mode_mixed_ports" = "DONT_CARE"
+    Info (12134): Parameter "read_during_write_mode_port_a" = "DONT_CARE"
+    Info (12134): Parameter "width_a" = "32"
+    Info (12134): Parameter "width_byteena_a" = "4"
+    Info (12134): Parameter "widthad_a" = "16"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_r7m1.tdf
+    Info (12023): Found entity 1: altsyncram_r7m1 File: /root/ee5223/de10_c/db/altsyncram_r7m1.tdf Line: 32
+Info (12128): Elaborating entity "altsyncram_r7m1" for hierarchy "system:u_sys|system_ram:ram|altsyncram:the_altsyncram|altsyncram_r7m1:auto_generated" File: /home/guest/altera_lite/25.1std/quartus/libraries/megafunctions/altsyncram.tdf Line: 792
+Warning (113015): Width of data items in "onchip_init.hex" is greater than the memory width. Wrapping data items to subsequent addresses. Found 8192 warnings, reporting 10 File: /root/ee5223/de10_c/onchip_init.hex Line: 1
+    Warning (113009): Data at line (2) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 2
+    Warning (113009): Data at line (3) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 3
+    Warning (113009): Data at line (4) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 4
+    Warning (113009): Data at line (5) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 5
+    Warning (113009): Data at line (6) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 6
+    Warning (113009): Data at line (7) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 7
+    Warning (113009): Data at line (8) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 8
+    Warning (113009): Data at line (9) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 9
+    Warning (113009): Data at line (10) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 10
+    Warning (113009): Data at line (11) of memory initialization file "onchip_init.hex" is too wide to fit in one memory word. Wrapping data to subsequent addresses. File: /root/ee5223/de10_c/onchip_init.hex Line: 11
+Info (12021): Found 1 design units, including 1 entities, in source file db/decode_dla.tdf
+    Info (12023): Found entity 1: decode_dla File: /root/ee5223/de10_c/db/decode_dla.tdf Line: 23
+Info (12128): Elaborating entity "decode_dla" for hierarchy "system:u_sys|system_ram:ram|altsyncram:the_altsyncram|altsyncram_r7m1:auto_generated|decode_dla:decode3" File: /root/ee5223/de10_c/db/altsyncram_r7m1.tdf Line: 44
+Info (12021): Found 1 design units, including 1 entities, in source file db/mux_ahb.tdf
+    Info (12023): Found entity 1: mux_ahb File: /root/ee5223/de10_c/db/mux_ahb.tdf Line: 23
+Info (12128): Elaborating entity "mux_ahb" for hierarchy "system:u_sys|system_ram:ram|altsyncram:the_altsyncram|altsyncram_r7m1:auto_generated|mux_ahb:mux2" File: /root/ee5223/de10_c/db/altsyncram_r7m1.tdf Line: 45
+Info (12128): Elaborating entity "system_mm_interconnect_0" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 258
+Info (12128): Elaborating entity "altera_merlin_slave_translator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_translator:jtag_uart_avalon_jtag_slave_translator" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 521
+Info (12128): Elaborating entity "altera_merlin_slave_translator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_translator:npu_avs_translator" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 585
+Info (12128): Elaborating entity "altera_merlin_slave_translator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_translator:ram_s1_translator" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 649
+Info (12128): Elaborating entity "altera_merlin_slave_translator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_translator:led_pio_s1_translator" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 713
+Info (12128): Elaborating entity "altera_merlin_axi_master_ni" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_axi_master_ni:cpu_data_manager_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 841
+Warning (10230): Verilog HDL assignment warning at altera_merlin_axi_master_ni.sv(362): truncated value with size 3 to match size of target (1) File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_axi_master_ni.sv Line: 362
+Warning (10230): Verilog HDL assignment warning at altera_merlin_axi_master_ni.sv(385): truncated value with size 3 to match size of target (1) File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_axi_master_ni.sv Line: 385
+Info (12128): Elaborating entity "altera_merlin_axi_master_ni" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_axi_master_ni:cpu_instruction_manager_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 969
+Warning (10230): Verilog HDL assignment warning at altera_merlin_axi_master_ni.sv(362): truncated value with size 3 to match size of target (1) File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_axi_master_ni.sv Line: 362
+Warning (10230): Verilog HDL assignment warning at altera_merlin_axi_master_ni.sv(385): truncated value with size 3 to match size of target (1) File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_axi_master_ni.sv Line: 385
+Info (12128): Elaborating entity "altera_merlin_slave_agent" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:jtag_uart_avalon_jtag_slave_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1053
+Info (12128): Elaborating entity "altera_merlin_burst_uncompressor" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:jtag_uart_avalon_jtag_slave_agent|altera_merlin_burst_uncompressor:uncompressor" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_agent.sv Line: 608
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:jtag_uart_avalon_jtag_slave_agent_rsp_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1094
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:jtag_uart_avalon_jtag_slave_agent_rdata_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1135
+Info (12128): Elaborating entity "altera_merlin_slave_agent" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:npu_avs_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1219
+Info (12128): Elaborating entity "altera_merlin_burst_uncompressor" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:npu_avs_agent|altera_merlin_burst_uncompressor:uncompressor" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_agent.sv Line: 608
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:npu_avs_agent_rsp_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1260
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:npu_avs_agent_rdata_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1301
+Info (12128): Elaborating entity "altera_merlin_slave_agent" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:ram_s1_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1385
+Info (12128): Elaborating entity "altera_merlin_burst_uncompressor" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:ram_s1_agent|altera_merlin_burst_uncompressor:uncompressor" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_agent.sv Line: 608
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:ram_s1_agent_rsp_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1426
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:ram_s1_agent_rdata_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1467
+Info (12128): Elaborating entity "altera_merlin_slave_agent" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:led_pio_s1_agent" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1551
+Info (12128): Elaborating entity "altera_merlin_burst_uncompressor" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_merlin_slave_agent:led_pio_s1_agent|altera_merlin_burst_uncompressor:uncompressor" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_slave_agent.sv Line: 608
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:led_pio_s1_agent_rsp_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1592
+Info (12128): Elaborating entity "altera_avalon_sc_fifo" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|altera_avalon_sc_fifo:led_pio_s1_agent_rdata_fifo" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1633
+Info (12128): Elaborating entity "system_mm_interconnect_0_router" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router:router" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1649
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router:router|system_mm_interconnect_0_router_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router.sv Line: 182
+Info (12128): Elaborating entity "system_mm_interconnect_0_router" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router:router_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1665
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router:router_001|system_mm_interconnect_0_router_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router.sv Line: 182
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_002:router_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1681
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_002_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_002:router_002|system_mm_interconnect_0_router_002_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_002.sv Line: 174
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_002:router_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1697
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_002_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_002:router_003|system_mm_interconnect_0_router_002_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_002.sv Line: 174
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_004" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1713
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_004|system_mm_interconnect_0_router_004_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_004.sv Line: 181
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_005" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1729
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_005|system_mm_interconnect_0_router_004_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_004.sv Line: 181
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_006" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_006:router_006" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1745
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_006_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_006:router_006|system_mm_interconnect_0_router_006_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_006.sv Line: 181
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_007" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1761
+Info (12128): Elaborating entity "system_mm_interconnect_0_router_004_default_decode" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_router_004:router_007|system_mm_interconnect_0_router_004_default_decode:the_default_decode" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_router_004.sv Line: 181
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_demux:cmd_demux" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1796
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_demux:cmd_demux_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1831
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_demux_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_demux_002:cmd_demux_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1848
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_demux_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_demux_002:cmd_demux_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1865
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_mux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1888
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux.sv Line: 287
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_mux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1911
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_001|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux.sv Line: 287
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_001|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_mux_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux_002:cmd_mux_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1946
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux_002:cmd_mux_002|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux_002.sv Line: 315
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux_002:cmd_mux_002|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_mux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1969
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_003|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_cmd_mux.sv Line: 287
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_mux:cmd_mux_003|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_demux:rsp_demux" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 1992
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_demux:rsp_demux_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2015
+Info (12128): Elaborating entity "system_mm_interconnect_0_cmd_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_cmd_demux:rsp_demux_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2050
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_demux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_demux:rsp_demux_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2073
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_mux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2108
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_rsp_mux.sv Line: 342
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_mux" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2143
+Info (12128): Elaborating entity "altera_merlin_arbitrator" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux_001|altera_merlin_arbitrator:arb" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_rsp_mux.sv Line: 342
+Info (12128): Elaborating entity "altera_merlin_arb_adder" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux:rsp_mux_001|altera_merlin_arbitrator:arb|altera_merlin_arb_adder:adder" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_merlin_arbitrator.sv Line: 169
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_mux_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux_002:rsp_mux_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2160
+Info (12128): Elaborating entity "system_mm_interconnect_0_rsp_mux_002" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_rsp_mux_002:rsp_mux_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2177
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2206
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter_error_adapter_0" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter|system_mm_interconnect_0_avalon_st_adapter_error_adapter_0:error_adapter_0" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v Line: 200
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_001" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2235
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter_error_adapter_0" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_001|system_mm_interconnect_0_avalon_st_adapter_error_adapter_0:error_adapter_0" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v Line: 200
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_002" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2264
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter_error_adapter_0" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_002|system_mm_interconnect_0_avalon_st_adapter_error_adapter_0:error_adapter_0" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v Line: 200
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_003" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0.v Line: 2293
+Info (12128): Elaborating entity "system_mm_interconnect_0_avalon_st_adapter_error_adapter_0" for hierarchy "system:u_sys|system_mm_interconnect_0:mm_interconnect_0|system_mm_interconnect_0_avalon_st_adapter:avalon_st_adapter_003|system_mm_interconnect_0_avalon_st_adapter_error_adapter_0:error_adapter_0" File: /root/ee5223/de10_c/system/synthesis/submodules/system_mm_interconnect_0_avalon_st_adapter.v Line: 200
+Info (12128): Elaborating entity "altera_reset_controller" for hierarchy "system:u_sys|altera_reset_controller:rst_controller" File: /root/ee5223/de10_c/system/synthesis/system.v Line: 321
+Info (12128): Elaborating entity "altera_reset_synchronizer" for hierarchy "system:u_sys|altera_reset_controller:rst_controller|altera_reset_synchronizer:alt_rst_sync_uq1" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_reset_controller.v Line: 208
+Info (12128): Elaborating entity "altera_reset_synchronizer" for hierarchy "system:u_sys|altera_reset_controller:rst_controller|altera_reset_synchronizer:alt_rst_req_sync_uq1" File: /root/ee5223/de10_c/system/synthesis/submodules/altera_reset_controller.v Line: 220
+Info (11170): Starting IP generation for the debug fabric: alt_sld_fab.
+Info (11172): 2026.10.22.17:05:42 Progress: Loading sld6e4335e6/alt_sld_fab_wrapper_hw.tcl
+Info (11172): Alt_sld_fab.alt_sld_fab: SLD fabric agents which did not specify prefer_host were connected to JTAG
+Info (11172): Alt_sld_fab: Generating "alt_sld_fab" for QUARTUS_SYNTH
+Info (11172): Alt_sld_fab: "alt_sld_fab" instantiated alt_sld_fab "alt_sld_fab"
+Info (11172): Presplit: "alt_sld_fab" instantiated altera_super_splitter "presplit"
+Info (11172): Splitter: "alt_sld_fab" instantiated altera_sld_splitter "splitter"
+Info (11172): Sldfabric: "alt_sld_fab" instantiated altera_sld_jtag_hub "sldfabric"
+Info (11172): Ident: "alt_sld_fab" instantiated altera_connection_identification_hub "ident"
+Info (11172): Alt_sld_fab: Done "alt_sld_fab" with 6 modules, 6 files
+Info (11171): Finished IP generation for the debug fabric: alt_sld_fab.
+Info (12021): Found 1 design units, including 1 entities, in source file db/ip/sld6e4335e6/alt_sld_fab.v
+    Info (12023): Found entity 1: alt_sld_fab File: /root/ee5223/de10_c/db/ip/sld6e4335e6/alt_sld_fab.v Line: 9
+Info (12021): Found 1 design units, including 1 entities, in source file db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab.v
+    Info (12023): Found entity 1: alt_sld_fab_alt_sld_fab File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab.v Line: 9
+Info (12021): Found 1 design units, including 1 entities, in source file db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_ident.sv
+    Info (12023): Found entity 1: alt_sld_fab_alt_sld_fab_ident File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_ident.sv Line: 33
+Info (12021): Found 1 design units, including 1 entities, in source file db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_presplit.sv
+    Info (12023): Found entity 1: alt_sld_fab_alt_sld_fab_presplit File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_presplit.sv Line: 3
+Info (12021): Found 2 design units, including 1 entities, in source file db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_sldfabric.vhd
+    Info (12022): Found design unit 1: alt_sld_fab_alt_sld_fab_sldfabric-rtl File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_sldfabric.vhd Line: 102
+    Info (12023): Found entity 1: alt_sld_fab_alt_sld_fab_sldfabric File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_sldfabric.vhd Line: 11
+Info (12021): Found 1 design units, including 1 entities, in source file db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_splitter.sv
+    Info (12023): Found entity 1: alt_sld_fab_alt_sld_fab_splitter File: /root/ee5223/de10_c/db/ip/sld6e4335e6/submodules/alt_sld_fab_alt_sld_fab_splitter.sv Line: 3
+Info (13014): Ignored 277 buffer(s)
+    Info (13019): Ignored 277 SOFT buffer(s)
+Info (286031): Timing-Driven Synthesis is running on partition "Top"
+Info (19000): Inferred 25 megafunctions from design logic
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[1].u_ram|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[0].u_ram|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[7].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[7].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[6].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[6].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[5].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[5].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[4].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[4].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[3].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[3].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[2].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[2].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[1].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[1].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[0].u_b|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_cmem[0].u_a|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_amem[1].u_ram|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276029): Inferred altsyncram megafunction from the following design logic: "system:u_sys|npu_avmm:npu|npu_ram:g_amem[0].u_ram|mem_rtl_0" 
+        Info (286033): Parameter OPERATION_MODE set to DUAL_PORT
+        Info (286033): Parameter WIDTH_A set to 32
+        Info (286033): Parameter WIDTHAD_A set to 6
+        Info (286033): Parameter NUMWORDS_A set to 64
+        Info (286033): Parameter WIDTH_B set to 32
+        Info (286033): Parameter WIDTHAD_B set to 6
+        Info (286033): Parameter NUMWORDS_B set to 64
+        Info (286033): Parameter ADDRESS_ACLR_A set to NONE
+        Info (286033): Parameter OUTDATA_REG_B set to UNREGISTERED
+        Info (286033): Parameter ADDRESS_ACLR_B set to NONE
+        Info (286033): Parameter OUTDATA_ACLR_B set to NONE
+        Info (286033): Parameter ADDRESS_REG_B set to CLOCK0
+        Info (286033): Parameter INDATA_ACLR_A set to NONE
+        Info (286033): Parameter WRCONTROL_ACLR_A set to NONE
+        Info (286033): Parameter RAM_BLOCK_TYPE set to M10K
+        Info (286033): Parameter RDCONTROL_REG_B set to CLOCK0
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[0].u_d|g_pipe.sr_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 6
+        Info (286033): Parameter WIDTH set to 40
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "system:u_sys|npu_avmm:npu|v3_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 5
+        Info (286033): Parameter WIDTH set to 41
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "system:u_sys|npu_avmm:npu|l3_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 5
+        Info (286033): Parameter WIDTH set to 7
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[2].u_d|g_pipe.sr_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 4
+        Info (286033): Parameter WIDTH set to 40
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+    Info (276034): Inferred altshift_taps megafunction from the following design logic: "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[3].u_d|g_pipe.sr_rtl_0"
+        Info (286033): Parameter NUMBER_OF_TAPS set to 1
+        Info (286033): Parameter TAP_DISTANCE set to 3
+        Info (286033): Parameter WIDTH set to 40
+        Info (286033): Parameter POWER_UP_STATE set to DONT_CARE
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[1].u_ram|altsyncram:mem_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|npu_ram:g_qmem[1].u_ram|altsyncram:mem_rtl_0" with the following parameter:
+    Info (12134): Parameter "OPERATION_MODE" = "DUAL_PORT"
+    Info (12134): Parameter "WIDTH_A" = "32"
+    Info (12134): Parameter "WIDTHAD_A" = "6"
+    Info (12134): Parameter "NUMWORDS_A" = "64"
+    Info (12134): Parameter "WIDTH_B" = "32"
+    Info (12134): Parameter "WIDTHAD_B" = "6"
+    Info (12134): Parameter "NUMWORDS_B" = "64"
+    Info (12134): Parameter "ADDRESS_ACLR_A" = "NONE"
+    Info (12134): Parameter "OUTDATA_REG_B" = "UNREGISTERED"
+    Info (12134): Parameter "ADDRESS_ACLR_B" = "NONE"
+    Info (12134): Parameter "OUTDATA_ACLR_B" = "NONE"
+    Info (12134): Parameter "ADDRESS_REG_B" = "CLOCK0"
+    Info (12134): Parameter "INDATA_ACLR_A" = "NONE"
+    Info (12134): Parameter "WRCONTROL_ACLR_A" = "NONE"
+    Info (12134): Parameter "RAM_BLOCK_TYPE" = "M10K"
+    Info (12134): Parameter "RDCONTROL_REG_B" = "CLOCK0"
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_jdn1.tdf
+    Info (12023): Found entity 1: altsyncram_jdn1 File: /root/ee5223/de10_c/db/altsyncram_jdn1.tdf Line: 28
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[0].u_d|altshift_taps:g_pipe.sr_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[0].u_d|altshift_taps:g_pipe.sr_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "6"
+    Info (12134): Parameter "WIDTH" = "40"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_vcv.tdf
+    Info (12023): Found entity 1: shift_taps_vcv File: /root/ee5223/de10_c/db/shift_taps_vcv.tdf Line: 29
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_jfc1.tdf
+    Info (12023): Found entity 1: altsyncram_jfc1 File: /root/ee5223/de10_c/db/altsyncram_jfc1.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_shf.tdf
+    Info (12023): Found entity 1: cntr_shf File: /root/ee5223/de10_c/db/cntr_shf.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr_b9c.tdf
+    Info (12023): Found entity 1: cmpr_b9c File: /root/ee5223/de10_c/db/cmpr_b9c.tdf Line: 23
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_g1h.tdf
+    Info (12023): Found entity 1: cntr_g1h File: /root/ee5223/de10_c/db/cntr_g1h.tdf Line: 28
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|altshift_taps:v3_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|altshift_taps:v3_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "5"
+    Info (12134): Parameter "WIDTH" = "41"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_0dv.tdf
+    Info (12023): Found entity 1: shift_taps_0dv File: /root/ee5223/de10_c/db/shift_taps_0dv.tdf Line: 29
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_kfc1.tdf
+    Info (12023): Found entity 1: altsyncram_kfc1 File: /root/ee5223/de10_c/db/altsyncram_kfc1.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_rhf.tdf
+    Info (12023): Found entity 1: cntr_rhf File: /root/ee5223/de10_c/db/cntr_rhf.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_e1h.tdf
+    Info (12023): Found entity 1: cntr_e1h File: /root/ee5223/de10_c/db/cntr_e1h.tdf Line: 28
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|altshift_taps:l3_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|altshift_taps:l3_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "5"
+    Info (12134): Parameter "WIDTH" = "7"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_ftu.tdf
+    Info (12023): Found entity 1: shift_taps_ftu File: /root/ee5223/de10_c/db/shift_taps_ftu.tdf Line: 27
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_po91.tdf
+    Info (12023): Found entity 1: altsyncram_po91 File: /root/ee5223/de10_c/db/altsyncram_po91.tdf Line: 28
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[2].u_d|altshift_taps:g_pipe.sr_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[2].u_d|altshift_taps:g_pipe.sr_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "4"
+    Info (12134): Parameter "WIDTH" = "40"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_tcv.tdf
+    Info (12023): Found entity 1: shift_taps_tcv File: /root/ee5223/de10_c/db/shift_taps_tcv.tdf Line: 29
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_dfc1.tdf
+    Info (12023): Found entity 1: altsyncram_dfc1 File: /root/ee5223/de10_c/db/altsyncram_dfc1.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_phf.tdf
+    Info (12023): Found entity 1: cntr_phf File: /root/ee5223/de10_c/db/cntr_phf.tdf Line: 26
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_d1h.tdf
+    Info (12023): Found entity 1: cntr_d1h File: /root/ee5223/de10_c/db/cntr_d1h.tdf Line: 28
+Info (12130): Elaborated megafunction instantiation "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[3].u_d|altshift_taps:g_pipe.sr_rtl_0"
+Info (12133): Instantiated megafunction "system:u_sys|npu_avmm:npu|sa_top:u_sa|delay:g_deskew[3].u_d|altshift_taps:g_pipe.sr_rtl_0" with the following parameter:
+    Info (12134): Parameter "NUMBER_OF_TAPS" = "1"
+    Info (12134): Parameter "TAP_DISTANCE" = "3"
+    Info (12134): Parameter "WIDTH" = "40"
+    Info (12134): Parameter "POWER_UP_STATE" = "DONT_CARE"
+Info (12021): Found 1 design units, including 1 entities, in source file db/shift_taps_scv.tdf
+    Info (12023): Found entity 1: shift_taps_scv File: /root/ee5223/de10_c/db/shift_taps_scv.tdf Line: 29
+Info (12021): Found 1 design units, including 1 entities, in source file db/altsyncram_bfc1.tdf
+    Info (12023): Found entity 1: altsyncram_bfc1 File: /root/ee5223/de10_c/db/altsyncram_bfc1.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_ohf.tdf
+    Info (12023): Found entity 1: cntr_ohf File: /root/ee5223/de10_c/db/cntr_ohf.tdf Line: 28
+Info (12021): Found 1 design units, including 1 entities, in source file db/cmpr_a9c.tdf
+    Info (12023): Found entity 1: cmpr_a9c File: /root/ee5223/de10_c/db/cmpr_a9c.tdf Line: 23
+Info (12021): Found 1 design units, including 1 entities, in source file db/cntr_b1h.tdf
+    Info (12023): Found entity 1: cntr_b1h File: /root/ee5223/de10_c/db/cntr_b1h.tdf Line: 28
+Warning (12189): Intel FPGA IP Evaluation Mode (Simulation-Only) feature is turned on for all cores in the design
+    Warning (12191): Some cores in this design do not support the Intel FPGA IP Evaluation Mode feature
+        Warning (12192): "6AF7_0171" does not support the Intel FPGA IP Evaluation Mode feature
+Warning (12241): 1 hierarchies have connectivity warnings - see the Connectivity Checks report folder
+Info (17049): 1204 registers lost all their fanouts during netlist optimizations.
+Info (286031): Timing-Driven Synthesis is running on partition "sld_hub:auto_hub"
+Warning (20013): Ignored 34 assignments for entity "niosv_reset_controller" -- entity does not exist in design
+Info (144001): Generated suppressed messages file /root/ee5223/de10_c/output_files/de10_nano_npu.map.smsg
+Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
+    Info (16011): Adding 9 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
+Warning (21074): Design contains 1 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "KEY[1]" File: /root/ee5223/de10_c/rtl/de10_nano_top.sv Line: 15
+Info (21057): Implemented 8504 device resources after synthesis - the final resource count might be different
+    Info (21058): Implemented 6 input pins
+    Info (21059): Implemented 9 output pins
+    Info (21061): Implemented 7296 logic cells
+    Info (21064): Implemented 1144 RAM segments
+    Info (21062): Implemented 48 DSP elements
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 96 warnings
+    Info: Peak virtual memory: 829 megabytes
+    Info: Processing ended: Thu Oct 22 17:06:23 2026
+    Info: Elapsed time: 00:01:08
+    Info: Total CPU time (on all processors): 00:01:25
+Info: *******************************************************************
+Info: Running Quartus Prime Fitter
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+    Info: Processing started: Thu Oct 22 17:06:24 2026
+Info: Command: quartus_fit --read_settings_files=off --write_settings_files=off de10_nano_npu -c de10_nano_npu
+Info: qfit2_default_script.tcl version: #1
+Info: Project  = de10_nano_npu
+Info: Revision = de10_nano_npu
+Info (16303): High Performance Effort optimization mode selected -- timing performance will be prioritized at the potential cost of increased compilation time
+Info (20030): Parallel compilation is enabled and will use 11 of the 11 processors detected
+Info (119006): Selected device 5CSEBA6U23I7 for design "de10_nano_npu"
+Info (21077): Low junction temperature is -40 degrees C
+Info (21077): High junction temperature is 100 degrees C
+Info (171004): Fitter is performing a Standard Fit compilation using maximum Fitter effort to optimize design performance
+Warning (292013): Feature LogicLock is only available with a valid subscription license. You can purchase a software subscription to gain full access to this feature.
+Warning (15714): Some pins have incomplete I/O assignments. Refer to the I/O Assignment Warnings report for details
+Info (176045): Design uses memory blocks. Violating setup or hold times of memory block address registers for either read or write operations could cause memory contents to be corrupted. Make sure that all memory block address registers meet the setup and hold time requirements.
+Info (184020): Starting Fitter periphery placement operations
+Info (11191): Automatically promoted 1 clock (1 global)
+    Info (11162): FPGA_CLK1_50~inputCLKENA0 with 6490 fanout uses global clock CLKCTRL_G4
+Info (184021): Fitter periphery placement operations ending: elapsed time is 00:00:00
+Info (176233): Starting register packing
+Info (332164): Evaluating HDL-embedded SDC commands
+    Info (332165): Entity alt_jtag_atlantic
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|jupdate}] -to [get_registers {*|alt_jtag_atlantic:*|jupdate1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|read}] -to [get_registers {*|alt_jtag_atlantic:*|read1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|read_req}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rvalid}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|t_dav}] -to [get_registers {*|alt_jtag_atlantic:*|tck_t_dav}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|user_saw_rvalid}] -to [get_registers {*|alt_jtag_atlantic:*|rvalid0*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write}] -to [get_registers {*|alt_jtag_atlantic:*|write1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_stalled}] -to [get_registers {*|alt_jtag_atlantic:*|t_ena*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_stalled}] -to [get_registers {*|alt_jtag_atlantic:*|t_pause*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_valid}]
+    Info (332165): Entity sld_hub
+        Info (332166): create_clock -name altera_reserved_tck [get_ports {altera_reserved_tck}] -period 30MHz   
+        Info (332166): if { [string equal quartus_fit $::TimeQuestInfo(nameofexecutable)] } { set_max_delay -to [get_ports { altera_reserved_tdo } ] 0 }
+        Info (332166): set_clock_groups -asynchronous -group {altera_reserved_tck}
+Info (332104): Reading SDC File: 'system/synthesis/submodules/altera_reset_controller.sdc'
+Info (332104): Reading SDC File: 'de10_nano_npu.sdc'
+Info (332151): Clock uncertainty is not calculated until you update the timing netlist.
+Warning (332043): Overwriting existing clock: altera_reserved_tck
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
+Info (332129): Detected timing requirements -- optimizing circuit to achieve only the specified requirements
+Info (332111): Found 2 clocks
+    Info (332111):   Period   Clock Name
+    Info (332111): ======== ============
+    Info (332111):   40.000 altera_reserved_tck
+    Info (332111):   20.000     CLOCK_50
+Info (176235): Finished register packing
+    Extra Info (176218): Packed 8 registers into blocks of type Block RAM
+    Extra Info (176218): Packed 1784 registers into blocks of type DSP block
+    Extra Info (176220): Created 440 register duplicates
+Info (128000): Starting physical synthesis optimizations for speed
+Info (128002): Starting physical synthesis algorithm register retiming
+Info (128003): Physical synthesis algorithm register retiming complete: estimated slack improvement of 869 ps
+Info (128002): Starting physical synthesis algorithm combinational resynthesis using boolean division
+Info (128003): Physical synthesis algorithm combinational resynthesis using boolean division complete: estimated slack improvement of 0 ps
+Info (128002): Starting physical synthesis algorithm register retiming
+Info (128003): Physical synthesis algorithm register retiming complete: estimated slack improvement of 840 ps
+Info (128002): Starting physical synthesis algorithm combinational resynthesis using boolean division
+Info (128003): Physical synthesis algorithm combinational resynthesis using boolean division complete: estimated slack improvement of 0 ps
+Info (128001): Physical synthesis optimizations for speed complete: elapsed time is 00:00:40
+Info (176233): Starting register packing
+Info (176235): Finished register packing
+    Extra Info (176219): No registers were packed into other blocks
+Info (11798): Fitter preparation operations ending: elapsed time is 00:01:12
+Info (170189): Fitter placement preparation operations beginning
+Info (14951): The Fitter is using Advanced Physical Optimization.
+Info (170190): Fitter placement preparation operations ending: elapsed time is 00:00:32
+Info (170191): Fitter placement operations beginning
+Info (170137): Fitter placement was successful
+Info (170192): Fitter placement operations ending: elapsed time is 00:00:47
+Info (170193): Fitter routing operations beginning
+Info (170195): Router estimated average interconnect usage is 5% of the available device resources
+    Info (170196): Router estimated peak interconnect usage is 23% of the available device resources in the region that extends from location X45_Y11 to location X55_Y22
+Info (170194): Fitter routing operations ending: elapsed time is 00:01:03
+Info (11888): Total time spent on timing analysis during the Fitter is 44.36 seconds.
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (11801): Fitter post-fit operations ending: elapsed time is 00:00:23
+Info (144001): Generated suppressed messages file /root/ee5223/de10_c/output_files/de10_nano_npu.fit.smsg
+Info: Quartus Prime Fitter was successful. 0 errors, 3 warnings
+    Info: Peak virtual memory: 2678 megabytes
+    Info: Processing ended: Thu Oct 22 17:11:41 2026
+    Info: Elapsed time: 00:05:17
+    Info: Total CPU time (on all processors): 00:15:04
+Info: *******************************************************************
+Info: Running Quartus Prime Assembler
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+    Info: Processing started: Thu Oct 22 17:11:43 2026
+Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off de10_nano_npu -c de10_nano_npu
+Info (115030): Assembler is generating device programming files
+Info: Quartus Prime Assembler was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 603 megabytes
+    Info: Processing ended: Thu Oct 22 17:11:57 2026
+    Info: Elapsed time: 00:00:14
+    Info: Total CPU time (on all processors): 00:00:14
+Info (293026): Skipped module Power Analyzer due to the assignment FLOW_ENABLE_POWER_ANALYZER
+Info: *******************************************************************
+Info: Running Quartus Prime Timing Analyzer
+    Info: Version 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
+    Info: Processing started: Thu Oct 22 17:11:58 2026
+Info: Command: quartus_sta de10_nano_npu -c de10_nano_npu
+Info: qsta_default_script.tcl version: #1
+Warning (20013): Ignored 34 assignments for entity "niosv_reset_controller" -- entity does not exist in design
+Info (20030): Parallel compilation is enabled and will use 11 of the 11 processors detected
+Info (21077): Low junction temperature is -40 degrees C
+Info (21077): High junction temperature is 100 degrees C
+Info (332164): Evaluating HDL-embedded SDC commands
+    Info (332165): Entity alt_jtag_atlantic
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|jupdate}] -to [get_registers {*|alt_jtag_atlantic:*|jupdate1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rdata[*]}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|read}] -to [get_registers {*|alt_jtag_atlantic:*|read1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|read_req}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|rvalid}] -to [get_registers {*|alt_jtag_atlantic*|td_shift[*]}]
+        Info (332166): set_false_path -from [get_registers {*|t_dav}] -to [get_registers {*|alt_jtag_atlantic:*|tck_t_dav}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|user_saw_rvalid}] -to [get_registers {*|alt_jtag_atlantic:*|rvalid0*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|wdata[*]}] -to [get_registers {*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write}] -to [get_registers {*|alt_jtag_atlantic:*|write1*}] 
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_stalled}] -to [get_registers {*|alt_jtag_atlantic:*|t_ena*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_stalled}] -to [get_registers {*|alt_jtag_atlantic:*|t_pause*}]
+        Info (332166): set_false_path -from [get_registers {*|alt_jtag_atlantic:*|write_valid}]
+    Info (332165): Entity sld_hub
+        Info (332166): create_clock -name altera_reserved_tck [get_ports {altera_reserved_tck}] -period 30MHz   
+        Info (332166): if { [string equal quartus_fit $::TimeQuestInfo(nameofexecutable)] } { set_max_delay -to [get_ports { altera_reserved_tdo } ] 0 }
+        Info (332166): set_clock_groups -asynchronous -group {altera_reserved_tck}
+Info (332104): Reading SDC File: 'system/synthesis/submodules/altera_reset_controller.sdc'
+Info (332104): Reading SDC File: 'de10_nano_npu.sdc'
+Info (332151): Clock uncertainty is not calculated until you update the timing netlist.
+Warning (332043): Overwriting existing clock: altera_reserved_tck
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
+Info: Found TIMING_ANALYZER_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS = ON
+Info: Analyzing Slow 1100mV 100C Model
+Info (332146): Worst-case setup slack is 7.416
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     7.416               0.000 CLOCK_50 
+    Info (332119):    14.079               0.000 altera_reserved_tck 
+Info (332146): Worst-case hold slack is 0.236
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.236               0.000 CLOCK_50 
+    Info (332119):     0.325               0.000 altera_reserved_tck 
+Info (332146): Worst-case recovery slack is 12.757
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    12.757               0.000 CLOCK_50 
+    Info (332119):    17.554               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.492
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.492               0.000 CLOCK_50 
+    Info (332119):     0.955               0.000 altera_reserved_tck 
+Info (332146): Worst-case minimum pulse width slack is 8.816
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     8.816               0.000 CLOCK_50 
+    Info (332119):    19.097               0.000 altera_reserved_tck 
+Info (332114): Report Metastability: Found 1 synchronizer chains.
+    Info (332114): The design MTBF is not calculated because there are no specified synchronizers in the design.
+    Info (332114): Number of Synchronizer Chains Found: 1
+    Info (332114): Shortest Synchronizer Chain: 2 Registers
+    Info (332114): Fraction of Chains for which MTBFs Could Not be Calculated: 1.000
+    Info (332114): Worst Case Available Settling Time: 35.862 ns
+Info: Analyzing Slow 1100mV -40C Model
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
+Info (332146): Worst-case setup slack is 7.872
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     7.872               0.000 CLOCK_50 
+    Info (332119):    14.227               0.000 altera_reserved_tck 
+Info (332146): Worst-case hold slack is 0.129
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.129               0.000 CLOCK_50 
+    Info (332119):     0.306               0.000 altera_reserved_tck 
+Info (332146): Worst-case recovery slack is 13.114
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    13.114               0.000 CLOCK_50 
+    Info (332119):    17.695               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.416
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.416               0.000 CLOCK_50 
+    Info (332119):     0.884               0.000 altera_reserved_tck 
+Info (332146): Worst-case minimum pulse width slack is 8.786
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     8.786               0.000 CLOCK_50 
+    Info (332119):    19.125               0.000 altera_reserved_tck 
+Info (332114): Report Metastability: Found 1 synchronizer chains.
+    Info (332114): The design MTBF is not calculated because there are no specified synchronizers in the design.
+    Info (332114): Number of Synchronizer Chains Found: 1
+    Info (332114): Shortest Synchronizer Chain: 2 Registers
+    Info (332114): Fraction of Chains for which MTBFs Could Not be Calculated: 1.000
+    Info (332114): Worst Case Available Settling Time: 35.932 ns
+Info: Analyzing Fast 1100mV 100C Model
+Info (334003): Started post-fitting delay annotation
+Info (334004): Delay annotation completed successfully
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
+Info (332146): Worst-case setup slack is 12.626
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    12.626               0.000 CLOCK_50 
+    Info (332119):    17.159               0.000 altera_reserved_tck 
+Info (332146): Worst-case hold slack is 0.024
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.024               0.000 CLOCK_50 
+    Info (332119):     0.094               0.000 altera_reserved_tck 
+Info (332146): Worst-case recovery slack is 15.519
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    15.519               0.000 CLOCK_50 
+    Info (332119):    18.880               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.203
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.203               0.000 CLOCK_50 
+    Info (332119):     0.404               0.000 altera_reserved_tck 
+Info (332146): Worst-case minimum pulse width slack is 8.487
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     8.487               0.000 CLOCK_50 
+    Info (332119):    19.118               0.000 altera_reserved_tck 
+Info (332114): Report Metastability: Found 1 synchronizer chains.
+    Info (332114): The design MTBF is not calculated because there are no specified synchronizers in the design.
+    Info (332114): Number of Synchronizer Chains Found: 1
+    Info (332114): Shortest Synchronizer Chain: 2 Registers
+    Info (332114): Fraction of Chains for which MTBFs Could Not be Calculated: 1.000
+    Info (332114): Worst Case Available Settling Time: 38.096 ns
+Info: Analyzing Fast 1100mV -40C Model
+Info (332123): Deriving Clock Uncertainty. Please refer to report_sdc in the Timing Analyzer to see clock uncertainties.
+Info (332146): Worst-case setup slack is 13.971
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    13.971               0.000 CLOCK_50 
+    Info (332119):    17.572               0.000 altera_reserved_tck 
+Info (332146): Worst-case hold slack is 0.015
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.015               0.000 CLOCK_50 
+    Info (332119):     0.064               0.000 altera_reserved_tck 
+Info (332146): Worst-case recovery slack is 16.342
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):    16.342               0.000 CLOCK_50 
+    Info (332119):    19.090               0.000 altera_reserved_tck 
+Info (332146): Worst-case removal slack is 0.123
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     0.123               0.000 CLOCK_50 
+    Info (332119):     0.323               0.000 altera_reserved_tck 
+Info (332146): Worst-case minimum pulse width slack is 8.419
+    Info (332119):     Slack       End Point TNS Clock 
+    Info (332119): ========= =================== =====================
+    Info (332119):     8.419               0.000 CLOCK_50 
+    Info (332119):    19.149               0.000 altera_reserved_tck 
+Info (332114): Report Metastability: Found 1 synchronizer chains.
+    Info (332114): The design MTBF is not calculated because there are no specified synchronizers in the design.
+    Info (332114): Number of Synchronizer Chains Found: 1
+    Info (332114): Shortest Synchronizer Chain: 2 Registers
+    Info (332114): Fraction of Chains for which MTBFs Could Not be Calculated: 1.000
+    Info (332114): Worst Case Available Settling Time: 38.266 ns
+Info (332102): Design is not fully constrained for setup requirements
+Info (332102): Design is not fully constrained for hold requirements
+Info: Quartus Prime Timing Analyzer was successful. 0 errors, 2 warnings
+    Info: Peak virtual memory: 1172 megabytes
+    Info: Processing ended: Thu Oct 22 17:12:25 2026
+    Info: Elapsed time: 00:00:27
+    Info: Total CPU time (on all processors): 00:01:01
+Info (293000): Quartus Prime Full Compilation was successful. 0 errors, 101 warnings
+Info (23030): Evaluation of Tcl script /home/guest/altera_lite/25.1std/quartus/common/tcl/internal/qsh_flow.tcl was successful
+Info: Quartus Prime Shell was successful. 0 errors, 101 warnings
+    Info: Peak virtual memory: 459 megabytes
+    Info: Processing ended: Thu Oct 22 17:12:26 2026
+    Info: Elapsed time: 00:07:12
+    Info: Total CPU time (on all processors): 00:17:48

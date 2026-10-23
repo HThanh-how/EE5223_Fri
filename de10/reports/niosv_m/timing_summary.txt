@@ -1,0 +1,80 @@
+Type  : Slow 1100mV 100C Model Setup 'CLOCK_50'
+Slack : 6.605
+Type  : Slow 1100mV 100C Model Setup 'altera_reserved_tck'
+Slack : 14.173
+Type  : Slow 1100mV 100C Model Hold 'CLOCK_50'
+Slack : 0.155
+Type  : Slow 1100mV 100C Model Hold 'altera_reserved_tck'
+Slack : 0.463
+Type  : Slow 1100mV 100C Model Recovery 'CLOCK_50'
+Slack : 11.778
+Type  : Slow 1100mV 100C Model Recovery 'altera_reserved_tck'
+Slack : 18.221
+Type  : Slow 1100mV 100C Model Removal 'CLOCK_50'
+Slack : 0.539
+Type  : Slow 1100mV 100C Model Removal 'altera_reserved_tck'
+Slack : 1.178
+Type  : Slow 1100mV 100C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 8.818
+Type  : Slow 1100mV 100C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 18.982
+Type  : Slow 1100mV -40C Model Setup 'CLOCK_50'
+Slack : 7.147
+Type  : Slow 1100mV -40C Model Setup 'altera_reserved_tck'
+Slack : 14.312
+Type  : Slow 1100mV -40C Model Hold 'CLOCK_50'
+Slack : 0.161
+Type  : Slow 1100mV -40C Model Hold 'altera_reserved_tck'
+Slack : 0.447
+Type  : Slow 1100mV -40C Model Recovery 'CLOCK_50'
+Slack : 11.819
+Type  : Slow 1100mV -40C Model Recovery 'altera_reserved_tck'
+Slack : 18.336
+Type  : Slow 1100mV -40C Model Removal 'CLOCK_50'
+Slack : 0.410
+Type  : Slow 1100mV -40C Model Removal 'altera_reserved_tck'
+Slack : 1.079
+Type  : Slow 1100mV -40C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 8.793
+Type  : Slow 1100mV -40C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 19.022
+Type  : Fast 1100mV 100C Model Setup 'CLOCK_50'
+Slack : 11.914
+Type  : Fast 1100mV 100C Model Setup 'altera_reserved_tck'
+Slack : 17.071
+Type  : Fast 1100mV 100C Model Hold 'CLOCK_50'
+Slack : 0.025
+Type  : Fast 1100mV 100C Model Hold 'altera_reserved_tck'
+Slack : 0.158
+Type  : Fast 1100mV 100C Model Recovery 'CLOCK_50'
+Slack : 16.012
+Type  : Fast 1100mV 100C Model Recovery 'altera_reserved_tck'
+Slack : 19.412
+Type  : Fast 1100mV 100C Model Removal 'CLOCK_50'
+Slack : 0.264
+Type  : Fast 1100mV 100C Model Removal 'altera_reserved_tck'
+Slack : 0.528
+Type  : Fast 1100mV 100C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 8.487
+Type  : Fast 1100mV 100C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 19.003
+Type  : Fast 1100mV -40C Model Setup 'CLOCK_50'
+Slack : 13.355
+Type  : Fast 1100mV -40C Model Setup 'altera_reserved_tck'
+Slack : 17.557
+Type  : Fast 1100mV -40C Model Hold 'CLOCK_50'
+Slack : 0.013
+Type  : Fast 1100mV -40C Model Hold 'altera_reserved_tck'
+Slack : 0.116
+Type  : Fast 1100mV -40C Model Recovery 'CLOCK_50'
+Slack : 16.291
+Type  : Fast 1100mV -40C Model Recovery 'altera_reserved_tck'
+Slack : 19.489
+Type  : Fast 1100mV -40C Model Removal 'CLOCK_50'
+Slack : 0.151
+Type  : Fast 1100mV -40C Model Removal 'altera_reserved_tck'
+Slack : 0.424
+Type  : Fast 1100mV -40C Model Minimum Pulse Width 'CLOCK_50'
+Slack : 8.417
+Type  : Fast 1100mV -40C Model Minimum Pulse Width 'altera_reserved_tck'
+Slack : 19.089

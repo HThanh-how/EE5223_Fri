@@ -1,0 +1,66 @@
+  6. Slow 1100mV 100C Model Fmax Summary
+  7. Timing Closure Recommendations
+  8. Slow 1100mV 100C Model Setup Summary
+  9. Slow 1100mV 100C Model Hold Summary
+ 10. Slow 1100mV 100C Model Recovery Summary
+ 11. Slow 1100mV 100C Model Removal Summary
+ 12. Slow 1100mV 100C Model Minimum Pulse Width Summary
+ 13. Slow 1100mV 100C Model Metastability Summary
+ 14. Slow 1100mV -40C Model Fmax Summary
+ 15. Slow 1100mV -40C Model Setup Summary
+ 16. Slow 1100mV -40C Model Hold Summary
+ 17. Slow 1100mV -40C Model Recovery Summary
+ 18. Slow 1100mV -40C Model Removal Summary
+ 19. Slow 1100mV -40C Model Minimum Pulse Width Summary
+ 20. Slow 1100mV -40C Model Metastability Summary
+ 21. Fast 1100mV 100C Model Setup Summary
+ 22. Fast 1100mV 100C Model Hold Summary
+ 23. Fast 1100mV 100C Model Recovery Summary
+ 24. Fast 1100mV 100C Model Removal Summary
+ 25. Fast 1100mV 100C Model Minimum Pulse Width Summary
+ 26. Fast 1100mV 100C Model Metastability Summary
+ 27. Fast 1100mV -40C Model Setup Summary
+ 28. Fast 1100mV -40C Model Hold Summary
+ 29. Fast 1100mV -40C Model Recovery Summary
+ 30. Fast 1100mV -40C Model Removal Summary
+ 31. Fast 1100mV -40C Model Minimum Pulse Width Summary
+ 32. Fast 1100mV -40C Model Metastability Summary
+ 33. Multicorner Timing Analysis Summary
+ 34. Board Trace Model Assignments
+ 35. Input Transition Times
+ 36. Signal Integrity Metrics (Slow 1100mv n40c Model)
+ 37. Signal Integrity Metrics (Slow 1100mv 100c Model)
+ 38. Signal Integrity Metrics (Fast 1100mv n40c Model)
+ 39. Signal Integrity Metrics (Fast 1100mv 100c Model)
+ 40. Setup Transfers
+ 41. Hold Transfers
+ 42. Recovery Transfers
+ 43. Removal Transfers
+ 44. Report TCCS
+ 45. Report RSKM
+ 46. Unconstrained Paths Summary
+ 47. Clock Status Summary
+ 48. Unconstrained Input Ports
+ 49. Unconstrained Output Ports
+ 50. Unconstrained Input Ports
+ 51. Unconstrained Output Ports
+ 52. Timing Analyzer Messages
+
+; Slow 1100mV 100C Model Fmax Summary                       ;
++------------+-----------------+---------------------+------+
+; Fmax       ; Restricted Fmax ; Clock Name          ; Note ;
++------------+-----------------+---------------------+------+
+; 81.58 MHz  ; 81.58 MHz       ; CLOCK_50            ;      ;
+; 101.85 MHz ; 101.85 MHz      ; altera_reserved_tck ;      ;
++------------+-----------------+---------------------+------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+
+; Slow 1100mV -40C Model Fmax Summary                       ;
++------------+-----------------+---------------------+------+
+; Fmax       ; Restricted Fmax ; Clock Name          ; Note ;
++------------+-----------------+---------------------+------+
+; 86.51 MHz  ; 86.51 MHz       ; CLOCK_50            ;      ;
+; 102.54 MHz ; 102.54 MHz      ; altera_reserved_tck ;      ;
++------------+-----------------+---------------------+------+
+This panel reports FMAX for every clock in the design, regardless of the user-specified clock periods.  FMAX is only computed for paths where the source and destination registers or ports are driven by the same clock.  Paths of different clocks, including generated clocks, are ignored.  For paths between a clock and its inversion, FMAX is computed as if the rising and falling edges are scaled along with FMAX, such that the duty cycle (in terms of a percentage) is maintained. Altera recommends that you always use clock constraints and other slack reports for sign-off analysis.
+

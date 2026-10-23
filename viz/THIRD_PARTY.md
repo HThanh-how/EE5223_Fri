@@ -27,3 +27,9 @@ Astro, React, Tailwind CSS, Radix UI slider, framer-motion (declared, unused by 
 lucide-react, class-variance-authority, clsx, tailwind-merge - all MIT/ISC licensed.
 Verilator (LGPL/Artistic) and Emscripten (MIT/UIUC) are build tools; the generated WASM links the
 Verilator runtime (`verilated.cpp`).
+
+## Three.js (3D view tab)
+
+The "3D view" tab uses [three](https://github.com/mrdoob/three.js) 0.180.0 (MIT License, Copyright (c) 2010-2025 three.js authors),
+installed from the npm registry (`web/package.json`, exact version) and bundled into `web/dist` - no CDN is used at runtime.
+Used parts: core, `OrbitControls`, `EffectComposer`/`RenderPass`/`UnrealBloomPass`/`OutputPass`, `RoomEnvironment` (examples/jsm).

@@ -46,3 +46,16 @@ INT8 accuracy (10k MNIST test): LeNet 98.85% (float 98.83%), LSTM 97.50% (float 
 All NPU and CPU outputs match the integer golden model bit-exactly.
 
 Limits: host-side im2col/pooling dominates the CNN time (about 1.2M of 1.9M cycles); LSTM element-wise cell update runs on the CPU; numbers are simulation on PicoRV32, not on the board.
+
+## More material
+| Path | Content |
+|---|---|
+| `de10/` | DE10-Nano (Cyclone V) Quartus Lite + Platform Designer project: Nios V/g, /m, /c and PicoRV32 variants, firmware, `BOARD_RUNBOOK.md` (5-minute board procedure, Vietnamese). Bitstreams are release assets. Built and timing-closed, **not yet run on the board**. |
+| `quartus_fit/`, `synth/` | Quartus standalone fits of the NPU (original vs FPGA-friendly RTL) and Yosys/nextpnr (ECP5) results. |
+| `viz/` | Browser visualizer (2D + 3D) running the real `sa_top` RTL as WebAssembly (based on the MIT tiny-tpu pipeline, see `viz/THIRD_PARTY.md`). |
+| `media/` | Screenshots (simulation waveforms, model analysis, tables), DigitalJS circuit-level simulation page, 3D view captures. |
+| `demo/` | One-command live demo script, figures, storyboard (Vietnamese). |
+| `report.tex`, `tex/` | LaTeX report (build: `make -f Makefile.report`, CI builds the PDF). |
+| `Dockerfile` | Reproducible toolchain image; `scripts/preflight.sh` runs the full regression. |
+
+Verification status: array unit tests, SoC self-tests, LeNet-5 and LSTM are bit-exact against an integer golden model in Verilator + PicoRV32 simulation; the DE10 bitstreams meet timing in Quartus; nothing has been run on a physical board yet.

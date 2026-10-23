@@ -1,6 +1,6 @@
 // Bare-metal start-up for Nios V on the DE10-Nano system (no HAL).
 //  - sp = top of the 256 KiB on-chip RAM, gp = __global_pointer$
-//  - mtvec -> trap_entry (emulates rdcycle/rdtime/rdinstret if the core traps on them)
+//  - mtvec -> trap_entry (reports UNEXPECTED traps only; firmware uses no counter CSRs)
 //  - .data is copied from its load image every reset (so KEY0 re-runs the program
 //    with pristine initialised data), .bss is cleared
 //  - main() return value -> "[niosv] exit code N" on the JTAG UART + LED PIO pass/fail

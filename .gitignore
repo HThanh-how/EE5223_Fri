@@ -44,3 +44,7 @@ synth/reports/*.log
 de10/fw/build/
 de10/reports/ref_rtl/
 media/video/
+media/viz3d/video/
+media/digitaljs/video/
+media/digitaljs/node_modules/
+**/node_modules/

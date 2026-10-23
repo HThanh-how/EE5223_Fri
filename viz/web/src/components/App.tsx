@@ -1,5 +1,5 @@
 /** App - page shell: branding, tabs, caption bar, animation, matrices, controls, attribution. */
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 import { useNpuViz } from "@/hooks/useNpuViz";
 import { PEGrid } from "@/components/PEGrid";
@@ -10,6 +10,10 @@ import { MatrixEditor, DEFAULT_A, DEFAULT_W } from "@/components/MatrixEditor";
 import { CnnLstm } from "@/components/CnnLstm";
 import type { Mat } from "@/lib/npu";
 
+// 3D view: Three.js is only downloaded when the tab is opened (still bundled locally, no CDN)
+const View3D = lazy(() => import("@/components/View3D"));
+type Tab = "array" | "nets" | "3d";
+
 function toggleTheme() {
   const el = document.documentElement;
   const next = el.getAttribute("data-theme") === "light" ? "dark" : "light";
@@ -19,11 +23,11 @@ function toggleTheme() {
 
 export default function App() {
   const v = useNpuViz(DEFAULT_A, DEFAULT_W);
-  const [tab, setTab] = useState<"array" | "nets">("array");
+  const [tab, setTab] = useState<Tab>(() => (typeof window !== "undefined" && window.location.hash === "#3d" ? "3d" : "array"));
   const [mats, setMats] = useState<{ A: Mat; W: Mat }>({ A: DEFAULT_A, W: DEFAULT_W });
   const s = v.run?.states[v.t];
 
-  const tabBtn = (id: "array" | "nets", label: string) => (
+  const tabBtn = (id: Tab, label: string) => (
     <button key={id} onClick={() => setTab(id)} role="tab" aria-selected={tab === id}
       className={"rounded-md px-4 py-2 text-sm font-semibold transition-colors " +
         (tab === id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent")}>{label}</button>
@@ -49,6 +53,7 @@ export default function App() {
       <div role="tablist" className="flex gap-2">
         {tabBtn("array", "The array, step by step")}
         {tabBtn("nets", "Same array: CNN and LSTM")}
+        {tabBtn("3d", "3D view")}
       </div>
 
       {v.error && <pre className="rounded border border-[var(--destructive)] p-4 text-sm text-[var(--destructive)]">Could not run the RTL: {v.error}</pre>}
@@ -78,6 +83,11 @@ export default function App() {
         </>
       )}
       {v.run && tab === "nets" && <CnnLstm />}
+      {v.run && tab === "3d" && (
+        <Suspense fallback={<div className="rounded-lg border border-border bg-card p-8 text-center text-muted-foreground">Loading the 3D view {"…"}</div>}>
+          <View3D run={v.run} A={mats.A} W={mats.W} onNav={setTab} />
+        </Suspense>
+      )}
 
       <footer className="mt-auto border-t border-border pt-4 text-xs text-muted-foreground">
         Hardware: EE5223 project RTL (<code>sa_top</code>, <code>pe</code>, <code>delay</code>), unmodified, wrapped by <code>viz_top</code> for observation.

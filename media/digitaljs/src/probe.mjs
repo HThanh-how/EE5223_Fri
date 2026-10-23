@@ -1,0 +1,13 @@
+import { chromium } from 'playwright-core';
+const [url, out, steps = '0'] = process.argv.slice(2);
+const b = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] });
+const p = await b.newPage({ viewport: { width: 1920, height: 1080 } });
+p.on('console', (m) => { if (['error', 'warning'].includes(m.type())) console.log('CONSOLE', m.type(), m.text().slice(0, 300)); });
+p.on('pageerror', (e) => console.log('PAGEERR', e.message));
+await p.goto(url);
+await p.evaluate(() => window.simReady);
+await p.waitForTimeout(1500);
+for (let i = 0; i < +steps; i++) await p.evaluate(() => window.sim.stepHalf());
+await p.waitForTimeout(800);
+await p.screenshot({ path: out });
+await b.close();

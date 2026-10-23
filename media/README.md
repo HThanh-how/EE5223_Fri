@@ -62,7 +62,9 @@ Signals: clk, rst_n, w_we, w_widx, w_wdata, in_valid, a_in (hex), out_valid, c_o
 | File | Caption |
 |---|---|
 | screenshots/table_quartus_fit_n4_n8.png | Quartus fit summary: ALMs, registers, DSP, M10K and Fmax for fpga vs orig RTL, N=4/8, 50/100 MHz. |
-| screenshots/table_de10_whole_system_fit.png | DE10-Nano whole-system Quartus fit summary (Cyclone V 5CSEBA6U23I7). |
+| screenshots/table_de10_whole_system_fit.png | DE10-Nano whole-system fit per variant (same image as table_de10_variants.png; replaces the earlier single-variant version). |
+| screenshots/table_de10_variants.png | DE10-Nano per-variant table: PicoRV32, Nios V/g, /m, /c with rtl_fpga and Nios V/g with the original RTL: ALMs, regs, M10K, DSP, Fmax slow 100C/-40C, worst setup/hold slack, licence warning. Built and timing-closed, not yet run on the board. |
+| screenshots/table_de10_memmap_led_sof.png | DE10-Nano memory map, LED meanings and recommended SOF order (PicoRV32 first). Built and timing-closed, not yet run on the board. |
 | screenshots/table_ecp5_yosys_1.png | Yosys generic synthesis results (gate cells, FFs, multipliers). |
 | screenshots/table_ecp5_yosys_2.png | Yosys/nextpnr ECP5 results for the baseline RTL. |
 | screenshots/table_ecp5_yosys_3.png | ECP5 what-if "experiment A" (memories kept as RAM). |
@@ -70,3 +72,51 @@ Signals: clk, rst_n, w_we, w_widx, w_wdata, in_valid, a_in (hex), out_valid, c_o
 | screenshots/table_ecp5_yosys_5.png | Where the area goes (per block, N_DEPTH 4_64 / 8_64). |
 
 Not produced: preflight summary screenshot (no preflight log exists in the repo).
+
+## Simulation evidence (sim_ prefix)
+SoC waveforms are real Verilator VCDs of the PicoRV32 + NPU SoC (N=4), windowed with a small trimming script; clock period 10 ns. gemm_demo VCD for (a), (b), (c-M8); firmware selftest VCD (first 12 s of wall time, trial 1: M=64, ReLU) for (c) accum/quant and (d).
+| File | Caption |
+|---|---|
+| screenshots/sim_preflight_summary.png | Preflight (quick) summary: 18 passed, 0 failed, 1 warning (quantize regenerate, numpy missing in that environment). |
+| screenshots/sim_test_inventory.png | Table of everything simulated and passed: array unit test, GEMM demo, self-test, LeNet-5, LSTM, preflight, for N=4 and N=8. |
+| screenshots/sim_soc_a_avalon_writes.png | CPU to NPU over Avalon-MM (gemm_demo, N=4): avs_address/avs_write/avs_writedata bursts as the firmware writes weights and activations, then avs_read/readdata/readdatavalid. |
+| screenshots/sim_soc_a2_avalon_write_zoom.png | Zoom on a single Avalon write transaction. |
+| screenshots/sim_soc_b_start_busy_done.png | start_req pulse, busy, done, sent/recv counters, then the CPU reading back result words (avs_readdata with readdatavalid). |
+| screenshots/sim_soc_b2_start_busy_done_zoom.png | Zoom on start -> busy -> done for M=1, with in_valid/out_valid. |
+| screenshots/sim_soc_c_npu_run_gemm_M8.png | Inside the NPU during one M=8 run (gemm_demo): in_valid with a_in rows, out_valid with c_out rows, sent/recv counters. |
+| screenshots/sim_soc_c_npu_accum_quant.png | Inside the NPU during a post-processing run (selftest trial 1, M=64): accum_f and quant_f flags, 64 input rows on a_in and 64 result rows on c_out. |
+| screenshots/sim_soc_c2_npu_accum_quant_zoom.png | Zoom on the first cycles of the same run. |
+| screenshots/sim_soc_d_requant_pipeline.png | Requant pipeline over a 64-row run: va, arow (0..63), prod[0..3] (signed decimal), q_row_data, q_act=1 (ReLU), q_shift=8, q_mult=10713. |
+| screenshots/sim_soc_d2_requant_pipeline_zoom.png | Zoom on the first rows of the requant pipeline (readable products). |
+| screenshots/sim_annotated_sa_top_waveform.png | Annotated sa_top waveform: weights loaded once and stationary, skewed input rows, first result about 2N-1 cycles (7 for N=4) after first input (measured spacing is about 6.5 clocks on the waveform, so read as approximate), result rows streaming out. |
+
+## Model and performance figures (test_ prefix, 300 dpi, matplotlib)
+Accuracy and logits are computed by running the bit-exact integer golden models (scripts/quantize.py) over all 10,000 MNIST test images. Cycle numbers come from results/*.log (8 CNN images, 16 LSTM images; 1 run per configuration).
+| File | Caption |
+|---|---|
+| screenshots/test_01_confusion_lenet_int8.png | LeNet-5 INT8 confusion matrix, 10,000 test images (98.85% accuracy). |
+| screenshots/test_02_confusion_lstm_int8.png | LSTM INT8 confusion matrix, 10,000 test images (97.50% accuracy). |
+| screenshots/test_03_per_class_accuracy_lenet.png | LeNet-5 per-class accuracy, float (98.83%) vs INT8 (98.85%). |
+| screenshots/test_04_per_class_accuracy_lstm.png | LSTM per-class accuracy, float (97.58%) vs INT8 (97.50%). |
+| screenshots/test_05_digit_grid_lenet.png | 35 consecutive test digits plus 5 misclassified ones with true/predicted labels (LeNet-5 INT8; wrong ones in red). |
+| screenshots/test_06_digit_grid_lstm.png | Same grid for the LSTM INT8 model. |
+| screenshots/test_07a_lenet_layers_digit0.png | LeNet-5 INT8 layer by layer for test digit 0 (label 7): conv1 maps, pool, conv2 maps, fc activations, final logits. |
+| screenshots/test_07b_lenet_layers_digit1.png | Same for test digit 1 (label 2). |
+| screenshots/test_07c_lenet_layers_digit3.png | Same for test digit 3 (label 0). |
+| screenshots/test_08a_lstm_dynamics_digit0.png | LSTM INT8 for test digit 0: gates i/f/g/o, cell state, hidden state over the 28 row steps, final logits. |
+| screenshots/test_08b_lstm_dynamics_digit1.png | Same for test digit 1. |
+| screenshots/test_09_weight_histograms_lenet.png | LeNet-5 weight histograms per layer, float vs symmetric per-tensor INT8. |
+| screenshots/test_09_weight_histograms_lstm.png | LSTM weight histograms (gates, fc), float vs INT8. |
+| screenshots/test_10_activation_scale_saturation_lenet.png | Per-layer requant multiplier/shift, saturation percentage and ReLU zeros (first 500 test images). |
+| screenshots/test_11a_logit_scatter_lenet.png | LeNet-5 float vs INT8 logits scatter (scale fitted by least squares), correlation and error histogram. |
+| screenshots/test_11b_logit_scatter_lstm.png | Same for the LSTM. |
+| screenshots/test_12_lut_sigmoid_tanh_vs_exact.png | The 256-entry INT8 sigmoid and tanh LUTs against the exact functions, with the error in LSB. |
+| screenshots/test_13_requant_pipeline_conv2.png | Requantisation stages on real conv2 channel-3 values: accumulator, +bias, x mult >> shift, clamp, ReLU. |
+| screenshots/test_14_accuracy_summary.png | Accuracy summary, float vs INT8, LeNet-5 and LSTM. |
+| screenshots/test_15_bit_exact_mismatches.png | Mismatch counts vs golden from the N=4/N=8 simulation logs (all zero). |
+| screenshots/test_16_cycles_per_image.png | Cycles per image: LeNet-5 CPU-only vs CPU+NPU, LSTM CPU vs NPU batch 1 and 16, N=4 and N=8. |
+| screenshots/test_17_npu_calls_per_image.png | NPU calls per image from the logs: LeNet-5 2964 (N=4) / 741 (N=8), LSTM 5392 / 1348. |
+| screenshots/test_18_n4_vs_n8_comparison.png | N=4 vs N=8: NPU busy cycles and speed-ups for both networks. |
+| screenshots/test_19_array_latency_utilisation.png | Systolic compute cycles vs M with measured points from the logs. Measured npu_compute equals 2N+M, which is 2 cycles above the 2N-1+M-1 array pipeline formula (sequencer overhead is an inference, not measured). Utilisation = M/npu_compute. |
+
+Not produced: LSTM batch-size sweep (logs contain only batch 1 and 16, shown in test_16 and test_18); preflight image shows the quick preflight only.

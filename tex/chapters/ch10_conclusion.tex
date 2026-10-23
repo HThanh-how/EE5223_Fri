@@ -10,7 +10,7 @@
   \item Với $N=8$ trên PicoRV32: LeNet-5 nhanh hơn 6,9$\times$, LSTM 3,3$\times$ (batch 1) và 16,4$\times$ (batch 16).
   \item Phân tích profile chỉ ra rằng mảng bận dưới 1\% thời gian; nút thắt là im2col/pooling trên CPU và chép dữ liệu qua MMIO.
   \item Trên Cyclone~V (Quartus Lite 25.1std), \code{npu\_avmm} đứng riêng fit với mọi cấu hình. RTL gốc ($N=8$) dùng \num{18521} ALM (44\%) và chỉ đạt 52\,MHz vì bộ đệm bị tổng hợp thành flip-flop. Biến thể \code{rtl\_fpga} đặt bộ đệm vào M10K và đường ống hóa requant, cho kết quả bit-exact như bản gốc, chỉ dùng \num{2187} ALM (5\%) và 48 DSP, đạt 127,5\,MHz. Luồng mở Yosys/nextpnr trên ECP5 xác nhận cùng nguyên nhân (bộ đệm chiếm khoảng 90\% diện tích), nhưng không cấu hình nào của RTL gốc đạt 50\,MHz.
-  \item Luồng hiện thực trên DE10-Nano với Nios~V đã được dựng và lớp nền tảng đã được kiểm tra trên đúng bản đồ bộ nhớ của board; \todo{bổ sung tài nguyên toàn hệ thống và số đo trên board khi có}.
+  \item Trên DE10-Nano, năm hệ thống hoàn chỉnh đã được xây dựng và đều đạt 50\,MHz với slack dương ở mọi góc: PicoRV32, Nios~V/g, /m, /c với \NPU{} \code{rtl\_fpga}, và Nios~V/g với RTL gốc. Ví dụ hệ thống Nios~V/g dùng \num{6758} ALM (16\%) và đạt Fmax 72,6\,MHz, còn hệ thống PicoRV32 dùng \num{3686} ALM và đạt 81,6\,MHz. Các ELF cuối cùng đều PASS khi mô phỏng trên bản đồ bộ nhớ của board (cnn 8/8, lstm 16/16). Hệ thống \textbf{chưa được chạy trên board vật lý}, và việc Nios~V chạy được khi thiếu licence vẫn chưa được xác nhận; \todo{bổ sung kết quả chạy trên board (PASS/FAIL, chu kỳ, speedup) khi có}.
 \end{itemize}
 
 \section{Hướng phát triển}

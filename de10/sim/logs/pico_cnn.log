@@ -1,0 +1,21 @@
+[tb] LED PIO = 0x02
+LeNet-5 INT8, N=8
+  profile(img0): weight_wr=583193 act_wr=541546 run+poll=290755 result_rd=64216 other(im2col,pool,...)=2575996
+img 0 label=7 pred=7 cpu_cyc=27501818 npu_cyc=4055706 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 1 label=2 pred=2 cpu_cyc=27497368 npu_cyc=4056389 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 2 label=1 pred=1 cpu_cyc=27503546 npu_cyc=4055331 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 3 label=0 pred=0 cpu_cyc=27488817 npu_cyc=4052975 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 4 label=4 pred=4 cpu_cyc=27495921 npu_cyc=4055876 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 5 label=1 pred=1 cpu_cyc=27499427 npu_cyc=4054157 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 6 label=4 pred=4 cpu_cyc=27497173 npu_cyc=4054457 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+img 7 label=9 pred=9 cpu_cyc=27493530 npu_cyc=4054319 npu_busy=18936 calls=741 mism(cpu/npu vs golden)=0/0
+avg cpu_cyc=27497200 avg npu_cyc=4054901 speedup_x100=678 npu_busy_share_x100=46
+correct=8/8
+RESULT: ALL PASS
+[niosv] exit code 0
+[tb] LED PIO = 0x0c
+[tb] firmware finished: PASS
+- de10/sim/tb_pico_avmm.sv:57: Verilog $finish
+- S i m u l a t i o n   R e p o r t: Verilator 5.032 2025-01-01
+- Verilator: $finish at 5s; walltime 356.157 s; speed 14.208 ms/s
+- Verilator: cpu 356.082 s on 1 threads; alloced 57 MB

@@ -3,6 +3,17 @@
 
 Phụ lục này mô tả hạ tầng tái lập tự động của kho mã, theo nội dung của \code{Dockerfile} và \code{.github/workflows/} tại thời điểm viết báo cáo.
 
+\section{Kho mã, CI và bản phát hành}
+\begin{itemize}
+  \item Kho GitHub: \url{https://github.com/HThanh-how/EE5223_Fri}.
+  \item Workflow ``CI (RTL + firmware regression)'' chạy \code{preflight.sh --quick} trong container Debian trixie và \textbf{đã thành công} trên nhánh \code{main}. Workflow ``Build LaTeX PDF'' (báo cáo này) và ``Package (container image on GHCR)'' cũng đã thành công.
+  \item Bản phát hành \code{v0.9.0} được đánh dấu \emph{pre-release} (``INT8 systolic-array NPU, CNN + LSTM, DE10-Nano''); các bản PDF báo cáo tự động được phát hành dưới tag \code{build-<n>}.
+  \item Ảnh container trên GitHub Container Registry, dùng như sau:
+\end{itemize}
+\begin{lstlisting}[style=codebash]
+docker run --rm ghcr.io/hthanh-how/ee5223_fri:latest
+\end{lstlisting}
+
 \section{Ảnh Docker}
 \code{Dockerfile} xây một ảnh dựa trên \code{debian:trixie-slim} cài \code{verilator}, \code{gcc-riscv64-unknown-elf}, \code{make}, \code{g++}, \code{python3}, \code{python3-numpy}, chép các thư mục \code{rtl}, \code{sim}, \code{soc}, \code{fw}, \code{scripts}, \code{third\_party}, \code{results} cùng tệp \code{Makefile} vào \code{/opt/npu}, với lệnh mặc định \code{bash scripts/preflight.sh --quick}. Cách dùng:
 \begin{lstlisting}[style=codebash]

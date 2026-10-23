@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><link rel="icon" href="data:,">
+<title>Systolic NPU - circuit-level simulation (DigitalJS)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="app.css"><link rel="stylesheet" href="page.css">
+</head>
+<body>
+<header>
+  <div class="title">INT8 weight-stationary systolic array <span>circuit-level view of our Verilog</span></div>
+  <div class="ctl">
+    <label>Circuit
+      <select id="sel"></select></label>
+    <button id="btnReset" title="Reset registers and restart the clock">Reset</button>
+    <button id="btnHalf" title="Advance by one half step (apply inputs, then clock edge)">Step</button>
+    <button id="btnCycle" title="Advance a full clock cycle">Step cycle</button>
+    <button id="btnPlay" class="primary">Run</button>
+    <label>Speed <input id="speed" type="range" min="1" max="10" value="4"><span id="speedv"></span></label>
+  </div>
+</header>
+<main>
+  <section id="stage">
+    <div id="paperWrap"><div id="paper"></div></div>
+    <div id="legend"><span id="legendTxt"></span><span style="margin-left:auto">Zoom <button id="zm">-</button><button id="zp">+</button><button id="zf">Fit</button></span></div>
+  </section>
+  <aside>
+    <div class="card" id="clockCard">
+      <div class="hd">Clock</div>
+      <div id="clockRow"><div id="clkLamp"></div><div id="clkText">-</div><div id="cycleText">cycle -</div></div>
+    </div>
+    <div class="card" id="caption">
+      <div class="hd">What is happening</div>
+      <div id="capTitle"></div>
+      <div id="capBody"></div>
+    </div>
+    <div class="card" id="stim">
+      <div class="hd">Inputs <small>(weights stay in the cells; activations stream in)</small></div>
+      <div id="stimBody"></div>
+      <button id="btnApply">Apply and restart</button>
+    </div>
+    <div class="card" id="result">
+      <div class="hd">Result</div>
+      <div id="resBody"></div>
+    </div>
+  </aside>
+</main>
+<section id="waveSec">
+  <div class="hd">Waveform <small>(one column per half clock; numbers are signed decimal)</small></div>
+  <canvas id="wave" width="1900" height="210"></canvas>
+</section>
+<script src="app.js"></script>
+</body>
+</html>
