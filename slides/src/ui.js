@@ -6,7 +6,7 @@ var $ = function (id) { return document.getElementById(id); };
 var stage = $('stage'), slideEls = [], timers = [], N = S.length;
 var D = V2.deck = { cur: 0, N: N, listeners: [], tools: {}, blackout: false, overview: false };
 D.on = function (f) { D.listeners.push(f); };
-var LAY = S.map(function(_,i){return i===0?'hero':'col';});
+var LAY = S.map(function(s,i){return i===0?'hero':(s.dia?'dia':'col');});
 function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
 function words(txt) { return txt.split(' ').map(function (w) { return '<span class="w">' + esc(w) + '</span>'; }).join(' '); }
 
@@ -21,7 +21,8 @@ S.forEach(function (sl, i) {
   sec.setAttribute('aria-hidden', 'true');
   var hh = '<' + (i === 0 ? 'h1' : 'h2') + ' class="hl">' + words(sl.title) + '</' + (i === 0 ? 'h1' : 'h2') + '>';
   var ln = sl.lines.length ? '<div class="lines">' + sl.lines.map(function (l, k) { return '<p class="' + (i === 0 ? ['sub', 'who', 'where'][k] : '') + '">' + words(l) + '</p>'; }).join('') + '</div>' : '';
-  var h = LAY[i] === 'top' ? '<div class="txt">' + hh + '</div>' + ln : '<div class="txt">' + hh + ln + '</div>';
+  var h = (LAY[i] === 'top' || LAY[i] === 'dia') ? '<div class="txt">' + hh + '</div>' + ln : '<div class="txt">' + hh + ln + '</div>';
+  if (sl.svg) { h += '<div class="dwrap">' + sl.svg + '</div>'; }
   sec.innerHTML = h; stage.appendChild(sec); slideEls.push(sec);
 });
 

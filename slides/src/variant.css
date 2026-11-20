@@ -164,3 +164,31 @@ body.pen #pen{display:flex}
 
 /* Presentation text keeps each concise point on one line where possible. */
 .slide.col .txt{width:950px}.slide.col .lines{font-size:25px}
+
+/* block-diagram slides */
+.slide.dia::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,6,6,.93),rgba(3,6,6,.86))}
+.dia .txt{left:110px;top:40px;width:1700px}
+.dia .hl{font-size:44px;line-height:1.1}
+.dia .lines{position:absolute;left:110px;bottom:58px;width:1130px;margin:0;font-size:21px;line-height:1.3;color:var(--dim)}
+.dia .lines p{margin:0}
+.dwrap{position:absolute;left:110px;top:122px;width:1700px;height:780px}
+.dsvg{width:100%;height:100%;display:block;overflow:visible}
+.dsvg text{font-family:var(--mono)}
+.dsvg .bx rect{fill:rgba(95,242,208,.07);stroke:var(--ph);stroke-width:2.2}
+.dsvg .bx.ctl rect{fill:rgba(255,174,31,.08);stroke:var(--am)}
+.dsvg .bx.mem rect{fill:rgba(122,168,255,.09);stroke:var(--blue)}
+.dsvg .bx.ext rect{fill:rgba(147,184,173,.08);stroke:var(--dim);stroke-dasharray:none}
+.dsvg .t1{fill:var(--bone);font-weight:600}.dsvg .t2{fill:#bde0d5}
+.dsvg .cap{fill:var(--dim)}.dsvg .fl{fill:var(--ph);font-weight:600}
+.dsvg .frame{fill:none;stroke:var(--ph);stroke-width:1.5;stroke-dasharray:10 8;opacity:.65}
+.dsvg .ar{fill:none;stroke-width:2.6;stroke-linejoin:round}
+.dsvg .ar.d{stroke:var(--ph);stroke-dasharray:12 10;animation:dflow 1.2s linear infinite}
+.dsvg .ar.c{stroke:var(--am);stroke-dasharray:6 7;animation:dflow 1.6s linear infinite}
+.dsvg .ar.r{stroke:var(--blue);stroke-dasharray:3 9;animation:dflow 2s linear infinite reverse}
+.dsvg .mk.d{fill:var(--ph)}.dsvg .mk.c{fill:var(--am)}
+.dsvg .ff{fill:rgba(95,242,208,.14);stroke:var(--ph);stroke-width:2}
+.dsvg .lg.dp{fill:rgba(95,242,208,.2);stroke:var(--ph)}.dsvg .lg.ctl{fill:rgba(255,174,31,.2);stroke:var(--am)}
+.dsvg .lg.mem{fill:rgba(122,168,255,.2);stroke:var(--blue)}.dsvg .lg.ext{fill:rgba(147,184,173,.2);stroke:var(--dim)}
+@keyframes dflow{to{stroke-dashoffset:-44}}
+body.static .dsvg .ar,.reduce .dsvg .ar{animation:none}
+@media (prefers-reduced-motion:reduce){.dsvg .ar{animation:none}}
