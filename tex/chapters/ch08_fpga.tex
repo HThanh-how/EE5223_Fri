@@ -182,7 +182,7 @@ Năm hệ thống hoàn chỉnh đã được biên dịch, mỗi hệ thống g
     Khối M10K & 284 & 319 & 284 & 284 & 301 \\
     Khối DSP & 51 & 51 & 48 & 48 & 51 \\
     \midrule
-    Fmax 100\,°C (MHz) & 81,6 & 72,6 & 74,7 & 79,5 & 52,0 \\
+    Fmax 100\,°C (MHz) & 81,6 & 72,56 & 74,7 & 79,5 & 52,0 \\
     Fmax $-40$\,°C (MHz) & 86,5 & 73,9 & 77,8 & 82,5 & 50,9 \\
     Setup xấu nhất (ns) & $+7{,}742$ & $+6{,}219$ & $+6{,}605$ & $+7{,}416$ & $+0{,}358$ \\
     Hold xấu nhất (ns) & $+0{,}014$ & $+0{,}013$ & $+0{,}013$ & $+0{,}015$ & $+0{,}054$ \\
@@ -199,6 +199,26 @@ Nhận xét:
 \end{enumerate}
 
 \paragraph{Tình trạng licence của Nios~V.} Khi biên dịch, mọi biến thể Nios~V đều in cảnh báo 24850 ``Failed to acquire license \ldots{} IP-NIOSV\{G,M,C\}: Client token expired (401)'', và báo cáo map ghi lõi CPU là ``OpenCore''. Các tệp \code{.sof} sinh ra là bình thường (không phải \code{\_time\_limited}). Tuy vậy, \textbf{chưa biết} lõi Nios~V không có licence có chạy được trên phần cứng hay không. Chỉ hệ thống PicoRV32 không có cảnh báo này vì không chứa IP OpenCore. Có thể khắc phục bằng cách đăng nhập lại licence Quartus, hoặc cài licence Nios~V miễn phí từ Intel Self-Service Licensing Center rồi biên dịch lại. Vì rủi ro này, kế hoạch chạy board ưu tiên PicoRV32 (Mục~\ref{sec:board}).
+
+\section{Chi phí tài nguyên và phạm vi của chỉ số diện tích}
+\label{sec:area-cost}
+Với cấu hình chính Nios~V/g, báo cáo \code{de10/reports/niosv\_g/de10\_nano\_npu.fit.rpt} ghi \num{6758}/\num{41910} ALM (16\%), \num{8603} thanh ghi, \num{2433272}/\num{5662720} bit bộ nhớ (43\%) và 51/112 DSP (46\%). Số khối M10K là 319/553 (58\%); phần trăm bit bộ nhớ và phần trăm số khối RAM khác nhau do phân mảnh/độ rộng cấu hình. \code{fmax.txt} cho CLOCK\_50 ở Slow 1100mV 100C là 72,56\,MHz; đồng hồ được ràng buộc để vận hành ở 50\,MHz.
+
+Đây là tài nguyên của \emph{toàn SoC}, gồm CPU, cache, RAM, interconnect và NPU, không phải diện tích riêng mảng PE. ALM, thanh ghi, RAM và DSP là các loại tài nguyên khác nhau, không cộng các tỷ lệ của chúng thành một tỷ lệ diện tích chung. Chưa có kết quả layout ASIC để đổi sang mm$^2$ hoặc chi phí sản xuất; trên FPGA, các tỷ lệ fitter là chỉ báo chi phí hiện thực và khả năng còn chỗ cho khối khác. Các số ECP5 ở Mục~\ref{sec:yosys} thuộc một thiết bị và luồng khác, không được dùng làm tài nguyên DE10-Nano.
+
+\section{Công suất và hiệu quả năng lượng}
+\label{sec:power-energy}
+Công suất của hệ thống \textbf{chưa đo trên board}; nguồn kết quả hiện có chưa cung cấp báo cáo công suất có hoạt động chuyển mạch của workload để định lượng đáng tin cậy. Vì vậy chưa báo cáo watt, joule/ảnh hoặc GOPS/W, và không suy ra tiết kiệm năng lượng chỉ từ speedup hay số DSP.
+
+Một phương án ước lượng là chạy Quartus Power Analyzer trên netlist sau fit, dùng VCD của đúng cấu hình RTL và đoạn workload đại diện, khai báo clock, điện áp, nhiệt độ và kiểm tra tỷ lệ node có hoạt động được chú giải. Phải phân biệt công suất tĩnh, động, I/O và phần hoạt động mặc định do thiếu waveform. VCD của \code{sa\_top} đứng riêng không đủ đại diện cho công suất cả Nios~V/g SoC. Kết quả này phải ghi là ước lượng công cụ, kèm điều kiện và phạm vi khối.
+
+Phương án đo vật lý là cấp nguồn ổn định, ghi đồng thời điện áp/dòng ở đầu vào board hoặc các rail FPGA có điểm đo phù hợp, chạy lặp đủ lâu để lấy trung bình, rồi so với trạng thái idle ở cùng cấu hình. Đo đầu vào board bao gồm tổn hao nguồn và ngoại vi, nên không gọi đó là công suất riêng NPU. Với $P_{\rm avg}$ là công suất trung bình trên khoảng chạy $\Delta t$ có $B$ ảnh:
+\begin{equation}
+ E_{\rm img}=\frac{\int_0^{\Delta t}P(t)\,dt}{B}
+ \approx\frac{P_{\rm avg}\Delta t}{B},\qquad
+ \eta_E=\frac{2QB}{10^9 P_{\rm avg}\Delta t}\;\text{GOPS/W}.
+\end{equation}
+Nếu trừ idle để phân tích năng lượng gia tăng thì cần báo cả mức idle và mức tổng, không thay thế lẫn nhau. Bản CPU-only và CPU+NPU phải dùng cùng board, clock, dữ liệu, độ chính xác và phạm vi đo; chỉ khi đó mới kết luận được hiệu quả năng lượng.
 
 \section{Kết quả tổng hợp mã nguồn mở (Yosys/nextpnr)}
 \label{sec:yosys}
@@ -251,20 +271,20 @@ niosv-download -g -c "DE-SoC [USB-1]" -d 2 C:\npu\cnn_niosvg.elf   # Nios V/g, /
     \toprule
     CPU & Workload & CPU-only (chu kỳ/ảnh) & CPU+\NPU{} (chu kỳ/ảnh) & Speedup \\
     \midrule
-    \multirow{4}{*}{PicoRV32} & Selftest & \multicolumn{3}{c}{\todo{PASS/FAIL trên board}} \\
-     & LeNet-5 & \todo{} & \todo{} & \todo{} \\
-     & LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
-     & LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
+    \multirow{4}{*}{PicoRV32} & Selftest & \multicolumn{3}{c}{Chưa kiểm tra trên board} \\
+     & LeNet-5 & Chưa đo & Chưa đo & Chưa đo \\
+     & LSTM batch 1 & Chưa đo & Chưa đo & Chưa đo \\
+     & LSTM batch 16 & Chưa đo & Chưa đo & Chưa đo \\
     \midrule
-    \multirow{4}{*}{Nios~V/g} & Selftest & \multicolumn{3}{c}{\todo{PASS/FAIL trên board}} \\
-     & LeNet-5 & \todo{} & \todo{} & \todo{} \\
-     & LSTM batch 1 & \todo{} & \todo{} & \todo{} \\
-     & LSTM batch 16 & \todo{} & \todo{} & \todo{} \\
+    \multirow{4}{*}{Nios~V/g} & Selftest & \multicolumn{3}{c}{Chưa kiểm tra trên board} \\
+     & LeNet-5 & Chưa đo & Chưa đo & Chưa đo \\
+     & LSTM batch 1 & Chưa đo & Chưa đo & Chưa đo \\
+     & LSTM batch 16 & Chưa đo & Chưa đo & Chưa đo \\
     \bottomrule
   \end{tabular}
 
   \smallskip
-  \raggedright\footnotesize \todo{chạy trên board theo \code{de10/BOARD\_RUNBOOK.md}: chụp output JTAG UART của từng lần chạy (selftest, cnn, lstm, ghi rõ CPU), ảnh LED PASS, ảnh \code{quartus\_pgm} báo ``successful'' và output \code{jtagconfig}; lưu vào \code{de10/reports/board/}}.
+  \raggedright\footnotesize Khi chạy theo \code{de10/BOARD\_RUNBOOK.md}, cần lưu output JTAG UART của từng lần chạy (selftest, cnn, lstm, ghi rõ CPU), ảnh LED, kết quả \code{quartus\_pgm} và \code{jtagconfig} vào \code{de10/reports/board/}.
 \end{table}
 
 Kỳ vọng định tính: Nios~V/g có pipeline nhiều tầng, bộ nhân nhanh và cache, nên bản CPU-only sẽ cần \emph{ít chu kỳ hơn đáng kể} so với PicoRV32. Trong khi đó, các truy cập MMIO tới \NPU{} đi qua interconnect Avalon không cache và vẫn tốn nhiều chu kỳ. Vì vậy speedup trên board có thể \emph{thấp hơn} trong mô phỏng. Với PicoRV32 trên board, chu kỳ cũng có thể khác mô phỏng vì cầu Avalon và interconnect Platform Designer thêm độ trễ so với SoC mô phỏng. Đây là điều cần được đo chứ không suy đoán (Chương~\ref{ch:discussion}).

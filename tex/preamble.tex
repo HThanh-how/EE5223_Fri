@@ -19,19 +19,35 @@
 \usepackage{enumitem}
 \usepackage{tikz}
 \usetikzlibrary{positioning,arrows.meta,calc,fit,backgrounds,matrix,decorations.pathreplacing,shapes.misc}
+% Common monochrome notation for RTL architecture figures.
+\tikzset{rtlbox/.style={draw,thick,align=center,minimum height=9mm,inner sep=5pt},
+  rtlreg/.style={rtlbox,fill=black!8},
+  rtldata/.style={->,thick},rtlctrl/.style={->,dashed},
+  every picture/.append style={>={Stealth[length=2mm]}}}
+\newcommand{\rtllegend}{\par\smallskip{\footnotesize Nét liền: dữ liệu; nét đứt: điều khiển/valid; nền xám: bộ đệm hoặc thanh ghi.}}
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{csquotes}
+\DeclareQuoteAlias{english}{vietnamese}
+% MiKTeX's newer kernel uses an optional-argument gobbler in addtocontents.
+% Keep that behaviour while exposing the marker expected by older biblatex.
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd{\addtocontents}{\let\glossary\@gobble@om}
+  {\let\glossary\@gobble\let\glossary\@gobble@om}{}{}
+\makeatother
 \usepackage[backend=biber,style=ieee,sorting=none,language=english,autolang=none]{biblatex}
+\DeclareLanguageMapping{vietnamese}{english}
 \addbibresource{references.bib}
 \hypersetup{colorlinks=true, linkcolor=blue, urlcolor=blue, citecolor=blue,
   pdftitle={EE5223 - INT8 systolic array accelerator in a RISC-V system},
   pdfauthor={EE5223 project group}}
 \setmainfont{Latin Modern Roman}
 \setsansfont{Latin Modern Sans}
-\setmonofont{Latin Modern Mono}
+\setmonofont{Latin Modern Mono}[BoldFont=lmmonolt10-bold.otf,
+  BoldItalicFont=lmmonolt10-boldoblique.otf]
 \sisetup{detect-all = true, output-decimal-marker = {,}, group-separator = {\,}}
 \usepackage{listings}
 \captionsetup{font=small, labelfont=bf}
@@ -84,6 +100,8 @@
 \newcommand{\NPU}{NPU}
 % inline code: allow line breaks after explicit hyphens and slashes in long tool/file names
 \newcommand{\code}[1]{\texttt{\hyphenchar\font=`\-\relax #1}}
+\pdfstringdefDisableCommands{\def\code#1{#1}}
+\AtBeginDocument{\hypersetup{pageanchor=false}}
 \DeclareRobustCommand{\_}{\ifmmode\mathunderscore\else\textunderscore\allowbreak\fi}
 \providecommand{\mathunderscore}{\textunderscore}
 \newcommand{\cyc}[1]{\num{#1}}

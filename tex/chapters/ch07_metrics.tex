@@ -1,0 +1,51 @@
+\section{Latency, throughput và hiệu suất sử dụng PE}
+\label{sec:derived-metrics}
+Để phân biệt số đo chu kỳ với đại lượng quy đổi, gọi $C_{\rm host}$ là tổng chu kỳ từ log, $C_{\rm busy}$ là tổng giá trị CYCLES của các lượt chạy và $Q$ là số MAC hữu ích trên một ảnh (Bảng~\ref{tab:macs}). Một MAC được tính là hai phép toán, gồm một phép nhân và một phép cộng; không cộng thêm phép toán im2col, pooling, bias hay kích hoạt vào tử số GOPS:
+\begin{align}
+ t_{\rm img}&=C_{\rm host}/f,& R_{\rm img}&=f/C_{\rm host},\\
+ P_{\rm useful}&=\frac{2Qf}{10^9 C_{\rm host}}\;\text{GOPS},&
+ P_{\rm peak}&=\frac{2N^2 f}{10^9}\;\text{GOPS},\label{eq:gops}\\
+ U_{\rm busy}&=\frac{Q}{N^2 C_{\rm busy}},&
+ U_{\rm end}&=\frac{Q}{N^2 C_{\rm host}}
+              =U_{\rm busy}\frac{C_{\rm busy}}{C_{\rm host}}.\label{eq:utilization}
+\end{align}
+$U_{\rm busy}$ đã dùng trong Bảng~\ref{tab:cnn-cycles} và~\ref{tab:lstm}: nó tính cả chi phí lấp/rút đường ống và padding trong thời gian busy. $U_{\rm end}$ còn tính thời gian CPU và MMIO; cả hai là \emph{tính toán/ước lượng mức khai thác năng lực tính toán}, không phải số đo clock-enable hay năng lượng chuyển mạch của từng PE. Độ trễ hàng của mảng $2N-1$ và độ trễ một lượt wrapper $M+2N+[\mathrm{QUANT}]$ khác với latency đầu-cuối của một ảnh.
+
+\begin{table}[H]
+\centering\small
+\caption{So sánh chu kỳ đo và hiệu năng quy đổi ở $f=50$\,MHz (tính toán/ước lượng từ log PicoRV32, không phải đo trên DE10).}
+\label{tab:derived-performance}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{llrrrr}
+\toprule
+Mạng & Đường chạy & Chu kỳ/ảnh & ms/ảnh & ảnh/s & GOPS hữu ích\\
+\midrule
+LeNet-5 & CPU-only & \num{13254324} & 265,086 & 3,77 & 0,002125\\
+ & CPU+\NPU{} $N=8$ & \num{1923665} & 38,473 & 25,99 & 0,014641\\
+LSTM & CPU-only & \num{3559094} & 71,182 & 14,05 & 0,002220\\
+ & \NPU{} batch 1 & \num{1068230} & 21,365 & 46,81 & 0,007396\\
+ & \NPU{} batch 16 & \num{217262} & 4,345 & 230,14 & 0,036365\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Tần số 50\,MHz chỉ là mốc chuẩn hóa phù hợp đồng hồ mục tiêu DE10, không suy ra chu kỳ PicoRV32 là chu kỳ Nios~V/g. Không dùng Fmax 72,56\,MHz của hệ thống Nios~V/g để chuyển các log này thành số đo trên board. Với $N=8$, thông lượng đỉnh tại mốc 50\,MHz là $2\cdot64\cdot50\cdot10^6/10^9=6{,}4$\,GOPS. Ví dụ LeNet-5 có $Q=\num{281640}$, nên $U_{\rm busy}=\num{281640}/(64\cdot\num{17298})=25{,}44\%$, nhưng $U_{\rm end}=\num{281640}/(64\cdot\num{1923665})=0{,}229\%$. LSTM batch 1 cho hai giá trị lần lượt 5,33\% và 0,116\%; batch 16 cho 45,55\% và 0,568\% (giá trị busy/ảnh trong log đã làm tròn).
+
+Tốc độ quy đổi tăng theo batch nhưng thời gian đáp ứng cần được giải thích riêng: với batch 16, $t_{\rm img}=4{,}345$\,ms là thời gian bình quân trên một ảnh, không phải thời gian trả một ảnh trong batch. Toàn batch cần $16\cdot\num{217262}/(50\cdot10^6)\approx69{,}524$\,ms, chưa tính thời gian chờ gom batch.
+
+\section{Arithmetic intensity và giới hạn băng thông}
+\label{sec:arithmetic-intensity}
+Chọn ranh giới tại giao diện Avalon-MM của NPU, arithmetic intensity là $I=2Q/B$ (phép toán/byte), trong đó $B$ là payload CPU truyền tới hoặc đọc từ NPU. Giá trị này phụ thuộc cách chia tile và kiểu đầu ra; nó khác lưu lượng RAM của CPU và không phải băng thông DRAM đo được. Với một GEMM đầy đủ $(M\times N)(N\times N)$, không padding, không tích lũy nhiều tile và đọc kết quả INT32 như \code{gemm\_demo}:
+\begin{equation}
+ B_{32}=N^2+MN+4MN=N^2+5MN,\qquad
+ I_{32}=\frac{2MN^2}{N^2+5MN}.
+\end{equation}
+Ví dụ $N=8$, $M=64$ đúng với log \code{results/gemm\_demo\_N8.log}: $Q=4096$ MAC, $B_{32}=64+512+2048=2624$ byte, do đó $I_{32}=8192/2624\approx3{,}122$ phép toán/byte (tính toán/ước lượng). Dung lượng ABUF 512 byte đủ chứa đúng 64 hàng; CBUF 2048 byte chứa đầu ra. Nếu chỉ đọc QBUF INT8 sau một tile QUANT thì payload lý tưởng là $B_8=N^2+2MN=1088$ byte và $I_8\approx7{,}529$ phép toán/byte; ước lượng này chưa gồm bias, cấu hình và các tile $K$ trước đó, nên không được coi là intensity toàn mạng.
+
+Với bus 32 bit và giả thiết lý tưởng một từ được truyền mỗi chu kỳ, trần payload là $\beta_{\rm ideal}=4f=200$\,MB/s ở 50\,MHz. Trần kiểu roofline ở cùng ranh giới là
+\begin{equation}
+ P\le\min\!\left(2N^2f,\;I\,\beta\right),
+\end{equation}
+với $P$ theo phép toán/s. Cho ví dụ đầu ra INT32, $I_{32}\beta_{\rm ideal}\approx0{,}624$\,GOPS, thấp hơn đỉnh 6,4\,GOPS. Đây là \emph{cận trên lý tưởng}, không phải throughput đã đo: CPU còn thực hiện nạp/lưu, tính địa chỉ, polling và phải đợi phản hồi đọc. Cận này chưa mô tả việc truyền và tính nối tiếp khi không có double buffering. Trong log GEMM, throughput hữu ích đầu-cuối quy đổi chỉ bằng $8192\cdot50\cdot10^6/(\num{28209}\cdot10^9)\approx0{,}01452$\,GOPS.
+
+Ở LeNet-5, conv1 chia $M=576$ thành 9 tile hàng do DEPTH$=64$, phải nạp lại cùng trọng số; mỗi tile cột lại ghi kích hoạt. Kích thước ABUF/QBUF mỗi bộ 512 byte và CBUF 2\,KiB giải thích vì sao tái sử dụng cục bộ trong mảng chưa đủ để bảo đảm throughput toàn hệ thống. Giảm MMIO, giữ dữ liệu qua nhiều tile và xử lý im2col gần bộ nhớ có ý nghĩa hơn việc chỉ tăng số PE.

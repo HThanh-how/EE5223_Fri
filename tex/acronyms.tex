@@ -1,39 +1,105 @@
 \chapter*{Danh mục từ viết tắt}
 \addcontentsline{toc}{chapter}{Danh mục từ viết tắt}
 \begin{description}[labelwidth=2.6cm, leftmargin=2.9cm, style=sameline]
+  \item[ABUF] bộ đệm kích hoạt INT8
   \item[ALM] Adaptive Logic Module (phần tử logic của Intel Cyclone V)
+  \item[API] Application Programming Interface -- giao diện lập trình ứng dụng
+  \item[ARM] tên họ kiến trúc xử lý ARM; HPS dùng Cortex-A9
   \item[ASIC] Application-Specific Integrated Circuit
   \item[Avalon-MM] Avalon Memory-Mapped interface (bus của Intel/Altera)
+  \item[AXI/AXI4-Lite] Advanced eXtensible Interface, phiên bản 4 Lite
+  \item[BN] Batch Normalization -- chuẩn hóa theo batch
+  \item[BOOM] Berkeley Out-of-Order Machine -- lõi RISC-V thực thi ngoài thứ tự
+  \item[BRAM] Block Random-Access Memory -- bộ nhớ khối trên FPGA
   \item[CBUF] bộ đệm tích lũy INT32 (Accumulator BUFfer) trong \NPU{}
+  \item[CD] Compact Disc -- đĩa tài liệu/phần mềm của kit
+  \item[CI] Continuous Integration -- tích hợp liên tục
   \item[CNN] Convolutional Neural Network -- mạng nơ-ron tích chập
+  \item[CPI] Cycles Per Instruction -- chu kỳ trên lệnh
   \item[CPU] Central Processing Unit
+  \item[CSR] Control and Status Register -- thanh ghi điều khiển và trạng thái
+  \item[DDR] Double Data Rate -- truyền dữ liệu trên hai sườn clock
   \item[DMA] Direct Memory Access
+  \item[DNN] Deep Neural Network -- mạng nơ-ron sâu
+  \item[DRAM] Dynamic Random-Access Memory -- bộ nhớ truy cập ngẫu nhiên động
   \item[DSP] Digital Signal Processing block (khối nhân cứng trên FPGA)
+  \item[ELF] Executable and Linkable Format -- định dạng tệp chương trình
+  \item[FC] Fully Connected -- lớp kết nối đầy đủ
+  \item[FF] Flip-Flop -- phần tử nhớ một bit
+  \item[FIFO] First In, First Out -- hàng đợi vào trước ra trước
+  \item[FIR] Finite Impulse Response -- đáp ứng xung hữu hạn
+  \item[Fmax] Maximum operating frequency -- tần số hoạt động tối đa theo timing
+  \item[FP16/FP32] Floating Point 16/32 bit -- số thực dấu phẩy động 16/32 bit
   \item[FPGA] Field-Programmable Gate Array
+  \item[FSE] FPGA Starter Edition -- phiên bản công cụ mô phỏng Questa
   \item[FSM] Finite State Machine
+  \item[FW] Firmware -- phần mềm nhúng
+  \item[GCC] GNU Compiler Collection -- bộ trình biên dịch GNU
   \item[GEMM] GEneral Matrix Multiplication -- nhân ma trận tổng quát
+  \item[GHCR] GitHub Container Registry -- kho ảnh container GitHub
+  \item[GNU] GNU's Not Unix -- dự án phần mềm tự do GNU
+  \item[GOPS] Giga Operations Per Second -- $10^9$ phép toán/giây; báo cáo quy ước 1 MAC = 2 phép toán
+  \item[GOPS/W] GOPS trên watt -- hiệu quả năng lượng tính toán
+  \item[HEX] Hexadecimal -- biểu diễn hệ thập lục phân; định dạng Intel HEX
   \item[HPS] Hard Processor System (cụm ARM trên Cyclone V SoC)
+  \item[I/O (IO)] Input/Output -- vào/ra
   \item[im2col] image-to-column -- biến đổi tích chập thành nhân ma trận
-  \item[INT8/INT32] số nguyên có dấu 8/32 bit
+  \item[INT8/INT16/INT32] số nguyên có dấu 8/16/32 bit
+  \item[IP] Intellectual Property core -- khối thiết kế tái sử dụng
   \item[IS] Input-Stationary dataflow
   \item[ISA] Instruction Set Architecture
+  \item[ISC] tên giấy phép phần mềm của Internet Systems Consortium
+  \item[JTAG] Joint Test Action Group -- giao diện kiểm tra, nạp và gỡ lỗi
+  \item[LED] Light-Emitting Diode -- diode phát sáng
   \item[LSTM] Long Short-Term Memory
   \item[LUT] Look-Up Table -- bảng tra (cũng là phần tử logic của FPGA)
+  \item[LVTTL] Low-Voltage Transistor-Transistor Logic -- chuẩn mức điện áp I/O
+  \item[LXC] Linux Containers -- môi trường container Linux
+  \item[M10K] khối bộ nhớ nhúng 10 Kibit của Cyclone V
   \item[MAC] Multiply-ACcumulate -- nhân-cộng dồn
+  \item[MiB/KiB] mebibyte/kibibyte -- $2^{20}/2^{10}$ byte
+  \item[MIT] Massachusetts Institute of Technology; tên giấy phép MIT
+  \item[MLAB] Memory Logic Array Block -- bộ nhớ nhỏ dùng khối logic Intel
+  \item[MLP] Multilayer Perceptron -- mạng perceptron nhiều lớp
   \item[MMIO] Memory-Mapped Input/Output
-  \item[MNIST] tập dữ liệu chữ số viết tay
+  \item[MNIST] Modified National Institute of Standards and Technology database -- tập dữ liệu chữ số viết tay
   \item[NPU] Neural Processing Unit -- ở đây là bộ tăng tốc của đề tài (\code{npu\_avmm})
+  \item[NVDLA] NVIDIA Deep Learning Accelerator
+  \item[ONNX] Open Neural Network Exchange -- định dạng trao đổi mô hình
   \item[OS] Output-Stationary dataflow
+  \item[PC] Personal Computer -- máy tính cá nhân
+  \item[PCIe] Peripheral Component Interconnect Express
+  \item[PDK] Process Design Kit -- bộ dữ liệu công nghệ chế tạo
   \item[PE] Processing Element -- phần tử xử lý của mảng systolic
+  \item[PIO] Parallel Input/Output -- ngoại vi vào/ra song song
+  \item[PLL] Phase-Locked Loop -- vòng khóa pha
+  \item[PR] Pull Request -- yêu cầu hợp nhất thay đổi
   \item[PTQ] Post-Training Quantization -- lượng tử hóa sau huấn luyện
+  \item[PVT] Process, Voltage, Temperature -- góc công nghệ, điện áp và nhiệt độ
   \item[QBUF] bộ đệm kết quả INT8 sau hậu xử lý
-  \item[ABUF] bộ đệm kích hoạt INT8
+  \item[R/W] Read/Write -- đọc/ghi
+  \item[RAM] Random-Access Memory -- bộ nhớ truy cập ngẫu nhiên
   \item[ReLU] Rectified Linear Unit
   \item[RISC-V] kiến trúc tập lệnh mở RISC-V
   \item[RNN] Recurrent Neural Network -- mạng nơ-ron hồi quy
+  \item[RoCC] Rocket Custom Coprocessor -- giao diện đồng xử lý của Rocket
+  \item[ROM] Read-Only Memory -- bộ nhớ chỉ đọc
+  \item[RS] Row-Stationary dataflow -- luồng dữ liệu giữ theo hàng
   \item[RTL] Register-Transfer Level
+  \item[RV32I/RV32IM] RISC-V 32 bit, tập lệnh số nguyên I / I kèm mở rộng nhân-chia M
+  \item[RV32I/RV32IM] RISC-V 32 bit: tập lệnh nguyên cơ sở I; IM thêm nhân/chia M
+  \item[SCALE-Sim] Systolic CNN Accelerator Simulator
+  \item[SDRAM] Synchronous Dynamic Random-Access Memory
+  \item[SHA256] Secure Hash Algorithm 256 bit -- hàm băm kiểm tra tệp
   \item[SoC] System-on-Chip
+  \item[SRAM] Static Random-Access Memory -- bộ nhớ truy cập ngẫu nhiên tĩnh
+  \item[SV/SV-2005] SystemVerilog / phiên bản chuẩn 2005
+  \item[SVA] SystemVerilog Assertions -- các mệnh đề kiểm chứng SystemVerilog
+  \item[TB] Testbench -- môi trường kích thích và kiểm tra mô phỏng
   \item[TPU] Tensor Processing Unit (Google)
+  \item[UART] Universal Asynchronous Receiver/Transmitter -- giao diện nối tiếp bất đồng bộ
+  \item[UFBGA] Ultra Fine-Pitch Ball Grid Array -- kiểu đóng gói FPGA
+  \item[USB] Universal Serial Bus -- bus nối tiếp dùng để kết nối cáp nạp
   \item[VCD] Value Change Dump (dạng sóng mô phỏng)
   \item[WS] Weight-Stationary dataflow
 \end{description}

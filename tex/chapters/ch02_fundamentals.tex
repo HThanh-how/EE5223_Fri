@@ -71,7 +71,7 @@ Theo phân loại của Chen và cộng sự \cite{chen2016eyeriss,sze2017survey
 
 Đề tài chọn WS vì: (i) LeNet-5 có $M$ lớn ở các lớp tích chập ($M=576$ và $64$), (ii) LSTM với batch $B$ cho phép một khối trọng số được dùng $B$ lần, (iii) một hàng vào/một hàng ra mỗi chu kỳ khớp tự nhiên với các bộ đệm hàng (row buffer) và việc tích lũy theo $K$ đơn giản (cộng cả hàng vào CBUF).
 
-\subsection{Ví dụ minh họa mảng WS $4\times4$}
+\subsection{Ví dụ minh họa mảng WS \texorpdfstring{$4\times4$}{4 x 4}}
 \label{sec:ws-example}
 Xét $N=4$ và một khối $A\in\mathbb{Z}^{M\times4}$, $W\in\mathbb{Z}^{4\times4}$. PE$(i,j)$ (hàng $i$, cột $j$) giữ $W_{i,j}$. Kích hoạt $A_{m,i}$ đi vào hàng $i$ từ bên trái và dịch sang phải một cột mỗi chu kỳ; tổng riêng đi từ trên xuống, PE$(i,j)$ cộng $A_{m,i}W_{i,j}$ vào tổng riêng nhận từ PE$(i-1,j)$. Khi tổng riêng ra khỏi hàng cuối, nó bằng $\sum_{i}A_{m,i}W_{i,j}=C_{m,j}$.
 

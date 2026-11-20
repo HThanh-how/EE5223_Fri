@@ -1,0 +1,23 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\node[rtlbox,text width=6.4cm] (sum) at (0,0) {$s_j=c_j+(\mathrm{ACCUM}?\mathrm{CBUF}_{m,j}:0)$\\sum\_row INT32};
+\node[rtlreg,text width=2.1cm] (cb) at (-5.5,0) {CBUF INT32\\ghi $s_j$};
+\node[rtlbox,text width=6.4cm] (bias) at (0,-1.7) {Mở rộng dấu và cộng BIAS[$j$]\\tổng 48 bit};
+\node[rtlbox,text width=6.4cm] (mul) at (0,-3.4) {Nhân QMULT (signed INT16)\\lưu 48 bit của tích};
+\node[rtlreg,text width=6.4cm] (prod) at (0,-5.1) {\code{prod[j][47:0]}\\tầng 1: khi out\_valid và QUANT};
+\node[rtlbox,text width=6.4cm] (round) at (0,-6.8) {Mở rộng dấu 64 bit; cộng $r$\\$r=0$ nếu $\sigma=0$, khác: $2^{\sigma-1}$};
+\node[rtlbox,text width=6.4cm] (sat) at (0,-8.5) {Dịch số học $\gg\sigma$ (QSHIFT)\\bão hòa $[-128,127]$};
+\node[rtlbox,text width=6.4cm] (act) at (0,-10.2) {ACT: bypass / ReLU / sigmoid LUT / tanh LUT};
+\node[rtlreg,text width=6.4cm] (qb) at (0,-11.9) {QBUF INT8, hàng arow\\tầng 2: ghi khi va=1};
+\foreach \a/\b in {sum/bias,bias/mul,mul/prod,prod/round,round/sat,sat/act,act/qb} {\draw[rtldata] (\a) -- (\b);}
+\draw[rtldata] (sum) -- (cb);
+\node[rtlreg,text width=2.4cm] (v) at (5.7,-5.1) {\code{va <= 1}\\\code{arow <= recv}};
+\draw[rtlctrl] (prod) -- (v);
+\draw[rtlctrl] (v.south) |- (qb.east);
+\node[align=center,text width=14cm] at (0,-13.4) {Sơ đồ một lane $j$; lặp song song $N$ lane. ACCUM qua các khối $K$;\\QUANT chỉ bật ở khối cuối. Khối tổ hợp từ prod tới QBUF không có thanh ghi trung gian.};
+\end{tikzpicture}
+\rtllegend
+\caption{Datapath hậu xử lý của RTL gốc. Thanh ghi prod tách hai tầng; phép làm tròn dùng 64 bit theo hàm \code{post()}. Biến thể \code{rtl\_fpga} thêm tầng đường ống (Mục~\ref{sec:quartus}).}
+\label{fig:postprocess-rtl}
+\end{figure}

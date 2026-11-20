@@ -1,8 +1,30 @@
 \chapter{Trích đoạn log kiểm thử}
 \label{app:logs}
+\section{Truy nguyên số liệu và công thức đánh giá bổ sung}
+\label{app:metric-sources}
+Các đại lượng ở Mục~\ref{sec:derived-metrics} và~\ref{sec:arithmetic-intensity} được tính từ các nguồn sau; không lấy thời gian thực thi của trình mô phỏng làm latency của SoC.
+\begin{table}[H]
+\centering\small
+\caption{Nguồn gốc các đại lượng dùng trong đánh giá}
+\begin{tabularx}{\linewidth}{>{\raggedright}p{4.2cm}X}
+\toprule
+Nguồn trong repo & Đại lượng dùng\\
+\midrule
+\code{results/cnn\_N8.log} & Trung bình CPU \num{13254324}, NPU \num{1923665} chu kỳ/ảnh; busy \num{17298}; 741 lượt.\\
+\code{results/cnn\_N4.log} & \num{2964} lượt; số chu kỳ và profile đối chiếu kích thước mảng.\\
+\code{results/lstm\_N8.log} & CPU \num{3559094}, NPU batch 1 \num{1068230}, batch 16 \num{217262} chu kỳ/ảnh.\\
+\code{results/gemm\_demo\_N8.log} & $M=64$, $N=8$: host \num{28209}, busy 80 chu kỳ; GEMM $Q=MN^2=4096$ MAC.\\
+\code{model/README.txt} & Kích thước các lớp: $Q_{\rm CNN}=576\cdot25\cdot6+64\cdot150\cdot16+256\cdot120+120\cdot84+84\cdot10=\num{281640}$; $Q_{\rm LSTM}=28\cdot44\cdot64+16\cdot10=\num{79008}$ MAC/ảnh.\\
+\code{README.md} & Độ chính xác INT8, DEPTH$=64$, quy mô mảng, trạng thái chưa chạy board.\\
+\code{de10/reports/niosv\_g/} & \code{de10\_nano\_npu.fit.rpt}: ALM, thanh ghi, bit bộ nhớ, DSP; \code{fmax.txt}: CLOCK\_50 72,56\,MHz Slow 100C.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+Công thức kiểm tra nhanh: $t=C/f$, $R=f/C$, $P=2Qf/(10^9C)$, $U=Q/(N^2C)$; với $U_{\rm busy}$ dùng $C=\mathrm{busy}$, với $U_{\rm end}$ dùng tổng chu kỳ host. Mốc $f=50\cdot10^6$\,Hz chỉ phục vụ quy đổi. Payload GEMM đầu ra INT32 là $N^2+5MN$ byte; cường độ tính toán $I=2MN^2/(N^2+5MN)$ bỏ qua giao dịch cấu hình. Các công thức và giả thiết này đủ để tính lại bảng mà không cần mô phỏng lại RTL.
+
 Các trích đoạn dưới đây được chép nguyên văn (chỉ bỏ bớt dòng lặp, đánh dấu ``\ldots'') từ các tệp trong \code{results/} và \code{demo/demo\_output/}.
 
-\section{Unit test mảng ($N=4$, \code{demo/demo\_output/stage1\_unit.txt})}
+\section{Unit test mảng (\texorpdfstring{$N=4$}{N=4}, \code{demo/demo\_output/stage1\_unit.txt})}
 \begin{lstlisting}[style=codelog]
 [identity] M=8 gap=0 : PASS
 [single-row] M=1 gap=0 : PASS
@@ -17,7 +39,7 @@ Các trích đoạn dưới đây được chép nguyên văn (chỉ bỏ bớt 
 N=4 : 26 tests, ALL PASS
 \end{lstlisting}
 
-\section{Self-test hậu xử lý ($N=8$, \code{results/selftest\_N8.log})}
+\section{Self-test hậu xử lý (\texorpdfstring{$N=8$}{N=8}, \code{results/selftest\_N8.log})}
 \begin{lstlisting}[style=codelog]
 selftest N=8
 trial 0 M=1 act=0 mult=32767 shift=0 PASS
@@ -33,7 +55,7 @@ trial 23 M=27 act=3 mult=21084 shift=17 PASS
 RESULT: ALL PASS
 \end{lstlisting}
 
-\section{GEMM demo ($N=8$, \code{results/gemm\_demo\_N8.log})}
+\section{GEMM demo (\texorpdfstring{$N=8$}{N=8}, \code{results/gemm\_demo\_N8.log})}
 \begin{lstlisting}[style=codelog]
 NPU N=8 DEPTH=64
 M=1 cpu_cycles=2785 npu_total=1629 npu_compute=17 mismatches=0 PASS
@@ -43,7 +65,7 @@ M=64 cpu_cycles=176917 npu_total=28209 npu_compute=80 mismatches=0 PASS
 RESULT: ALL PASS
 \end{lstlisting}
 
-\section{LeNet-5 ($N=8$, \code{results/cnn\_N8.log})}
+\section{LeNet-5 (\texorpdfstring{$N=8$}{N=8}, \code{results/cnn\_N8.log})}
 \begin{lstlisting}[style=codelog]
 LeNet-5 INT8, N=8
   profile(img0): weight_wr=279357 act_wr=257523 run+poll=141576 result_rd=33291 other(im2col,pool,...)=1211873
@@ -56,7 +78,7 @@ correct=8/8
 RESULT: ALL PASS
 \end{lstlisting}
 
-\section{LeNet-5 ($N=4$, \code{results/cnn\_N4.log})}
+\section{LeNet-5 (\texorpdfstring{$N=4$}{N=4}, \code{results/cnn\_N4.log})}
 \begin{lstlisting}[style=codelog]
 LeNet-5 INT8, N=4
   profile(img0): weight_wr=524628 act_wr=727524 run+poll=596100 result_rd=54870 other(im2col,pool,...)=1524004
@@ -67,7 +89,7 @@ correct=8/8
 RESULT: ALL PASS
 \end{lstlisting}
 
-\section{LSTM ($N=8$ và $N=4$, \code{results/lstm\_N*.log})}
+\section{LSTM (\texorpdfstring{$N=8$}{N=8} và \texorpdfstring{$N=4$}{N=4}, \code{results/lstm\_N*.log})}
 \begin{lstlisting}[style=codelog]
 LSTM INT8, N=8 images=16
 cpu_only batch=1   cycles/img=3559094

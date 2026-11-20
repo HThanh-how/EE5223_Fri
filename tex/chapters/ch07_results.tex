@@ -166,7 +166,7 @@ Khớp mô hình \eqref{eq:batchmodel} qua hai điểm đo $B=1$ và $B=16$ cho:
 \end{align}
 Theo mô hình này, khi $B\to\infty$ speedup tiệm cận $\num{3559094}/T_\text{var}\approx22{,}2\times$ ($N=8$) và $13{,}6\times$ ($N=4$). Cần lưu ý: mô hình chỉ được khớp từ hai điểm và \emph{chưa được kiểm chứng} bằng các batch khác; ngoài ra $B$ bị giới hạn bởi DEPTH$=64$ hàng trong một lượt, và \code{run\_batch} hiện chỉ dùng tối đa \code{NIMG\_LSTM}$=16$. Phần $T_\text{var}$ gồm ghi kích hoạt, đọc kết quả và cập nhật element-wise trên CPU -- những phần không giảm theo batch.
 
-\section{So sánh $N=4$ và $N=8$}
+\section{So sánh \texorpdfstring{$N=4$}{N=4} và \texorpdfstring{$N=8$}{N=8}}
 \label{sec:n4n8}
 Tăng $N$ từ 4 lên 8 làm số MAC đỉnh tăng 4 lần (16 $\to$ 64 MAC/chu kỳ), số lượt chạy giảm 4 lần (vì cả khối $K$ và khối $C$ đều gấp đôi), độ trễ mỗi lượt tăng từ 8 lên 16 chu kỳ. Bảng~\ref{tab:n4n8} tóm tắt.
 
@@ -188,6 +188,8 @@ Tăng $N$ từ 4 lên 8 làm số MAC đỉnh tăng 4 lần (16 $\to$ 64 MAC/chu
 
 Speedup chỉ tăng khoảng 1,8--2,1 lần chứ không phải 4 lần, vì thời gian bị chi phối bởi truyền dữ liệu và phần mềm, không phải bởi số MAC. Với $N$ lớn hơn nữa (16, 32), lợi ích sẽ tiếp tục giảm dần cho các mạng nhỏ như LeNet-5 trừ khi giải quyết được nút thắt truyền dữ liệu. Chi phí phần cứng tương ứng (diện tích, tài nguyên FPGA) được trình bày ở Chương~\ref{ch:fpga}.
 
+\input{tex/chapters/ch07_metrics}
+
 \section{Ghi chú về chỉ số \code{npu\_busy\_share}}
 Log CNN có trường \code{npu\_busy\_share\_x100} (132 với $N=4$, 89 với $N=8$). Trường này được tính bằng $\text{busy}\cdot\num{10000}/\text{tổng}$, tức là \emph{phần trăm nhân 100}: 132 nghĩa là 1,32\% và 89 nghĩa là 0,89\%, khớp với tỉ số busy/tổng trong Bảng~\ref{tab:cnn-cycles}. Hậu tố \code{\_x100} dễ bị đọc nhầm thành ``132\%''; báo cáo này không dùng trực tiếp trường đó mà tính lại tỉ số từ các cột \code{npu\_busy} và \code{npu\_cyc}.
 
@@ -195,5 +197,5 @@ Log CNN có trường \code{npu\_busy\_share\_x100} (132 với $N=4$, 89 với $
 \begin{itemize}
   \item Độ chính xác INT8 lệch dưới 0,1 điểm \% so với số thực; mọi đầu ra RTL bit-exact với golden.
   \item Với $N=8$: LeNet-5 nhanh hơn 6,9$\times$, LSTM 3,3$\times$ (batch 1) và 16,4$\times$ (batch 16) so với chỉ dùng PicoRV32.
-  \item Mảng systolic bận dưới 1\% thời gian; nút thắt là im2col/pooling trên CPU (63\%) và truyền dữ liệu MMIO (khoảng 30\%).
+  \item Với LeNet-5 $N=8$, mảng systolic bận dưới 1\% thời gian; nút thắt là im2col/pooling trên CPU (63\%) và truyền dữ liệu MMIO (khoảng 30\%).
 \end{itemize}

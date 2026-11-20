@@ -1,6 +1,11 @@
 \chapter{Phương pháp kiểm chứng}
 \label{ch:verif}
 
+\section{Môi trường và hai đường thực thi}
+Verilator biên dịch RTL thành mô hình C++ để chạy testbench và firmware RISC-V thật. Các log \code{results/*.log} là bằng chứng mô phỏng được dùng trong báo cáo. ModelSim/Questa có thể dùng để quan sát RTL và waveform, nhưng chưa có bộ kết quả ModelSim tương ứng trong nguồn số liệu này; không xem đó là một lần kiểm chứng đã hoàn tất. Kết quả fit/timing Quartus ở Chương~\ref{ch:fpga} là bằng chứng hiện thực, chưa thay thế phép thử trên board.
+
+Đường CPU-only đọc trọng số/kích hoạt từ RAM, thực hiện vòng lặp GEMM và requant bằng C, rồi ghi kết quả vào RAM. Đường CPU+\NPU{} giữ phần tiền/hậu xử lý ngoài GEMM trên CPU, ghi cấu hình và tile qua Avalon-MM, chờ done, rồi đọc QBUF. Hai đường dùng cùng trọng số INT8, bias và quy tắc làm tròn; đây là cơ sở để vừa đối chiếu bit-exact vừa so sánh chu kỳ. Các khối và datapath tương ứng nằm ở Hình~\ref{fig:system-rtl}, \ref{fig:wrapper-rtl} và~\ref{fig:postprocess-rtl}.
+
 \section{Chiến lược}
 Kiểm chứng được tổ chức theo tầng, từ khối nhỏ nhất tới hệ thống đầy đủ, và ở mọi tầng đều dùng \textbf{so sánh bit-exact} với một mô hình tham chiếu độc lập (golden model) chứ không so sánh gần đúng. Điều này khả thi vì toàn bộ đường dữ liệu là số nguyên với công thức làm tròn được định nghĩa chính xác (\eqref{eq:requant}). Hình~\ref{fig:verif-flow} tóm tắt bốn tầng.
 

@@ -1,0 +1,26 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\node[rtlbox,minimum width=2cm,minimum height=5.3cm] (sa) at (0,-2.2) {PE array\\$N\times N$};
+\foreach \i/\lab in {0/0,1/1,2/{\vdots},3/{N-1}} {
+ \node (a\i) at (-5,-1.35*\i) {$A_{m,\lab}$};
+ \node[rtlreg,text width=1.6cm] (d\i) at (-2.8,-1.35*\i) {$D=\lab$\\8 bit};
+ \node[rtlreg,text width=1.9cm] (e\i) at (2.9,-1.35*\i) {$D=N-1-j$\\32 bit};
+ \node (c\i) at (5.3,-1.35*\i) {$C_{m,\lab}$};
+ \draw[rtldata] (a\i) -- (d\i);
+ \draw[rtldata] (d\i) -- (sa.west |- d\i);
+ \draw[rtldata] (sa.east |- e\i) -- (e\i);
+ \draw[rtldata] (e\i) -- (c\i);
+}
+\node[align=center] at (-2.8,.95) {Input skew\\nhánh $i$: trễ $i$};
+\node[align=center] at (2.9,.95) {Output de-skew\\nhánh $j$: trễ $N-1-j$};
+\node (vi) at (-4.7,-6) {\code{in\_valid}};
+\node[rtlreg,text width=3.7cm] (vd) at (0,-6) {\code{delay}: $W=1$, $D=2N-1$};
+\node (vo) at (4.7,-6) {\code{out\_valid}};
+\draw[rtlctrl] (vi) -- (vd); \draw[rtlctrl] (vd) -- (vo);
+\node[align=center,text width=11.5cm] at (0,-7.3) {Mỗi nhánh dùng \code{delay.sv}: $D=0$ là dây; $D>0$ là chuỗi thanh ghi.\\$t_{\rm raw}=m+N+j$; $t_{\rm out}=m+N+j+(N-1-j)=m+2N-1$.};
+\end{tikzpicture}
+\rtllegend
+\caption{Skew/de-skew nằm trong \code{sa\_top}; các nhánh ra được trải ngang để dễ đọc (trong mảng thực chúng nằm ở đáy cột). Dấu chấm biểu diễn các nhánh giữa được lược bỏ.}
+\label{fig:skew-deskew}
+\end{figure}

@@ -4,12 +4,9 @@
 \section{Tổng quan hệ thống}
 Hình~\ref{fig:block} cho thấy kiến trúc tổng thể. CPU RISC-V (PicoRV32 \cite{picorv32} trong mô phỏng, Nios~V \cite{niosv} trên DE10-Nano) truy cập bộ tăng tốc như một vùng nhớ 64\,KiB qua giao diện tớ Avalon-MM \cite{avalonspec} 32 bit. Bên trong \code{npu\_avmm} có: bộ đệm trọng số (thực chất là các thanh ghi trọng số của mảng), bộ đệm kích hoạt ABUF, mảng systolic \code{sa\_top}, bộ đệm tích lũy CBUF (INT32), khối hậu xử lý, bộ đệm kết quả QBUF (INT8), các thanh ghi cấu hình và một bộ tuần tự (sequencer) đơn giản. Các tham số thiết kế: $N$ (kích thước mảng, bội của 4) và \code{DEPTH}$=64$ (số hàng tối đa của một lượt chạy).
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.95\linewidth]{d_block_diagram.png}
-  \caption{Sơ đồ khối hệ thống: CPU host, cầu Avalon-MM, wrapper \code{npu\_avmm} với các bộ đệm, mảng systolic $N\times N$ và khối hậu xử lý (hình vẽ cho $N=4$).}
-  \label{fig:block}
-\end{figure}
+\input{tex/figures/fig_system}
+
+Năm sơ đồ trong chương dùng cùng quy ước nét và thể hiện RTL gốc trong \code{rtl/}. Cấu trúc bộ đệm và các tầng đường ống được điều chỉnh ở biến thể \code{rtl\_fpga} dùng cho DE10-Nano được phân biệt trong Mục~\ref{sec:quartus}; không dùng độ trễ của wrapper gốc thay cho biến thể này.
 
 Phân cấp RTL gồm bốn mô-đun (Bảng~\ref{tab:rtl-modules}).
 
@@ -77,13 +74,18 @@ end
   \item \textbf{Luồng kết quả}: \code{out\_valid}, \code{c\_out[32N-1:0]} -- một hàng $C_{m,:}$ INT32.
 \end{itemize}
 
-\subsection{Skew, de-skew và độ trễ $2N-1$}
+Hình~\ref{fig:systolic-rtl} chỉ rõ hướng truyền dữ liệu và vị trí thanh ghi trọng số. Các PE luôn dịch dữ liệu theo clock; \code{in\_valid} đánh dấu hàng hữu ích và không đóng vai trò clock-enable cho mảng.
+\input{tex/figures/fig_systolic}
+
+\subsection{Skew, de-skew và độ trễ \texorpdfstring{$2N-1$}{2N-1}}
 \label{sec:latency}
 Hàng $i$ của đầu vào đi qua mô-đun \code{delay} với $D=i$; cột $j$ của đầu ra đi qua \code{delay} với $D=N-1-j$; tín hiệu \code{in\_valid} đi qua \code{delay} với $D=2N-1$ để thành \code{out\_valid}. Đặt chu kỳ $0$ là chu kỳ hàng $A_{m,:}$ có mặt ở \code{a\_in}. Theo Mục~\ref{sec:ws-example}, PE$(i,j)$ xử lý $A_{m,i}$ tại chu kỳ $m+i+j$ và thanh ghi kết quả của nó có giá trị từ chu kỳ $m+i+j+1$. Với hàng cuối $i=N-1$, tổng đầy đủ $C_{m,j}$ có ở đáy cột $j$ từ chu kỳ $m+N+j$. Sau de-skew $N-1-j$ chu kỳ:
 \begin{equation}
   t_\text{out}(m) = m + N + j + (N-1-j) = m + 2N - 1,
 \end{equation}
 độc lập với $j$. Vậy \textbf{độ trễ từ \code{in\_valid} tới \code{out\_valid} là $2N-1$ chu kỳ} (7 với $N=4$, 15 với $N=8$) và thông lượng là một hàng mỗi chu kỳ. Điều này được xác nhận trên dạng sóng Verilator (Hình~\ref{fig:waveform}). Chi phí phần cứng của skew/de-skew là $\sum_{i}i=N(N-1)/2$ thanh ghi 8 bit và $N(N-1)/2$ thanh ghi 32 bit.
+
+\input{tex/figures/fig_skew_deskew}
 
 \begin{figure}[H]
   \centering
@@ -92,7 +94,7 @@ Hàng $i$ của đầu vào đi qua mô-đun \code{delay} với $D=i$; cột $j$
   \label{fig:waveform}
 \end{figure}
 
-\subsection{Tài nguyên logic theo $N$}
+\subsection{Tài nguyên logic theo \texorpdfstring{$N$}{N}}
 Bảng~\ref{tab:sa-cost} đếm (theo RTL) các phần tử chính. Số bộ nhân tăng theo $N^2$; số thanh ghi trễ tăng theo $N^2/2$.
 
 \begin{table}[H]
@@ -115,6 +117,8 @@ Bảng~\ref{tab:sa-cost} đếm (theo RTL) các phần tử chính. Số bộ nh
 \end{table}
 
 \section{Wrapper Avalon-MM \code{npu\_avmm}}
+Hình~\ref{fig:wrapper-rtl} phân biệt đường ghi cấu hình, đường kích hoạt và đường kết quả. Tổng riêng INT32 được giữ trong CBUF giữa các khối $K$; CPU chỉ đọc QBUF ở khối cuối nếu dùng chế độ lượng tử hóa.
+\input{tex/figures/fig_wrapper}
 \subsection{Giao diện bus}
 Wrapper là một tớ Avalon-MM với địa chỉ từ 14 bit (không gian 64\,KiB), dữ liệu 32 bit, \code{readLatency}$=1$ cố định, \code{waitrequest} luôn bằng 0. Mọi lệnh ghi được chấp nhận trong một chu kỳ; dữ liệu đọc xuất hiện ở chu kỳ ngay sau chu kỳ \code{read} cùng với \code{readdatavalid} (Hình~\ref{fig:avalon}). Thiết kế không có \code{byteenable}: mọi truy cập đều là từ 32 bit, nên driver luôn ghi đủ 4 byte.
 
@@ -192,6 +196,8 @@ Số chu kỳ busy của một lượt (đo bằng thanh ghi CYCLES và kiểm c
 gồm 1 chu kỳ đọc ABUF, $M-1$ chu kỳ đưa các hàng còn lại, $2N-1$ chu kỳ trễ của mảng, 1 chu kỳ ghi CBUF/kết thúc, và thêm 1 chu kỳ cho tầng đường ống hậu xử lý khi có QUANT. Ví dụ \code{gemm\_demo} $N=8$, $M=64$ đo được 80 chu kỳ $=64+16$.
 
 \subsection{Khối hậu xử lý}
+Hình~\ref{fig:postprocess-rtl} mô tả cả phép chọn tích lũy và hai tầng hậu xử lý. \code{sum\_row} là tổng 32 bit ghi vào CBUF; biểu thức cộng bias được mở rộng lên 48 bit trước phép nhân, và \code{prod} giữ kết quả 48 bit. Hàm \code{post()} mở rộng dấu lên 64 bit trước khi cộng hằng làm tròn, dịch và bão hòa. Với các mạng đã xét, giới hạn số học ở Phụ lục~\ref{app:bitwidth} bảo đảm không mất bit có nghĩa.
+\input{tex/figures/fig_postprocess}
 Khi cờ QUANT bật, khối hậu xử lý gồm hai tầng đường ống cho mỗi hàng kết quả:
 \begin{enumerate}
   \item \textbf{Tầng 1} (cùng chu kỳ ghi CBUF): $p_j \leftarrow (\text{sum}_j + \text{bias}_j)\cdot\mu$, $N$ bộ nhân $32\times16$ có kết quả 48 bit, lưu vào thanh ghi \code{prod[j]}.
@@ -218,4 +224,4 @@ SoC mô phỏng (\code{soc/soc\_top.sv}) gồm PicoRV32 (RV32IM, bộ nhân nhan
   \end{tabular}
 \end{table}
 
-Trên DE10-Nano, cùng mô-đun \code{npu\_avmm} được đóng gói thành một thành phần Platform Designer và nối vào Nios~V qua interconnect Avalon (Chương~\ref{ch:fpga}); driver chỉ cần đổi macro \code{NPU\_BASE}.
+Trên DE10-Nano, cùng giao diện \code{npu\_avmm} được đóng gói thành một thành phần Platform Designer và nối vào Nios~V qua interconnect Avalon (Chương~\ref{ch:fpga}). Địa chỉ cơ sở NPU vẫn là \code{0x2000\_0000}, nên driver giữ nguyên; lớp nền tảng thay cách truy cập timer và cổng xuất log.

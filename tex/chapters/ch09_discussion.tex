@@ -22,6 +22,24 @@
   \item \textbf{$N$ phải là bội của 4} và bias chỉ hỗ trợ tối đa 16 cột (chỉ số \code{idx[3:0]}), tức $N\le16$ trong RTL hiện tại.
 \end{enumerate}
 
+\section{Dataflow và khả năng khai thác sparsity/pruning}
+\label{sec:sparsity}
+Thiết kế hiện tại dùng weight-stationary ở PE và giữ tổng riêng trong CBUF giữa các khối $K$. Lịch phát hàng, đường trễ valid và vòng tiling phụ thuộc kích thước ma trận, không phụ thuộc giá trị dữ liệu. RTL không có bộ giải mã sparse, chỉ mục nén, clock-enable theo số 0 hoặc cơ chế bỏ qua MAC bằng 0. Vì vậy ReLU tạo kích hoạt bằng 0 hoặc pruning trọng số chưa tự làm giảm số lượt và chu kỳ. Không có thí nghiệm pruning/độ thưa trong các log dùng cho báo cáo; không gán tỷ lệ sparsity hoặc mức tăng tốc cho tính năng chưa hiện thực.
+
+Một hướng phù hợp hơn với mảng đều là pruning có cấu trúc theo kênh hoặc theo khối. Bỏ hẳn kênh có thể giảm $K$ hay $C$ sau khi huấn luyện lại và sửa ánh xạ; bỏ tile trọng số bằng 0 cần cơ chế phần mềm nhận diện, đồng thời bảo toàn thứ tự ACCUM, khởi tạo CBUF và QUANT ở tile cuối. Trường hợp mọi tile bằng 0 vẫn phải sinh đầu ra từ bias và kích hoạt. Pruning không cấu trúc cần chỉ mục và lịch tính khác, có thể làm giảm utilization do các PE nhận khối lượng không đều. Mọi cải tiến phải được kiểm chứng bit-exact theo mô hình mới, đo lại độ chính xác MNIST, số byte truyền và chu kỳ; INT8 hiện tại là baseline để đối chiếu.
+
+\section{Phạm vi so sánh với ARM Cortex và x86}
+\label{sec:modern-cpu}
+Chưa thực hiện benchmark trên CPU ARM Cortex hoặc x86 trong repo, nên Bảng~\ref{tab:derived-performance} chỉ so sánh với PicoRV32. Cortex-A9 trong HPS của DE10-Nano không được sử dụng ở hệ thống hiện tại. Không thể lấy số chu kỳ PicoRV32 chia cho clock của CPU khác để suy ra latency: pipeline, cache, tập lệnh, bộ nhân và phần mềm đều khác. Tương tự, không dùng độ chính xác của mô hình số thực chạy trên máy huấn luyện làm kết quả hiệu năng CPU.
+
+Để mở rộng so sánh, cần chạy cùng mô hình INT8, cùng tập ảnh, batch và quy tắc requant trên ARM/x86; ghi phiên bản trình biên dịch/thư viện, số luồng, chế độ vector, clock và điều kiện cache. Nên có cả bản C vô hướng tương ứng và bản thư viện tối ưu, đo thời gian đầu-cuối gồm im2col/pooling nhưng tách thời gian nạp mô hình một lần. Chu kỳ CPU chỉ có ý nghĩa khi kèm nền tảng; latency và ảnh/s là chỉ số đối chiếu trực tiếp hơn. Chưa có dữ liệu như vậy để đưa số ARM/x86 vào bảng, cũng chưa có cơ sở kết luận NPU nhanh hơn hay tiết kiệm năng lượng hơn CPU hiện đại.
+
+\section{Phân tích kết quả và nhận xét}
+\label{sec:analysis-remarks}
+Các kết quả Chương~\ref{ch:results} cho thấy tính đúng số học và hiệu năng hệ thống phải được đánh giá riêng. LeNet-5 đạt 98,85\% INT8 theo README, còn so sánh RTL trên 8 ảnh xác nhận đầu ra golden; hai phạm vi này không tương đương việc chạy toàn bộ tập kiểm tra trên board. Speedup khoảng 6,89 lần so với PicoRV32 là kết quả đã đo chu kỳ, trong khi 6,4\,GOPS là trần lý thuyết tại 50\,MHz. Khoảng cách lớn giữa $U_{\rm busy}=25{,}44\%$ và $U_{\rm end}=0{,}229\%$ cho LeNet-5 chỉ ra chi phí truyền và phần mềm quyết định phần lớn kết quả.
+
+Tăng $N$ cải thiện thông lượng đỉnh nhưng cũng tăng độ trễ lấp đường ống và padding; batching cải thiện tái sử dụng trọng số nhưng tăng thời gian trả cả batch. Do đó ưu tiên cải tiến là giảm di chuyển dữ liệu và tiền xử lý CPU, sau đó mới mở rộng mảng. Kết quả fitter xác nhận SoC có thể hiện thực trên DE10 ở clock mục tiêu; các kết luận về latency vật lý, công suất, năng lượng và ưu thế so với ARM/x86 vẫn cần thí nghiệm riêng.
+
 \section{Các mối đe dọa tới tính hợp lệ}
 \subsection{Tính hợp lệ nội tại}
 \begin{itemize}

@@ -1,0 +1,26 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize,x=1cm,y=1cm]
+\node[rtlreg,text width=8.5cm] (w) at (3,2.4) {Thanh ghi $w[i][j]$ bên trong \code{sa\_top}, ngoài PE\\\code{w\_we}, \code{w\_widx}, \code{w\_wdata[31:0]}: ghi 4 trọng số/lần};
+\foreach \i in {0,...,3} {
+ \foreach \j in {0,...,3} {
+  \node[rtlbox,minimum width=1.2cm,minimum height=1cm] (p\i\j) at (2*\j,-1.7*\i) {PE$(\i,\j)$\\$a\,w+p$};
+ }
+ \node[rtlreg,text width=1.8cm] (a\i) at (-2.4,-1.7*\i) {skew\\$D=\i$, 8 bit};
+ \draw[rtldata] (a\i) -- (p\i0);
+ \foreach \j/\k in {0/1,1/2,2/3} {\draw[rtldata] (p\i\j) -- (p\i\k);}
+}
+\foreach \j in {0,...,3} {
+ \draw[rtldata] ($(p0\j.north)+(0,.6)$) node[above] {0 (INT32)} -- (p0\j.north);
+ \foreach \i/\k in {0/1,1/2,2/3} {\draw[rtldata] (p\i\j) -- (p\k\j);}
+ \pgfmathtruncatemacro{\dd}{3-\j}
+ \node[rtlreg,text width=1.35cm] (c\j) at (2*\j,-6.6) {de-skew\\$D=\dd$\\32 bit};
+ \draw[rtldata] (p3\j) -- (c\j);
+ \draw[rtldata] (c\j.south) -- ++(0,-.6) node[below] {$C_{m,\j}$};
+}
+\node[align=center,text width=12cm] at (2,-9) {Minh họa $N=4$; cấu trúc lặp thành $8\times8$ khi $N=8$.\\$w[i][j]$ nối tới PE tương ứng (lược dây). Kích hoạt INT8 chảy ngang;\\tổng riêng INT32 chảy dọc; đầu ra ngang cuối hàng không được sử dụng.};
+\end{tikzpicture}
+\rtllegend
+\caption{Cấu trúc mảng weight-stationary theo \code{sa\_top.sv} và \code{pe.sv}. Mỗi PE có hai thanh ghi đầu ra; tổng riêng truyền xuống, không cộng hồi tiếp trong PE.}
+\label{fig:systolic-rtl}
+\end{figure}

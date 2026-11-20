@@ -1,0 +1,20 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\small]
+\node[rtlbox,text width=6cm] (cpu) at (0,0) {PicoRV32 (RV32IM)\\firmware C, bộ đếm chu kỳ};
+\node[rtlbox,text width=6cm] (dec) at (0,-1.7) {Giải mã giao diện native\\\code{mem\_valid/ready}, địa chỉ, dữ liệu};
+\node[rtlreg,text width=3.4cm] (ram) at (-3,-3.6) {RAM 256\,KiB\\\code{0x0000\_0000}};
+\node[rtlbox,text width=3.4cm] (io) at (3,-3.6) {putchar / exit (testbench)\\\code{0x1000\_0000/0004}};
+\node[rtlbox,text width=6.6cm] (bridge) at (0,-5.5) {Cầu native $\leftrightarrow$ Avalon-MM\\ghi: một pha; đọc: chờ valid};
+\node[rtlbox,text width=6.6cm] (npu) at (0,-7.4) {\code{npu\_avmm}, $N=4/8$, DEPTH$=64$\\mảng WS + bộ đệm + hậu xử lý\\\code{0x2000\_0000}, cửa sổ 64\,KiB};
+\draw[rtldata,<->] (cpu) -- (dec);
+\draw[rtldata,<->] (dec.west) -| (ram.north);
+\draw[rtldata] (dec.east) -| (io.north);
+\draw[rtldata,<->] (dec.south) -- (bridge.north);
+\draw[rtldata,<->] (bridge) -- node[right,font=\footnotesize]{32 bit; địa chỉ từ 14 bit} (npu);
+\node[align=center,text width=13cm,font=\footnotesize] at (0,-9) {DE10-Nano: Nios V hoặc PicoRV32 + interconnect Platform Designer\\thay phần host/cầu mô phỏng; cùng giao diện và địa chỉ NPU (Chương~\ref{ch:fpga}).};
+\end{tikzpicture}
+\rtllegend
+\caption{Sơ đồ hệ thống theo \code{soc/soc\_top.sv}. RAM và putchar/exit thuộc SoC mô phỏng; các ngoại vi DE10 được liệt kê riêng ở Bảng~\ref{tab:de10map}.}
+\label{fig:block}\label{fig:system-rtl}
+\end{figure}

@@ -1,0 +1,31 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[font=\footnotesize]
+\node[rtlbox,text width=11.7cm] (bus) at (0,0) {Avalon-MM slave: \code{address[13:0]}, \code{read/write}, dữ liệu 32 bit\\giải mã vùng; đường đọc có thanh ghi, \code{readLatency=1}, \code{waitrequest=0}};
+\node[rtlreg,text width=3.2cm] (cfg) at (-4.2,-2) {CTRL, STATUS, M\\CYCLES, INFO\\QMULT, QSHIFT, ACT, BIAS};
+\node[rtlreg,text width=2.2cm] (ab) at (0,-2) {ABUF (amem)\\$64\times8N$ bit};
+\node[rtlreg,text width=2.5cm] (wb) at (4.2,-2) {$w[i][j]$ trong mảng\\WEIGHT: $8N^2$ bit};
+\node[rtlbox,text width=3.2cm] (seq) at (-4.2,-4) {Sequencer\\busy/done/err\\sent/recv, rd\_v, va/arow};
+\node[rtlbox,text width=3.5cm] (sa) at (1.5,-4) {\code{sa\_top}\\skew + PE array + de-skew};
+\node[rtlbox,text width=3.5cm] (sum) at (1.5,-6) {sum\_row: $c\_out$ +\\(ACCUM ? CBUF : 0)};
+\node[rtlreg,text width=2.5cm] (cb) at (-4.2,-6) {CBUF (cmem)\\$64\times32N$ bit};
+\node[rtlbox,text width=3.5cm] (post) at (1.5,-8) {QUANT: bias, nhân, làm tròn\\dịch, bão hòa, kích hoạt};
+\node[rtlreg,text width=2.5cm] (qb) at (-4.2,-8) {QBUF (qmem)\\$64\times8N$ bit};
+\draw[rtldata] (bus.south -| cfg) -- (cfg.north);
+\draw[rtldata] (bus.south -| ab) -- (ab.north);
+\draw[rtldata] (bus.south -| wb) -- (wb.north);
+\draw[rtlctrl] (cfg) -- (seq);
+\draw[rtldata] (ab) -- (sa.north -| ab);
+\draw[rtldata] (wb) |- (sa.east);
+\draw[rtlctrl,<->] (seq) -- node[above]{in/out valid} (sa);
+\draw[rtldata] (sa) -- (sum);
+\draw[rtldata, <->] (sum) -- (cb);
+\draw[rtldata] (sum) -- (post);
+\draw[rtldata] (post) -- (qb);
+\draw[rtlctrl] (seq.south east) -- ++(.35,-.35) |- (post.west);
+\node[align=left,text width=11.7cm] at (0,-9.7) {Đọc bus: STATUS/M/CYCLES/INFO, CBUF hoặc QBUF $\rightarrow$ thanh ghi readdata.\\WEIGHT và ABUF chỉ nhận ghi khi !busy; không có DMA hay double buffering.\\QMULT/QSHIFT/ACT/BIAS cấp tham số cho hậu xử lý (lược dây cấu hình).};
+\end{tikzpicture}
+\rtllegend
+\caption{Wrapper \code{rtl/npu\_avmm.sv}: các khối chức năng tương ứng trực tiếp với thanh ghi và tín hiệu RTL; WEIGHT là cổng ghi thanh ghi mảng, không có SRAM trọng số riêng.}
+\label{fig:wrapper-rtl}
+\end{figure}
