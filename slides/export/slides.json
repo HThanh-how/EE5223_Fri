@@ -1,0 +1,157 @@
+[
+ {
+  "n": 1,
+  "title": "NPU INT8 cho RISC-V SoC",
+  "lines": [
+   "EE5223 · Nhóm 5",
+   "Phạm Tuấn An · Phạm Huy Thanh · Vũ Tiến Giang",
+   "GVHD: Trương Quang Vinh"
+  ],
+  "notes": "Đề tài xây dựng bộ tăng tốc nhân ma trận INT8 theo kiến trúc systolic array và tích hợp vào một SoC. Nhóm khảo sát toàn bộ chuỗi từ mô hình tham chiếu, thiết kế RTL, kiểm chứng mô phỏng đến firmware và triển khai FPGA. Bài trình bày tập trung vào cách tổ chức dữ liệu, kết quả đo chu kỳ và tài nguyên DE10-Nano. Các con số kết quả được đối chiếu với log và báo cáo triển khai trong repository.",
+  "svg": null
+ },
+ {
+  "n": 2,
+  "title": "Mọi phép nhân ma trận của CNN và LSTM đi qua một NPU",
+  "lines": [
+   "Rê chuột vào một khối để xem chi tiết · nguồn: scripts/quantize.py, fw/nn.h"
+  ],
+  "notes": "Tính toán nhân ma trận chiếm phần đáng kể trong quá trình suy luận. Nhóm chuyển các phép convolution bằng im2col và biểu diễn các cổng LSTM thành GEMM để dùng chung bộ tăng tốc. Systolic array đưa dữ liệu qua các phần tử xử lý lân cận, tăng khả năng tái sử dụng dữ liệu. Mục tiêu là tích hợp đường tính toán này vào hệ thống nhúng và đánh giá bằng mô phỏng cùng triển khai FPGA.",
+  "svg": "02.svg"
+ },
+ {
+  "n": 3,
+  "title": "CPU điều khiển NPU qua Avalon-MM",
+  "lines": [
+   "Nguồn RTL: soc/soc_top.sv, rtl/npu_avmm.sv, rtl/sa_top.sv"
+  ],
+  "notes": "CPU chạy firmware, chuẩn bị dữ liệu và cấu hình tác vụ cho NPU thông qua giao diện bộ nhớ ánh xạ thanh ghi. Bộ nhớ chứa activation, weight và kết quả trung gian. NPU thực hiện các phép nhân theo tile phù hợp với kích thước mảng, sau đó firmware tiếp tục xử lý các bước còn lại. Các khối và đường bus trên hình là sơ đồ khái niệm, không thể hiện vị trí vật lý trên FPGA.",
+  "svg": "03.svg"
+ },
+ {
+  "n": 4,
+  "title": "Lượng tử hóa đưa mô hình về INT8 mà vẫn khớp từng bit",
+  "lines": [
+   "Nguồn: scripts/quantize.py · requant trong rtl/npu_avmm.sv"
+  ],
+  "notes": "Mô hình được huấn luyện ở dạng floating point trên máy tính, sau đó lượng tử hóa sau huấn luyện để tạo weight và activation phù hợp với đường tính INT8. Integer golden model cung cấp kết quả tham chiếu cho việc so sánh với phần cứng. Lượng tử hóa giảm kích thước biểu diễn dữ liệu nhưng cần kiểm tra ảnh hưởng lên độ chính xác. Kết quả CNN và LSTM sẽ được trình bày riêng ở phần sau.",
+  "svg": "04.svg"
+ },
+ {
+  "n": 5,
+  "title": "PE: một phép nhân, một phép cộng, hai thanh ghi",
+  "lines": [
+   "Nguồn RTL: rtl/pe.sv"
+  ],
+  "notes": "Một processing element thực hiện phép nhân activation và weight cùng phép cộng tích lũy cho partial sum. Theo mô tả của báo cáo, dataflow được chọn là weight-stationary: weight nằm tại PE, activation đi theo hàng và partial sum đi theo cột. Các thanh ghi và liên kết lân cận tạo nên luồng dữ liệu đồng bộ. Hình vector minh họa hoạt động tính toán, không nhằm mô tả chi tiết từng tín hiệu RTL.",
+  "svg": "05.svg"
+ },
+ {
+  "n": 6,
+  "title": "Systolic Array: làn sóng dữ liệu đi qua lưới PE",
+  "lines": [
+   "Nguồn RTL: rtl/sa_top.sv · độ trễ 2N − 1: N = 4 là 7 chu kỳ, N = 8 là 15 chu kỳ"
+  ],
+  "notes": "Các PE được ghép thành lưới hai chiều để xử lý song song. Dữ liệu được đưa vào lệch nhịp, tạo thành wavefront đi qua mảng. Với mô hình độ trễ lan truyền được nêu trong kết quả, biểu thức là hai N trừ một chu kỳ; hai cấu hình N bằng bốn và tám tương ứng bảy và mười lăm chu kỳ. Đây là độ trễ mảng, không phải tổng chu kỳ suy luận của một ảnh.",
+  "svg": "06.svg"
+ },
+ {
+  "n": 7,
+  "title": "Skew và de-skew: căn nhịp bằng các đường trễ",
+  "lines": [
+   "Nguồn RTL: rtl/delay.sv, rtl/sa_top.sv · hàng i trễ i, cột j trễ N−1−j, valid trễ 2N−1"
+  ],
+  "notes": "Để các phần tử cùng một hàng của ma trận A gặp đúng weight tại đúng chu kỳ, hàng i được làm trễ i chu kỳ bằng chuỗi thanh ghi. Ở đầu ra, cột j bị trễ N trừ một trừ j chu kỳ để một hàng kết quả c_out được căn thẳng hàng. Tín hiệu valid đi qua đường trễ hai N trừ một chu kỳ, vì vậy out_valid đánh dấu đúng thời điểm một hàng kết quả đầy đủ xuất hiện. Với N bằng bốn là bảy chu kỳ.",
+  "svg": "07.svg"
+ },
+ {
+  "n": 8,
+  "title": "Wrapper Avalon-MM: bản đồ thanh ghi, bộ đệm và sequencer",
+  "lines": [
+   "Nguồn RTL: rtl/npu_avmm.sv · địa chỉ word 14 bit, readLatency 1, không waitrequest"
+  ],
+  "notes": "Wrapper npu_avmm là slave Avalon-MM. Hai bit cao của địa chỉ chọn vùng: thanh ghi điều khiển ở không, QBUF ở 0x1000, WEIGHT ở 0x4000, ABUF ở 0x8000 và CBUF ở 0xC000. Sequencer đọc từng hàng ABUF đưa vào sa_top, nhận kết quả, cộng dồn theo K-chunk vào CBUF và, khi bit QUANT bật, chạy tiếp bias, requant và hàm kích hoạt vào QBUF. Ghi WEIGHT và ABUF chỉ được chấp nhận khi NPU không bận.",
+  "svg": "08.svg"
+ },
+ {
+  "n": 9,
+  "title": "Hậu xử lý: từ tổng INT32 về kết quả INT8",
+  "lines": [
+   "Nguồn RTL: rtl/npu_avmm.sv · y = clamp8(((acc + bias) × QMULT + 2^(QSHIFT−1)) >>> QSHIFT), rồi ACT"
+  ],
+  "notes": "Khối hậu xử lý chạy cho mỗi cột kết quả. Đầu tiên cộng dồn theo K-chunk với giá trị CBUF cũ nếu bit ACCUM bật, sau đó cộng bias, nhân với QMULT là số nguyên 16 bit có dấu, cộng hằng làm tròn rồi dịch phải QSHIFT, bão hòa về khoảng âm 128 đến 127. Cuối cùng là hàm kích hoạt: không có, ReLU, hoặc tra bảng sigmoid hoặc tanh. Kết quả INT8 ghi vào QBUF, còn tổng INT32 luôn được ghi vào CBUF.",
+  "svg": "09.svg"
+ },
+ {
+  "n": 10,
+  "title": "Ba tầng kiểm chứng cùng đối chiếu golden số nguyên",
+  "lines": [
+   "Nguồn: results/test_N8.log, selftest_N8.log, cnn_N8.log · lệnh make trong README.md"
+  ],
+  "notes": "Kiểm chứng chức năng dùng kết quả tham chiếu để đối chiếu hoạt động của các khối RTL và phép tính ở cấp hệ thống. Các cấu hình mảng khác nhau dẫn đến số lượt chạy NPU khác nhau khi chia cùng bài toán thành tile. Với LeNet, kết quả đã xác nhận là 741 lượt ở N bằng tám và 2964 lượt ở N bằng bốn. Số lượt này không nên nhầm với số chu kỳ trên mỗi ảnh.",
+  "svg": "10.svg"
+ },
+ {
+  "n": 11,
+  "title": "Firmware: CPU chiếm hơn hai phần ba chu kỳ của CNN",
+  "lines": [
+   "Nguồn: results/cnn_N8.log (profile img0) · im2col, pooling và ghi dữ liệu chạy trên CPU"
+  ],
+  "notes": "Firmware tổ chức dữ liệu đầu vào, gọi NPU cho các phép nhân ma trận và tiếp tục những phần xử lý cần thiết trên CPU. Với LeNet, im2col chuyển convolution thành các phép GEMM. Với LSTM, các phép tính của các cổng được biểu diễn theo cùng dạng nhân ma trận. Cách tiếp cận này cho phép dùng một kiến trúc tăng tốc chung cho hai loại mạng khác nhau trong phạm vi suy luận.",
+  "svg": "11.svg"
+ },
+ {
+  "n": 12,
+  "title": "DE10-Nano: đạt timing, dùng 16% ALM và 46% DSP",
+  "lines": [
+   "Nguồn: de10/reports (Nios V/g) · fmax.txt, *.fit.rpt"
+  ],
+  "notes": "Các con số này đến từ báo cáo fit và fmax của biến thể Nios V/g cho DE10-Nano. Tần số được nêu là Fmax của CLOCK_50 ở điều kiện slow 100 độ C. Báo cáo tài nguyên gồm ALM, thanh ghi, bit bộ nhớ và DSP như trên slide. Đây là kết quả tổng hợp và triển khai, không phải phép đo công suất. Những số liệu thuộc nền tảng FPGA khác không được đưa vào so sánh này.",
+  "svg": "12.svg"
+ },
+ {
+  "n": 13,
+  "title": "INT8 giữ độ chính xác gần float",
+  "lines": [
+   "Nguồn: model/ (LeNet), README.md (LSTM)"
+  ],
+  "notes": "Độ chính xác của LeNet sau lượng tử hóa INT8 là 98.85%, so với 98.83% ở mô hình float. LSTM đạt 97.50% ở INT8 và 97.58% ở float. Các số này cho thấy độ chính xác trong hai trường hợp được báo cáo rất gần nhau, nhưng không chứng minh rằng mọi mạng hay mọi tập dữ liệu đều có cùng mức chênh lệch. Giá trị LSTM được lấy từ README của repository.",
+  "svg": "13.svg"
+ },
+ {
+  "n": 14,
+  "title": "NPU giảm chu kỳ suy luận: 6.9× cho CNN, đến 16.4× cho LSTM",
+  "lines": [
+   "Nguồn: results/cnn_N8.log, results/lstm_N8.log (PicoRV32 mô phỏng, N = 8)"
+  ],
+  "notes": "Log CNN và LSTM trên cấu hình N bằng tám cung cấp số chu kỳ trên mỗi ảnh cho cả NPU và CPU. CNN dùng 1,923,665 chu kỳ với NPU so với 13,254,324 chu kỳ với CPU, nhanh hơn khoảng 6.9 lần. Với LSTM batch bằng một, hai giá trị là 1,068,230 và 3,559,094, tương đương 3.3 lần; gộp batch 16 còn 217,262 chu kỳ trên mỗi ảnh, nhanh 16.4 lần. Đây là chu kỳ mô phỏng PicoRV32.",
+  "svg": "14.svg"
+ },
+ {
+  "n": 15,
+  "title": "Demo: log mô phỏng SoC đều đúng từng bit",
+  "lines": [
+   "Trích nguyên văn từ results/cnn_N8.log và lstm_N8.log"
+  ],
+  "notes": "Phần demo đi theo luồng làm việc của dự án: chuẩn bị dữ liệu và weight đã lượng tử hóa, chạy firmware trên môi trường mô phỏng, sau đó đọc log của CPU và NPU. Kết quả phép tính được đối chiếu với mô hình tham chiếu. Khi trình bày thực tế, có thể mở các log có sẵn trong thư mục results để minh họa số chu kỳ. Slide này mô tả quy trình, không khẳng định demo đang chạy trực tiếp.",
+  "svg": "15.svg"
+ },
+ {
+  "n": 16,
+  "title": "Kết luận: NPU INT8 chính xác, nhanh hơn CPU, vừa DE10-Nano",
+  "lines": [
+   "Hạn chế nêu rõ: chưa chạy board, chưa đo công suất, chưa so với ARM/x86"
+  ],
+  "notes": "Đề tài đã kết nối các bước từ mô hình và lượng tử hóa đến RTL, firmware, mô phỏng và báo cáo triển khai FPGA. Các kết quả cho thấy khả năng dùng chung GEMM INT8 cho CNN và LSTM, cùng sự khác biệt chu kỳ giữa CPU và NPU trong các log đã nêu. Hướng tiếp theo là cải thiện tổ chức dữ liệu, mở rộng kiểm thử và thực hiện thêm các phép đo trên phần cứng thực.",
+  "svg": "16.svg"
+ },
+ {
+  "n": 17,
+  "title": "Nguồn kết quả có thể đối chiếu",
+  "lines": [
+   "Repo: github.com/HThanh-how/EE5223_Fri"
+  ],
+  "notes": "Báo cáo cuối kỳ cung cấp cấu trúc, mục tiêu, kiến trúc và phương pháp nghiên cứu. README của repository bổ sung độ chính xác LSTM và mô tả dự án. Hai log trong thư mục results là nguồn cho số chu kỳ CNN và LSTM, còn các báo cáo fit và fmax trong de10 cung cấp số liệu triển khai DE10-Nano. Khi cần tái lập, hãy kiểm tra đúng cấu hình N bằng tám và biến thể Nios V/g.",
+  "svg": "17.svg"
+ }
+]
