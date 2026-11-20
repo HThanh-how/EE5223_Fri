@@ -22,7 +22,7 @@ S.forEach(function (sl, i) {
   var hh = '<' + (i === 0 ? 'h1' : 'h2') + ' class="hl">' + words(sl.title) + '</' + (i === 0 ? 'h1' : 'h2') + '>';
   var ln = sl.lines.length ? '<div class="lines">' + sl.lines.map(function (l, k) { return '<p class="' + (i === 0 ? ['sub', 'who', 'where'][k] : '') + '">' + words(l) + '</p>'; }).join('') + '</div>' : '';
   var h = (LAY[i] === 'top' || LAY[i] === 'dia') ? '<div class="txt">' + hh + '</div>' + ln : '<div class="txt">' + hh + ln + '</div>';
-  if (sl.svg) { h += '<div class="dwrap">' + sl.svg + '</div>'; }
+  if (sl.svg) { h += '<div class="dwrap">' + sl.svg + '<div class="tip"><i>Rê chuột vào một khối để xem chi tiết.</i></div></div>'; }
   sec.innerHTML = h; stage.appendChild(sec); slideEls.push(sec);
 });
 

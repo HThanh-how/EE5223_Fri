@@ -166,10 +166,10 @@ body.pen #pen{display:flex}
 .slide.col .txt{width:950px}.slide.col .lines{font-size:25px}
 
 /* block-diagram slides */
-.slide.dia::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,6,6,.93),rgba(3,6,6,.86))}
+.slide.dia::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,6,6,.9),rgba(3,6,6,.84))}
 .dia .txt{left:110px;top:40px;width:1700px}
 .dia .hl{font-size:44px;line-height:1.1}
-.dia .lines{position:absolute;left:110px;bottom:58px;width:1130px;margin:0;font-size:21px;line-height:1.3;color:var(--dim)}
+.dia .lines{position:absolute;left:110px;bottom:34px;width:1130px;margin:0;font-size:21px;line-height:1.3;color:var(--dim)}
 .dia .lines p{margin:0}
 .dwrap{position:absolute;left:110px;top:122px;width:1700px;height:780px}
 .dsvg{width:100%;height:100%;display:block;overflow:visible}
@@ -192,3 +192,60 @@ body.pen #pen{display:flex}
 @keyframes dflow{to{stroke-dashoffset:-44}}
 body.static .dsvg .ar,.reduce .dsvg .ar{animation:none}
 @media (prefers-reduced-motion:reduce){.dsvg .ar{animation:none}}
+
+/* interactive diagrams v2: hover, tooltip, meaningful animation */
+.dwrap{pointer-events:auto}
+.dwrap .tip{position:absolute;left:0;top:792px;width:1130px;min-height:58px;font-size:21px;line-height:1.35;color:var(--bone);background:rgba(3,10,9,.82);border-left:3px solid var(--ph);padding:8px 16px;box-sizing:border-box}
+.dwrap .tip b{color:var(--ph);font-weight:600}.dwrap .tip i{color:var(--dim);font-style:normal}
+.dsvg text{pointer-events:none}
+.dsvg .bx{color:#5ff2d0}.dsvg .bx.ctl{color:#ffae1f}.dsvg .bx.mem{color:#7aa8ff}.dsvg .bx.ext{color:#93b8ad}
+.dsvg .bx rect.hit{fill:transparent;stroke:none}
+.dsvg.hov .bx{opacity:.32;transition:opacity .15s}
+.dsvg.hov .bx.hot,.dsvg.hov .bx.nb{opacity:1}
+.dsvg .bx.hot{filter:drop-shadow(0 0 12px currentColor)}
+.dsvg .bx.hot>rect{stroke-width:4}
+.dsvg.hov .aw{opacity:.22;transition:opacity .15s}
+.dsvg.hov .aw.hot{opacity:1}.dsvg .aw.hot .ar{stroke-width:5}
+.dsvg .warn{fill:var(--am)}.dsvg .big{fill:var(--ph);font-family:var(--bit)}
+.dsvg .axis{stroke:var(--dim);stroke-width:2}.dsvg .tick{stroke:var(--dim);stroke-width:1.5}.dsvg .axis.grid{opacity:.3;stroke-width:1}
+/* wavefront through the PE grid */
+.dsvg .bx.wave>rect{animation:wave 4.8s steps(1) infinite;animation-delay:var(--d)}
+@keyframes wave{0%{fill:rgba(95,242,208,.55);stroke-width:4}12.5%,100%{fill:rgba(95,242,208,.07);stroke-width:2.2}}
+.dsvg .bx.chain>rect{animation:chain 6.3s steps(1) infinite;animation-delay:var(--d)}
+@keyframes chain{0%{fill:rgba(95,242,208,.55);stroke-width:4}11.1%,100%{fill:rgba(95,242,208,.07);stroke-width:2.2}}
+.dsvg .wavetxt{fill:var(--am);font-family:var(--bit);opacity:0;animation:wtxt 4.8s steps(1) infinite;animation-delay:var(--d)}
+@keyframes wtxt{0%{opacity:1}12.5%,100%{opacity:0}}
+/* data marching through delay registers */
+.dsvg .bx rect.ff,.dsvg rect.ff{fill:rgba(95,242,208,.14);stroke:var(--ph);stroke-width:2;animation:ffm 2.4s steps(1) infinite;animation-delay:var(--d)}
+@keyframes ffm{0%{fill:rgba(255,174,31,.85)}25%,100%{fill:rgba(95,242,208,.14)}}
+/* GEMM row x column */
+.dsvg .bx rect.mc{fill:rgba(95,242,208,.08);stroke:var(--ph);stroke-width:1.5}
+.dsvg .bx rect.ra{animation:litA 4.8s steps(1) infinite;animation-delay:var(--d)}
+.dsvg .bx rect.cw{animation:litA 1.2s steps(1) infinite;animation-delay:var(--d)}
+.dsvg .bx rect.cc{animation:litC 4.8s steps(1) infinite;animation-delay:var(--d)}
+@keyframes litA{0%{fill:rgba(255,174,31,.6)}25%,100%{fill:rgba(95,242,208,.08)}}
+@keyframes litC{0%{fill:rgba(95,242,208,.8)}6.25%,100%{fill:rgba(95,242,208,.08)}}
+/* quantization dots snap to the INT8 grid */
+.dsvg .fdot{fill:none;stroke:var(--dim);stroke-width:2}
+.dsvg .qdot{fill:var(--ph);opacity:0;animation:snap 4.2s ease-in-out infinite;animation-delay:var(--d)}
+.dsvg .qdot.sat{fill:var(--am)}
+@keyframes snap{0%,10%{transform:translate(0,0);opacity:0}16%{transform:translate(0,0);opacity:1}55%,88%{transform:translate(var(--dx),var(--dy));opacity:1}100%{transform:translate(var(--dx),var(--dy));opacity:0}}
+/* stamps, bars, gauges, terminal */
+.dsvg .stamp{opacity:0;transform-box:fill-box;transform-origin:center;animation:stampin .45s cubic-bezier(.2,.9,.3,1.3) both;animation-delay:var(--d)}
+.dsvg .stamp rect{fill:rgba(95,242,208,.14);stroke:var(--ph);stroke-width:3}.dsvg .stamp text{fill:var(--ph);font-weight:600}
+@keyframes stampin{from{opacity:0;transform:scale(1.5)}to{opacity:1;transform:scale(1)}}
+.dsvg .grow{transform-box:fill-box;transform-origin:left center;animation:growx .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}
+.dsvg .growy{transform-box:fill-box;transform-origin:center bottom;animation:growyk .9s cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--d)}
+@keyframes growx{from{transform:scaleX(0)}}@keyframes growyk{from{transform:scaleY(0)}}
+.dsvg .bx rect.seg{stroke-width:2}
+.dsvg .bx.dp rect.seg,.dsvg .bx.dp rect.bar2,.dsvg .bx.dp rect.bar{fill:rgba(95,242,208,.34);stroke:var(--ph)}
+.dsvg .bx.mem rect.seg{fill:rgba(122,168,255,.34);stroke:var(--blue)}
+.dsvg .bx.ctl rect.seg,.dsvg .bx.ctl rect.bar{fill:rgba(255,174,31,.34);stroke:var(--am)}
+.dsvg .bx.ext rect.seg,.dsvg .bx.ext rect.bar2{fill:rgba(147,184,173,.3);stroke:var(--dim)}
+.dsvg .bx rect.gbg{fill:rgba(147,184,173,.1);stroke:var(--dim);stroke-width:1.5}
+.dsvg .bx rect.gfill{fill:rgba(95,242,208,.45);stroke:var(--ph)}
+.dsvg rect.term{fill:rgba(3,10,9,.92);stroke:var(--ph);stroke-width:1.5}
+.dsvg .tl{font-family:var(--mono);fill:var(--bone);opacity:0;animation:tlin .25s both;animation-delay:var(--d)}
+.dsvg .tl.p{fill:var(--am)}.dsvg .tl.ok{fill:var(--ph);font-weight:600}
+@keyframes tlin{from{opacity:0}to{opacity:1}}
+body.static .dsvg .qdot{animation:none;opacity:1;transform:translate(var(--dx),var(--dy))}
