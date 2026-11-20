@@ -1,3 +1,8 @@
+# Điều phối build báo cáo LaTeX và các tài nguyên liên quan.
+# Chạy: make -f Makefile.report (chọn Makefile báo cáo thay vì Makefile mặc định).
+# Chạy từ gốc repo: make -f Makefile.report pdf (mặc định cũng là pdf).
+# Đầu vào report.tex và các include của nó; PDF cuối là report.pdf.
+# Dùng XeLaTeX cho font/tiếng Việt; shell-escape cho phép công cụ phụ trong LaTeX.
 SHELL := /usr/bin/env bash
 TEX := report.tex
 # usage: make -f Makefile.report [pdf|clean|watch|check|deps]
@@ -9,6 +14,10 @@ HAS_TLMGR := $(shell command -v tlmgr 2>/dev/null)
 
 .PHONY: pdf clean watch check deps
 
+# make -f Makefile.report pdf: thử deps nếu có tlmgr rồi compile tài liệu.
+# Nếu có latexmk, nó quản lý lượt chạy/phụ thuộc; nếu không, chạy XeLaTeX ba lượt.
+# Biber giữa các lượt cập nhật thư mục tài liệu tham khảo và cross-reference.
+# Lỗi biber ở fallback được bỏ qua bằng || true, nên cần xem log nếu bibliography thiếu.
 pdf:
 ifeq ($(HAS_TLMGR),)
 	@echo "tlmgr not found; skipping TeX package install"
@@ -25,6 +34,8 @@ else
 	latexmk -xelatex -shell-escape -file-line-error -interaction=nonstopmode $(TEX)
 endif
 
+# make -f Makefile.report clean: xóa artifact LaTeX; nhánh latexmk -C cũng xóa PDF.
+# Fallback rm chỉ liệt kê file phụ, nên PDF cũ có thể vẫn còn khi không có latexmk.
 clean:
 ifeq ($(HAS_LATEXMK),)
 	rm -f *.aux *.bbl *.bcf *.blg *.fdb_latexmk *.fls *.log *.out *.run.xml *.toc *.xdv
@@ -33,6 +44,8 @@ else
 	rm -f *.bbl *.run.xml *.fls *.fdb_latexmk
 endif
 
+# make -f Makefile.report watch: latexmk -pvc theo dõi file và rebuild khi đổi.
+# Không có latexmk thì chỉ in hướng dẫn cài, không chuyển sang vòng watch khác.
 watch:
 ifeq ($(HAS_LATEXMK),)
 	@echo "watch requires latexmk; please install latexmk to use this target."
@@ -40,6 +53,8 @@ else
 	latexmk -xelatex -shell-escape -pvc -interaction=nonstopmode $(TEX)
 endif
 
+# make -f Makefile.report check: build sạch rồi chạy lại bibliography/references.
+# Đây là kiểm build báo cáo, không chạy RTL/firmware regression của Makefile chính.
 check:
 ifeq ($(HAS_TLMGR),)
 	@echo "tlmgr not found; skipping TeX package install"
@@ -60,6 +75,8 @@ else
 	latexmk -xelatex -shell-escape -file-line-error -interaction=nonstopmode $(TEX)
 endif
 
+# make -f Makefile.report deps: tlmgr update --self và cài danh sách package bên dưới.
+# Có thể cần mạng/quyền TeX Live; || true cho phép tiếp tục dù cài package lỗi.
 deps:
 ifeq ($(HAS_TLMGR),)
 	@echo "tlmgr not found; cannot auto-install TeX packages"

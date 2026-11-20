@@ -1,3 +1,5 @@
+# Khai báo CPU PicoRV32 và bridge Avalon master trong Platform Designer.
+# build_pico.sh dùng component này để nối RAM, NPU và thiết bị ngoại vi.
 # Platform Designer component: PicoRV32 with Avalon-MM master (licence-free fallback CPU)
 package require -exact qsys 16.1
 
@@ -12,6 +14,8 @@ set_module_property EDITABLE      false
 set_module_property REPORT_TO_TALKBACK false
 set_module_property ALLOW_GREYBOX_GENERATION false
 
+# Component gộp PicoRV32 gốc và wrapper native-to-Avalon, không sửa core CPU.
+# Hai fileset dùng cùng source cho compile FPGA và mô phỏng hệ thống.
 proc pico_add_files {} {
     add_fileset_file picorv32.v      VERILOG        PATH ../../third_party/picorv32/picorv32.v
     add_fileset_file picorv32_avmm.sv SYSTEM_VERILOG PATH picorv32_avmm.sv TOP_LEVEL_FILE
@@ -32,6 +36,9 @@ set_interface_property reset associatedClock clock
 set_interface_property reset synchronousEdges DEASSERT
 add_interface_port reset reset_n reset_n Input 1
 
+# m0 là master duy nhất dùng chung instruction/data của PicoRV32.
+# addressUnits SYMBOLS nghĩa address theo byte, khác NPU slave dùng WORDS.
+# Platform Designer interconnect đổi đơn vị địa chỉ giữa master và từng slave.
 add_interface m0 avalon start
 set_interface_property m0 addressUnits SYMBOLS
 set_interface_property m0 associatedClock clock
@@ -42,6 +49,9 @@ set_interface_property m0 doStreamReads false
 set_interface_property m0 doStreamWrites false
 set_interface_property m0 holdTime 0
 set_interface_property m0 linewrapBursts false
+# Wrapper có cả waitrequest và readdatavalid để xử lý slave stall/response.
+# byteenable 4 bit mang byte store từ CPU, cần cho RAM/JTAG UART.
+# Cycle counter nội bộ 0x20020000 được wrapper xử lý, không thêm slave timer ở Qsys.
 set_interface_property m0 maximumPendingReadTransactions 0
 set_interface_property m0 readLatency 0
 set_interface_property m0 readWaitTime 1
@@ -57,5 +67,7 @@ add_interface_port m0 avm_readdata      readdata      Input  32
 add_interface_port m0 avm_readdatavalid readdatavalid Input  1
 add_interface_port m0 avm_waitrequest   waitrequest   Input  1
 
+# Export cpu_trap để top-level đưa ra tín hiệu chẩn đoán lệnh/CPU lỗi.
+# Không phải interrupt từ NPU; firmware đang poll STATUS thay vì dùng IRQ.
 add_interface trap conduit end
 add_interface_port trap cpu_trap export Output 1

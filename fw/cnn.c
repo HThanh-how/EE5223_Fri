@@ -1,3 +1,6 @@
+// LeNet-5 INT8: CPU tạo im2col/pooling, nn.h chạy GEMM trên CPU hoặc NPU.
+// So sánh logits với golden, in nhãn, dự đoán, cycle, profile và RESULT.
+// Chạy: make soc N=8 FW=cnn (N là kích thước mảng, FW chọn CNN).
 // LeNet-5 (INT8) on MNIST: CPU-only vs NPU (im2col + tiled GEMM + requant/ReLU in hardware).
 #include "common.h"
 #include "nn.h"
@@ -7,6 +10,10 @@
 #define NRUN NIMG_CNN
 #endif
 
+// Các buffer static bắt đầu bằng 0 nhờ RAM zero-fill trong mô phỏng.
+// Vòng im2col chỉ ghi K thực; K..Kp-1 phải giữ 0 qua mọi ảnh để padding vô hại.
+// Các stride KP/CP do model header đệm bội 8, phù hợp NN=4 hoặc NN=8.
+// Căn 4 cho phép nn.h truyền word uint32_t, tránh unaligned MMIO source/destination.
 static int8_t xq[28 * 28];
 static int8_t X1[576][CONV1_KP] __attribute__((aligned(4)));
 static int8_t Y1[576][CONV1_CP] __attribute__((aligned(4)));
@@ -19,16 +26,24 @@ static int8_t Y4[FC2_CP] __attribute__((aligned(4)));
 static int8_t Y5[FC3_CP] __attribute__((aligned(4)));
 static uint8_t act_relu[32], act_none[32];
 
+// Chọn cùng tham số weight/bias và scale cho hai đường CPU/NPU để so logits.
 static void layer(int use_npu, const int8_t *X, int ldx, int M, int K, int Kp, const int8_t *W, int C, int Cp,
                   const int32_t *B, int mult, int shift, int relu, int8_t *Y, int ldy) {
+    // CPU dùng K/C thực; NPU chạy Kp/Cp đệm, nhưng cột thực phải cho cùng kết quả.
+    // Scale/bias dùng chung model header; khác biệt logit phản ánh lỗi integer datapath.
     const uint8_t *at = relu ? act_relu : act_none;
     if (use_npu) npu_matmul(X, ldx, M, Kp, W, Cp, B, mult, shift, at, Y, ldy);
     else         cpu_matmul(X, ldx, M, K, W, Cp, C, B, mult, shift, at, NN, Y, ldy);
 }
 
+// Pixel 0..255 dịch phải một bit thành 0..127; im2col biến convolution thành GEMM.
+// Max-pool 2x2 và flatten thực hiện trên CPU; lớp cuối giữ logits không ReLU.
 static void infer(const uint8_t *img, int use_npu, int8_t *logits) {
     for (int i = 0; i < 784; i++) xq[i] = (int8_t)(img[i] >> 1);
 
+    // Convolution valid 5x5 trên ảnh 28x28 cho 24x24=576 vị trí, mỗi vị trí K=25.
+    // Mỗi row X1 là patch theo ky rồi kx; W_conv1 đã transpose về [K,C].
+    // ReLU giữ miền không âm trước max-pool, pool không cần requant vì giữ nguyên scale.
     // conv1: im2col -> [576][25]
     for (int y = 0; y < 24; y++)
         for (int x = 0; x < 24; x++)
@@ -36,6 +51,8 @@ static void infer(const uint8_t *img, int use_npu, int8_t *logits) {
                 for (int kx = 0; kx < 5; kx++) X1[y * 24 + x][ky * 5 + kx] = xq[(y + ky) * 28 + x + kx];
     layer(use_npu, &X1[0][0], CONV1_KP, 576, CONV1_K, CONV1_KP, &W_conv1[0][0], CONV1_C, CONV1_CP,
           B_conv1, CONV1_MULT, CONV1_SHIFT, 1, &Y1[0][0], CONV1_CP);
+    // Pool stride 2 gộp bốn vị trí 24x24 thành 12x12 cho từng trong 6 kênh.
+    // fm1 chuyển từ layout [vị trí][kênh] của GEMM sang [kênh][y][x] cho conv2.
     for (int c = 0; c < 6; c++)
         for (int y = 0; y < 12; y++)
             for (int x = 0; x < 12; x++) {
@@ -45,6 +62,8 @@ static void infer(const uint8_t *img, int use_npu, int8_t *logits) {
                 fm1[c][y][x] = a;
             }
 
+    // Conv2 trên 6x12x12 với kernel 5x5 cho 8x8=64 row, K=6*25=150.
+    // Flatten patch theo c,ky,kx phải khớp thứ tự weight trong quantize.py.
     // conv2: im2col -> [64][150]
     for (int y = 0; y < 8; y++)
         for (int x = 0; x < 8; x++)
@@ -53,6 +72,8 @@ static void infer(const uint8_t *img, int use_npu, int8_t *logits) {
                     for (int kx = 0; kx < 5; kx++) X2[y * 8 + x][c * 25 + ky * 5 + kx] = fm1[c][y + ky][x + kx];
     layer(use_npu, &X2[0][0], CONV2_KP, 64, CONV2_K, CONV2_KP, &W_conv2[0][0], CONV2_C, CONV2_CP,
           B_conv2, CONV2_MULT, CONV2_SHIFT, 1, &Y2[0][0], CONV2_CP);
+    // Pool conv2 cho 16x4x4=256 feature, flatten theo c,y,x như golden NumPy.
+    // Đây là dữ liệu đầu FC1; pooling/di chuyển layout vẫn chạy CPU ở cả hai đường.
     for (int c = 0; c < 16; c++)
         for (int y = 0; y < 4; y++)
             for (int x = 0; x < 4; x++) {
@@ -62,12 +83,15 @@ static void infer(const uint8_t *img, int use_npu, int8_t *logits) {
                 flat[c * 16 + y * 4 + x] = a;
             }
 
+    // Ba FC đi 256->120->84->10, M=1; FC1/2 dùng ReLU, FC3 giữ logit có dấu.
+    // Y3/Y4/Y5 có CP đệm, nhưng chỉ 10 logit cuối tham gia argmax và so golden.
     layer(use_npu, flat, 256, 1, FC1_K, FC1_KP, &W_fc1[0][0], FC1_C, FC1_CP, B_fc1, FC1_MULT, FC1_SHIFT, 1, Y3, FC1_CP);
     layer(use_npu, Y3, FC1_CP, 1, FC2_K, FC2_KP, &W_fc2[0][0], FC2_C, FC2_CP, B_fc2, FC2_MULT, FC2_SHIFT, 1, Y4, FC2_CP);
     layer(use_npu, Y4, FC2_CP, 1, FC3_K, FC3_KP, &W_fc3[0][0], FC3_C, FC3_CP, B_fc3, FC3_MULT, FC3_SHIFT, 0, Y5, FC3_CP);
     for (int i = 0; i < 10; i++) logits[i] = Y5[i];
 }
 
+// Chọn một trong 10 logits thực, không tính các cột padding.
 static int argmax(const int8_t *v) { int b = 0; for (int i = 1; i < 10; i++) if (v[i] > v[b]) b = i; return b; }
 
 int main(void) {
@@ -76,6 +100,9 @@ int main(void) {
     int8_t lg[10];
     uint32_t sum_cpu = 0, sum_npu = 0, busy_total = 0, calls_total = 0;
     int bad = 0, correct_npu = 0;
+    // Mỗi ảnh chạy CPU trước rồi NPU, cả hai so GOLD_CNN cùng ảnh, không chỉ so nhãn.
+    // NRUN cần 1..NIMG_CNN vì ảnh/golden được nhúng cố định trong model header.
+    // Tổng cycle infer gồm im2col/pool/host; npu_busy chỉ là clock compute trong wrapper.
     for (int i = 0; i < NRUN; i++) {
         uint32_t t0 = rdcycle();
         infer(IMG_CNN[i], 0, lg);
@@ -87,6 +114,8 @@ int main(void) {
         infer(IMG_CNN[i], 1, lg);
         uint32_t t_npu = rdcycle() - t0;
         int e_npu = 0; for (int j = 0; j < 10; j++) if (lg[j] != GOLD_CNN[i][j]) e_npu++;
+        // Profile chỉ in ảnh 0: phần other là tổng trừ bốn phase MMIO của nn.h.
+        // Nó bao gồm im2col/pool và công việc CPU khác, không chỉ thời gian tính MAC.
         if (i == 0) {
             puts_("  profile(img0): weight_wr="); putu(ph_w); puts_(" act_wr="); putu(ph_a);
             puts_(" run+poll="); putu(ph_run); puts_(" result_rd="); putu(ph_rd);
@@ -102,6 +131,9 @@ int main(void) {
         puts_(" npu_busy="); putu(npu_busy_cycles); puts_(" calls="); putu(npu_calls);
         puts_(" mism(cpu/npu vs golden)="); putu(e_cpu); puts_("/"); putu(e_npu); puts_("\n");
     }
+    // speedup_x100 là tỉ số nhân 100 (690 nghĩa là 6.90 lần), dùng uint64 tránh tràn.
+    // npu_busy_share_x100 là phần trăm với hai chữ số thập phân (10000 nghĩa 100%).
+    // RESULT dựa vào mọi sai khác logit CPU/NPU với golden; correct là metric nhãn riêng.
     puts_("avg cpu_cyc="); putu(sum_cpu / NRUN); puts_(" avg npu_cyc="); putu(sum_npu / NRUN);
     puts_(" speedup_x100="); putu((uint32_t)((uint64_t)sum_cpu * 100 / sum_npu));
     puts_(" npu_busy_share_x100="); putu((uint32_t)((uint64_t)busy_total * 10000 / sum_npu)); puts_("\n");

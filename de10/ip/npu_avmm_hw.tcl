@@ -1,6 +1,11 @@
+# Khai báo tham số, fileset và cổng Avalon của NPU cho Platform Designer.
+# build.sh chọn RTL qua NPU_RTL_VARIANT; read dùng readdatavalid để báo dữ liệu.
 # Platform Designer component: INT8 weight-stationary systolic-array NPU (npu_avmm)
 # 32-bit Avalon-MM slave, 14-bit word address (64 KiB span), read latency 1 via
 # readdatavalid, waitrequest tied low inside the RTL.
+# File component được qsys tự đọc qua --search-path="ip,$", không chạy bằng tclsh.
+# N/DEPTH là HDL parameters, chọn từ tập ALLOWED_RANGES cho Platform Designer.
+# N=4/8/16 chia hết 4 để word MMIO nạp đủ bốn phần tử mỗi lần.
 package require -exact qsys 16.1
 
 set_module_property NAME          npu_avmm
@@ -61,6 +66,9 @@ set NPU_RTL_FILES {
 }
 
 
+# Dùng cùng danh sách cho synthesis và simulation để tránh thiếu module/include.
+# TOP_LEVEL_FILE chỉ đánh dấu npu_avmm; lut_tables.svh là include, không là module.
+# Đường dẫn nguồn tương đối với de10/ip, không theo cwd của lệnh build.
 proc npu_add_files {} {
     global NPU_RTL_FILES NPU_RTL_DIR
     foreach f $NPU_RTL_FILES {
@@ -85,6 +93,8 @@ add_interface clock clock end
 set_interface_property clock clockRate 0
 add_interface_port clock clk clk Input 1
 
+# Reset active-low vào RTL; DEASSERT yêu cầu nhả reset đồng bộ theo clock hệ.
+# clockRate=0 để component nhận tần số từ hệ, ở create_system là 50 MHz.
 add_interface reset reset end
 set_interface_property reset associatedClock clock
 set_interface_property reset synchronousEdges DEASSERT
@@ -92,6 +102,11 @@ add_interface_port reset reset_n reset_n Input 1
 
 # ---------------- Avalon-MM slave ----------------
 add_interface avs avalon end
+# Avalon slave dùng word address: 14 bit tương ứng 2^14 word=64 KiB byte.
+# NPU wrapper trả data qua thanh ghi và readdatavalid sau một stage.
+# Metadata readLatency=0 ở dưới dùng cùng cổng readdatavalid, không phải read tổ hợp.
+# Master/interconnect phải theo response valid; maximumPendingReadTransactions=1.
+# Không có byteenable/burstcount trong cổng: driver phát word đơn đầy đủ.
 set_interface_property avs addressUnits WORDS
 set_interface_property avs associatedClock clock
 set_interface_property avs associatedReset reset
@@ -115,6 +130,8 @@ add_interface_port avs avs_writedata     writedata     Input  32
 add_interface_port avs avs_readdata      readdata      Output 32
 add_interface_port avs avs_readdatavalid readdatavalid Output 1
 add_interface_port avs avs_waitrequest   waitrequest   Output 1
+# Các cờ embeddedsw đánh dấu đây là peripheral điều khiển, không RAM/flash/console.
+# CPU truy cập qua base 0x20000000 do create_system*.tcl gán, không do component này.
 set_interface_assignment avs embeddedsw.configuration.isFlash 0
 set_interface_assignment avs embeddedsw.configuration.isMemoryDevice 0
 set_interface_assignment avs embeddedsw.configuration.isNonVolatileStorage 0

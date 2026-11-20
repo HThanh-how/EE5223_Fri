@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
+# Chạy các bước kiểm tra flow nguồn mở; cần toolchain mô phỏng và firmware.
+# Chạy: bash scripts/preflight.sh từ gốc repo; xem output từng bước để xác định lỗi.
 # Full pre-board verification of the open-source flow. Exit code 0 only if everything passes.
 #   scripts/preflight.sh            all checks (about 6-10 minutes)
 #   scripts/preflight.sh --quick    skip the N=4 CNN/LSTM runs
 # Needs: verilator (>=5), riscv64-unknown-elf-gcc, python3, make, g++.
+# Không nhận N/FW riêng: ma trận regression đã cố định N=4 và N=8 trong script.
+# --quick chỉ bỏ CNN/LSTM N=4, vẫn chạy unit/GEMM/selftest cả hai N và mạng N=8.
+# PREFLIGHT_LOGDIR=tmp_logs bash scripts/preflight.sh --quick đổi thư mục log.
+# set -u bắt biến chưa khai báo; không set -e để một test fail vẫn chạy các test sau.
 set -u
 cd "$(dirname "$0")/.."
 QUICK=0; [ "${1:-}" = "--quick" ] && QUICK=1
 LOGDIR=${PREFLIGHT_LOGDIR:-preflight_logs}
 mkdir -p "$LOGDIR"
+# Mỗi check tăng một counter và lưu ROWS; báo cáo cuối in tổng PASS/FAIL/WARN.
+# WARN không đổi exit code; chỉ FAIL>0 làm PREFLIGHT: FAILED và exit 1.
 PASS=0; FAIL=0; WARN=0
 ROWS=()
 
@@ -17,6 +25,9 @@ bad()  { FAIL=$((FAIL+1)); row "$1" "FAIL  $2"; }
 warn() { WARN=$((WARN+1)); row "$1" "WARN  $2"; }
 
 # run_check <name> <logfile> <expected-grep> <cmd...>
+# Một check chỉ PASS nếu command exit 0 VÀ log chứa regex mong đợi.
+# Điều kiện log cần thiết vì testbench SoC có thể $finish mà process vẫn exit 0.
+# Gộp stderr vào log để chẩn đoán build, còn stdout tổng chỉ in tên/status/thời gian.
 run_check() {
   local name=$1 log=$LOGDIR/$2 pat=$3; shift 3
   local t0=$SECONDS
@@ -29,6 +40,8 @@ for t in verilator riscv64-unknown-elf-gcc python3 make g++; do
 done
 [ -f third_party/picorv32/picorv32.v ] && ok "third_party/picorv32" "present" || bad "third_party/picorv32" "missing"
 
+# Sinh LUT vào mktemp ngoài nguồn rồi diff với hai bảng tracked, không ghi đè chúng.
+# Sau check xóa riêng thư mục temp đã tạo; lỗi diff được ghi thành FAIL.
 echo "== generated files are reproducible"
 tmp=$(mktemp -d); mkdir -p "$tmp/rtl" "$tmp/fw"
 python3 scripts/gen_lut.py "$tmp" >/dev/null 2>&1
@@ -53,6 +66,8 @@ if [ $QUICK -eq 0 ]; then
   run_check "LSTM INT8, CPU+NPU vs golden, N=4" "lstm_N4.log" "RESULT: ALL PASS" make soc N=4 FW=lstm
 fi
 
+# So dòng cycle với results/ là kiểm tái lập, khác biệt chỉ WARN vì tool/RTL có thể đổi.
+# Không đánh giá timing board hay Fmax từ kết quả Verilator này.
 echo "== cycle counts equal the recorded reference (results/)"
 cmp_line() {  # name, new log, reference log, grep pattern
   local a b
@@ -66,6 +81,10 @@ if [ $QUICK -eq 0 ]; then
   cmp_line "LeNet-5 cycles N=4 vs results/cnn_N4.log" "$LOGDIR/cnn_N4.log" results/cnn_N4.log "^avg cpu_cyc"
 fi
 
+# Bước model có thể ghi lại fw/model_*.h vì gọi quantize.py thật ở gốc repo.
+# Nó dùng git diff --quiet chỉ đọc để xem header đổi hay không, không reset/stage.
+# Nếu thiếu data/weights hoặc NumPy, chỉ WARN; script không bảo đảm train/model đầy đủ.
+# Muốn audit chỉ comments mà giữ generated nguyên vẹn thì không chạy toàn preflight.
 echo "== model / golden data"
 if [ -f data/mnist.npz ] && [ -f model/lenet_float.npz ]; then
   if python3 scripts/quantize.py >"$LOGDIR/quantize.log" 2>&1 && grep -q "int8 acc" "$LOGDIR/quantize.log" && git diff --quiet -- fw/model_cnn.h fw/model_lstm.h 2>/dev/null; then
@@ -76,5 +95,7 @@ fi
 [ -f fw/model_cnn.h ] && [ -f fw/model_lstm.h ] && ok "model headers present" "" || bad "model headers present" "fw/model_*.h missing"
 
 echo
+# PREFLIGHT: OK nghĩa không check nào FAIL; vẫn phải đọc WARN để biết bước bỏ qua.
+# Logs từng workload giữ ở LOGDIR để xem RESULT, mismatch và cycle chi tiết.
 echo "SUMMARY: $PASS passed, $FAIL failed, $WARN warnings"
 if [ $FAIL -eq 0 ]; then echo "PREFLIGHT: OK"; exit 0; else echo "PREFLIGHT: FAILED"; exit 1; fi
